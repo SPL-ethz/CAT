@@ -19,6 +19,11 @@ classdef Distribution < handle
     %   dist.y = linspace(0,2,50);
     %   dist.F = @(x) normalpdf(x,1,0.1);
     %
+    % This class can be used to define multiple distributions, having their
+    % own size vectors, in the following way:
+    %
+    %   dist(1) = Distribution(linspace(0,2),@(x)normalpdf(x,1,0.1));
+    %   dist(2) = Distribution(linspace(0,3),@(x)normalpdf(x,2,0.5));
     %
     
     %% Properties
