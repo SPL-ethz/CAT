@@ -19,7 +19,7 @@ classdef Distribution < handle
     %   dist.y = linspace(0,2,50);
     %   dist.F = @(x) normalpdf(x,1,0.1);
     %
-    % 
+    %
     
     %% Properties
     
@@ -119,11 +119,47 @@ classdef Distribution < handle
         
         %% Method plot(F)
         
-        function plot(O,varargin)
+        function Fpl = plot(O,varargin)
             
-            plot(O.y,O.F,varargin{:})
-            xlabel('Size y')
-            ylabel('Distribution F')
+            % PLOT Distribution
+            %
+            % Use plot(F) to plot the distribution in a 2D plot. Axis
+            % labels are added automatically.
+            %
+            % PLOT returns the handles to the plot objects created.
+            %
+            % To plot the figures into an existing axes object, use:
+            %   plot(F,'Parent',axhandle)
+            %
+            
+            % Check if Parent axes are already defined
+            useaxpos = find(strcmp(varargin,'Parent'));
+            
+            if ~isempty(useaxpos) && ishandle(varargin{useaxpos+1})
+                % Define this axes as the one to use
+                Fax = varargin{useaxpos+1};
+                % Remove this parent command from varargin, is added again
+                % later
+                varargin(useaxpos+(0:1)) = [];
+            else
+                FFig = figure;
+                Fax = axes('Parent',FFig);
+                xlabel(Fax,'Size y')
+                ylabel(Fax,'Distribution y')
+            end % if
+            
+            % Handles for plots
+            Fpl = zeros(size(O));
+            
+            hold(Fax,'all')
+            
+            % Plot every distribution
+            for i = 1:length(O)
+                Fpl(i) = plot(...
+                    O(i).y,O(i).F,...
+                    'Parent',Fax,'DisplayName',['Dist ' num2str(i)],...
+                    varargin{:});
+            end % for
             
         end % function
         
