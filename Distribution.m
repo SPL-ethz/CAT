@@ -70,6 +70,24 @@ classdef Distribution < handle
             
         end % function
         
+        %% Method set.y
+        
+        function set.y(O,value)
+            
+            % SET.Y
+            %
+            % Check input for y: a vector, all positive, monotonically
+            % increasing. Always set y as a row vector
+            
+            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<=0)
+                O.y = value(:)';
+            else
+                warning('Distribution:SetY:WrongValue',...
+                    'The property y must be a vector of positive values, which are all monotonically increasing');
+            end % if
+            
+        end % function
+        
         %% Method set.F
         
         function set.F(O,value)
@@ -119,6 +137,9 @@ classdef Distribution < handle
             else
                 Fout = [];
             end % if else
+            
+            % Always return a row vector
+            Fout = Fout(:)';
             
         end % function
         
