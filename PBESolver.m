@@ -1,4 +1,4 @@
-function [SolutionDists SolutionConc] = PBESolver ( ProblemDefinition )
+function [SolutionTimes SolutionDists SolutionConc] = PBESolver ( ProblemDefinition )
 
 % PBESOLVER
 %
@@ -14,7 +14,7 @@ y = ProblemDefinition.init_dist.y;
 
 solvefun = @(t,X) solvefun(t,X,y,ProblemDefinition.growthrate);
 
-[t_out,X_out] = ode15s(solvefun , ProblemDefinition.sol_time , X0 );
+[SolutionTimes,X_out] = ode15s(solvefun , ProblemDefinition.sol_time , X0 );
 
 % Create solution
 for i = 1:length(t_out)
