@@ -171,7 +171,7 @@ classdef Distribution < handle
                 FFig = figure;
                 Fax = axes('Parent',FFig);
                 xlabel(Fax,'Size y')
-                ylabel(Fax,'Distribution y')
+                ylabel(Fax,'Distribution F')
             end % if
             
             % Handles for plots
