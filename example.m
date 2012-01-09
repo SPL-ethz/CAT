@@ -30,6 +30,7 @@ PD.sol_time = [0 100];
 pls = plot(SolF);
 
 % Plot concentration
+figure
 plot(t_out,Solc)
 xlabel('Time')
 ylabel('Concentration')
