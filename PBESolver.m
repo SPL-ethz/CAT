@@ -17,10 +17,10 @@ solvefun = @(t,X) solvefun(t,X,y,ProblemDefinition.growthrate);
 [SolutionTimes,X_out] = ode15s(solvefun , ProblemDefinition.sol_time , X0 );
 
 % Create solution
-for i = 1:length(t_out)
+for i = 1:length(SolutionTimes)
     SolutionDists(i) = Distribution( y , X_out(i,1:length(y)) );
 end % for
 
-SolutionConc = X_out(i,end);
+SolutionConc = X_out(:,end);
 
 end % function
