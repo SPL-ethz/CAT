@@ -18,7 +18,7 @@ classdef ProblemDefinition < handle
         sol_method = 'centraldifference'
         
         % Growth rate function
-        % This function should is called as growthrate(c,y) where c is the current
+        % This function should be called as growthrate(c,y) where c is the current
         % concentration and y is the size. It should return a vector the
         % same size as y
         growthrate = @(c,y) ones(size(y));
