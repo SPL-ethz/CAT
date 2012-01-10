@@ -7,12 +7,8 @@ function [SolutionTimes SolutionDists SolutionConc] = PBESolver ( ProblemDefinit
 % Setup Solver - for constant y at the moment
 
 X0 = [ProblemDefinition.init_dist.F ProblemDefinition.init_conc];
-
 solvefun = str2func(ProblemDefinition.sol_method);
-
-y = ProblemDefinition.init_dist.y;
-
-solvefun = @(t,X) solvefun(t,X,y,ProblemDefinition.growthrate);
+solvefun = @(t,X) solvefun(t,X,ProblemDefinition);
 
 [SolutionTimes,X_out] = ode15s(solvefun , ProblemDefinition.sol_time , X0 );
 
