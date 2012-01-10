@@ -17,13 +17,13 @@ classdef Distribution < handle
     %
     %   dist = Distribution;
     %   dist.y = linspace(0,2,50);
-    %   dist.F = @(x) normalpdf(x,1,0.1);
+    %   dist.F = @(x) normpdf(x,1,0.1);
     %
     % This class can be used to define multiple distributions, having their
     % own size vectors, in the following way:
     %
-    %   dist(1) = Distribution(linspace(0,2),@(x)normalpdf(x,1,0.1));
-    %   dist(2) = Distribution(linspace(0,3),@(x)normalpdf(x,2,0.5));
+    %   dist(1) = Distribution(linspace(0,2),@(x)normpdf(x,1,0.1));
+    %   dist(2) = Distribution(linspace(0,3),@(x)normpdf(x,2,0.5));
     %
     
     %% Properties
@@ -76,10 +76,10 @@ classdef Distribution < handle
             
             % SET.Y
             %
-            % Check input for y: a vector, all positive, increasing. Always
-            % set y as a row vector
+            % Check input for y: a vector, all positive, monotonically
+            % increasing. Always set y as a row vector
             
-            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value)
+            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
                 O.y = value(:)';
             else
                 warning('Distribution:SetY:WrongValue',...

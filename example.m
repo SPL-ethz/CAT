@@ -11,7 +11,7 @@ PD = ProblemDefinition
 
 % Define initial conditions
 PD.init_dist.y = linspace(0,2);
-PD.init_dist.F = @(x) normalpdf(x,0.5,0.1,10);
+PD.init_dist.F = @(x) normpdf(x,0.5,0.1);
 PD.init_conc = 1;
 
 % Define growth rate
