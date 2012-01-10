@@ -76,14 +76,14 @@ classdef Distribution < handle
             
             % SET.Y
             %
-            % Check input for y: a vector, all positive, monotonically
-            % increasing. Always set y as a row vector
+            % Check input for y: a vector, all positive, increasing. Always
+            % set y as a row vector
             
-            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<=0)
+            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value)
                 O.y = value(:)';
             else
                 warning('Distribution:SetY:WrongValue',...
-                    'The property y must be a vector of positive values, which are all monotonically increasing');
+                    'The property y must be a vector of positive values, in increasing order (duplicates allowed)');
             end % if
             
         end % function
