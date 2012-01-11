@@ -1,15 +1,16 @@
-function dXdt = centraldifference(t,X,PD)
+function dXdt = centraldifference(~,X,PD)
 
-F = X(1:length(y))';
 c = X(end);
-y = ProblemDefinition.init_dist.y;
+y = PD.init_dist.y;
+T = PD.init_temp;
+F = X(1:length(y))';
 
 ya = y([2:end end]);
-Ga = PD.growthrate(c, ya );
+Ga = PD.growthrate(c, T, ya );
 Fa = F( [2:end end] );
 
 yb = y([1 1:end-2 end-2]);
-Gb = PD.growthrate(c, yb );
+Gb = PD.growthrate(c, T, yb );
 Fb = F( [1 1:end-2 end-2] );
 
 % Growth derivative

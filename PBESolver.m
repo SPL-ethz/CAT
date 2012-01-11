@@ -1,22 +1,83 @@
-function [SolutionTimes SolutionDists SolutionConc] = PBESolver ( ProblemDefinition )
+function [SolutionTimes SolutionDists SolutionConc] = PBESolver (PD)
 
 % PBESOLVER
 %
 % Solve PBEs, like a boss
 
-% Setup Solver - for constant y at the moment
+% Setup Solver - currently central difference and moving pivot in separate
+% caes of a switch
 
-X0 = [ProblemDefinition.init_dist.F ProblemDefinition.init_conc];
-solvefun = str2func(ProblemDefinition.sol_method);
-solvefun = @(t,X) solvefun(t,X,ProblemDefinition);
+solvefun = str2func(PD.sol_method);
+solvefun = @(t,X) solvefun(t,X,PD);
 
-[SolutionTimes,X_out] = ode15s(solvefun , ProblemDefinition.sol_time , X0 );
-
-% Create solution
-for i = 1:length(SolutionTimes)
-    SolutionDists(i) = Distribution( y , X_out(i,1:length(y)) );
-end % for
-
-SolutionConc = X_out(:,end);
-
+switch PD.sol_method
+    case 'movingpivot'
+        dL = 20e-6;
+        X0 = [PD.init_dist.F PD.init_dist.y PD.init_dist.boundaries  PD.init_conc];
+        tstart = PD.sol_time(1);
+        tend = PD.sol_time(end);
+        
+        ODEoptions = odeset;
+        
+        % if nucleation is present, bins are addded when the first bin
+        % becomes too big
+        if PD.nucleationrate(PD.init_conc,PD.init_temp) > 0
+            ODEoptions = odeset('Events',@(t,x) addBinEvent(t,x,dL));
+        end
+        
+        nt = length(PD.sol_time);
+        if(nt > 2)
+            SolutionTimes = zeros(nt,1);
+            SolutionConc = zeros(nt,1);
+            SolutionDists = repmat(Distribution(),1,nt);
+        end
+        
+        SolutionTimes(1) = 0;
+        SolutionConc(1) = PD.init_conc;
+        SolutionDists(1) = PD.init_dist;
+        
+        s = 0;
+        while tstart<tend 
+            ts = PD.sol_time(PD.sol_time > tstart & PD.sol_time < tend);
+            
+            % Solve until the next event where the nucleation bin becomes to big (as defined by parameters.dL)
+            [T,X] = ode15s(solvefun, [tstart ts tend],X0, ODEoptions);
+            
+            if(nt > 2)
+                [~, I] = intersect(T,PD.sol_time);
+            else
+                I = 1:length(T);
+            end
+            
+            tstart = T(end); 
+            
+            % Break up the output to make it easier to assign. 
+            nBins = (size(X,2)-2)/3;
+            F = X(:,1:nBins);
+            y = X(:,nBins+1:2*nBins);            
+            boundaries = X(:,2*nBins+1:3*nBins+1);    
+            
+            for i = 1:length(I)
+                SolutionTimes(s+i) = T(I(i));
+                SolutionConc(s+i) = X(I(i),3*nBins+2);   
+                SolutionDists(s+i) = Distribution( y(I(i),:) , F(I(i),:), boundaries(I(i),:) );
+            end % for
+            
+            ODEoptions = odeset(ODEoptions,'InitialStep',T(end)-T(end-1)); %choosing step size based on the last step size
+            X0 = addBin(X(end,:)'); 
+            s = s + length(I);
+        end %while        
+    otherwise
+        y = PD.init_dist.y;
+        X0 = [PD.init_dist.F  PD.init_conc];
+        
+        [SolutionTimes,X_out] = ode15s(solvefun , PD.sol_time , X0 );
+        
+        % Create solution        
+        SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  %# Pre-Allocation for speed       
+        for i = 1:length(SolutionTimes)
+            SolutionDists(i) = Distribution( y , X_out(i,1:length(y)) );
+        end % for
+        SolutionConc = X_out(:,end);
+end %switch
 end % function

@@ -9,10 +9,25 @@ classdef ProblemDefinition < handle
         init_dist = Distribution
         
         % Initial concentration
-        init_conc
+        init_conc = 1;
+        
+        % Initial temperature
+        init_temp = 298;
+        
+        % Initial volume
+        init_volume = 1;
         
         % Solution time vector
         sol_time
+        
+        % Crystal density
+        rhoc = 1000
+        
+        % Shape factor
+        kv = 1
+        
+        % Seed Mass
+        seed_mass = 1; 
         
         % Method to use - default to central difference
         sol_method = 'centraldifference'
@@ -21,19 +36,17 @@ classdef ProblemDefinition < handle
         % This function should be called as growthrate(c,y) where c is the current
         % concentration and y is the size. It should return a vector the
         % same size as y
-        growthrate = @(c,y) ones(size(y));
+        growthrate = @(c,T,y) ones(size(y))
         
         % Nucleation rate function
-        % This function should be called as nucleationrate(c,y) where c is the current
-        % concentration and y is the size. It should return a vector the
-        % same size as y
-        nucleationrate = @(c,y) zeros(size(y));
+        % This function should be called as nucleationrate(c,T) where c is the current
+        % concentration and T is the temperature. It returns a scalar.
+        nucleationrate = @(c,T) 0
         
-        % Solubility function
-        % This function should be called as solubility(T,y) where T is the current
-        % concentration and y is the size. It should return a vector the
-        % same size as y
-        solubility = @(T,t,y) ones(size(y));
+        % cooling rate
+        % Defines the cooling rate dT/dt. 
+        
+        coolingrate = 0;
         
     end % properties
     
@@ -42,7 +55,7 @@ classdef ProblemDefinition < handle
         %% Method ProblemDefinition (constructor)
         
         function O = ProblemDefinition(init_dist,init_conc,sol_time,...
-                sol_method,growthrate, nucleationrate, solubility)
+                sol_method,growthrate, nucleationrate)
             
             % PROBLEMDEFINITION
             %
@@ -80,11 +93,7 @@ classdef ProblemDefinition < handle
             
             if nargin > 5 && ~isempty(nucleationrate)
                 O.nucleationrate = nucleationrate;
-            end % if
-            
-            if nargin > 6 && ~isempty(solubility)
-                O.solubility = solubility;
-            end % if            
+            end % if    
         end % function
         
         %% Method set.init_dist
@@ -168,16 +177,16 @@ classdef ProblemDefinition < handle
             % SET.GROWTHRATE
             %
             % Check the growth rate: should be a function handle, accept 3
-            % arguments: c (scalar), and y (vector). The output should be
+            % arguments: c (scalar), T (temperature), and y (vector). The output should be
             % the same size as y
             
             if strcmp(class(value),'function_handle')
                 
                 % Check the number of inputs
-                if nargin(value) == 2
+                if nargin(value) == 3
                     
                     % Check the output using 2 example values
-                    out = value(1.1,linspace(0.1,1,10));
+                    out = value(1.1,1,linspace(0.1,1,10));
                     
                     % Check size
                     if any( size(out) ~= [1 10] )
@@ -191,7 +200,7 @@ classdef ProblemDefinition < handle
                     
                 else
                     warning('Distribution:setgrowthrate:Wrongnargin',...
-                        'The growth rate function must have 2 input arguments');
+                        'The growth rate function must have 3 input arguments (concentration, temperature, sizes)');
                 end % if
                 
             else

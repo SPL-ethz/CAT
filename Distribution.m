@@ -30,9 +30,13 @@ classdef Distribution < handle
     
     properties
         
-        % Initial grid vector
+        % Initial pivot vector
         % Define as vector
         y = linspace(0,1,20);
+        
+        % Initial vector of boundaries
+        % Define as vector
+        boundaries
         
     end % properties
     
@@ -55,7 +59,7 @@ classdef Distribution < handle
         
         %% Method Distribution (constructor)
         
-        function O = Distribution(y,F)
+        function O = Distribution(y,F,boundaries)
             
             % If given, define y and F based on inputs. Otherwise, do
             % nothing
@@ -66,6 +70,10 @@ classdef Distribution < handle
             
             if nargin > 1 && ~isempty(F)
                 O.F = F;
+            end % if
+            
+            if nargin > 2 && ~isempty(boundaries)
+                O.boundaries = boundaries;
             end % if
             
         end % function
@@ -96,15 +104,33 @@ classdef Distribution < handle
             %
             % Check input: vector, function handle, or empty
             
-            if strcmp(class(value),'function_handle') || isvector(value) || isempty(value)
-                % Value is ok, set
-                
-                O.pF = value;
-                
+            if strcmp(class(value),'function_handle')
+                % Value is ok, set                
+                    O.pF = value;                
+            elseif isvector(value) || isempty(value)
+                O.pF = value(:)'; %make it a row vector
             else
                 % Value is not OK - display warning
                 warning('Distribution:setF0:WrongType',...
                     'F has to be a function handle or a vector');
+            end % if
+            
+        end % function
+            
+        %% Method set.boundaries
+        
+        function set.boundaries(O,value)
+            
+            % SET.Y
+            %
+            % Check input for boundaries: a vector, all positive (and 0),
+            % duplicates allowed. Always set boundaries as a row vector
+            
+            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
+                O.boundaries = value(:)';
+            else
+                warning('Distribution:SetBoundaries:WrongValue',...
+                    'The property boundaries must be a vector of positive values, in increasing order (duplicates allowed)');
             end % if
             
         end % function
