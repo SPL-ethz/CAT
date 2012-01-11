@@ -24,7 +24,10 @@ PD.sol_time = [0 100];
 
 [t_out SolF Solc] = PBESolver(PD);
 
+
 %% Plot results
+
+moments(SolF,3,[1 4 5])
 
 % Plot distributions
 pls = plot(SolF);
