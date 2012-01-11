@@ -169,10 +169,45 @@ classdef Distribution < handle
             
         end % function
         
+        %% Method moments(F,j)
+        
+        function Fmo = moments(O,j,icalc,varargin)
+            
+            % Calculate moments from distribution/distributions over time.
+            %
+            % Use moments(F,j) to calculate the j'th moment of F over it's
+            % length. 
+            %
+            % moments returns the indicated moment as a row vector
+            %
+            % To calculate moments at specific time points, use e.g.:
+            % moments(F,3,[1 3 5])
+            % This returns the moment at the times equal t_out([1 3 5])
+            
+       
+            if nargin <= 2 && isempty(icalc)
+                icalc = [1:length(O)];
+            end
+            
+            % If possible, calculate moment. Otherwise do nothing
+            if nargin > 1 && ~isempty(j) 
+                for i = icalc
+                    Fmo(icalc==i) = sum(O(i).F .* O(i).y.^j);
+                end % for
+            else
+                warning('Distribution:moments:nomoment',...
+                    'No type of moment was indicated');
+                Fmo = [];
+            end % end
+            
+            % Always return a row vector
+            Fmo = Fmo(:)';
+            
+        end % function
+        
         %% Method plot(F)
         
         function Fpl = plot(O,varargin)
-            
             % PLOT Distribution
             %
             % Use plot(F) to plot the distribution in a 2D plot. Axis
