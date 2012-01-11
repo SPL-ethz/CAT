@@ -26,6 +26,7 @@ solData.solSet = 1;
 mym('open',solData.serv,solData.user,solData.pass);
 mym('use',solData.user);
 tmpString = mym('SELECT function FROM solubilityFunctions WHERE id = "{S}"',solData.solSet);
+mym('close');
 
 PD.solubility = eval(['@(T,t,x,L) ' char(cell2mat(tmpString.function))' ';']);
 
