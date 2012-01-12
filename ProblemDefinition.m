@@ -401,7 +401,7 @@ classdef ProblemDefinition < handle
                 PDpl = [PDpl PDpl_local];
             end % if
             
-            % Cumulative, Process and Control Properties
+            % Cumulative Properties
             if (~isempty(find(strcmp(plotwhat,'results'))) || ...
                 ~isempty(find(strcmp(plotwhat,'cumprop'))))
                 
@@ -448,6 +448,9 @@ classdef ProblemDefinition < handle
                     ylabel('Concentration')
 
                     PDpl = [PDpl PDpl_local];
+                else
+                    warning('ProblemDefinition:PlotCumProp:Inexistent',...
+                    'Concentration profile output is missing');
                 end % if
             end % if
             
