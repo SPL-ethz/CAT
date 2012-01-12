@@ -42,15 +42,15 @@ PD.sol_method = 'movingpivot';
 
 
 %% Solve
-[t_out SolF Solc] = PBESolver(PD);
+[PD.calc_time PD.calc_dist PD.calc_conc] = PBESolver(PD);
 
 %% Plot results
 
 % Plot distributions
-pls = plot(SolF);
-
-% Plot concentration
-figure
-plot(t_out,Solc)
-xlabel('Time')
-ylabel('Concentration')
+% pls = plot(SolF);
+% 
+% % Plot concentration
+% figure
+% plot(t_out,Solc)
+% xlabel('Time')
+% ylabel('Concentration')

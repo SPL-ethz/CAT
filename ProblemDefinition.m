@@ -20,6 +20,17 @@ classdef ProblemDefinition < handle
         % Solution time vector
         sol_time
         
+        %% Results
+        
+        % Vector of actual times returned by solver
+        calc_time
+        
+        % Distributions for each time step
+        calc_dist
+        
+        % Concentrations over time
+        calc_conc
+        
         % Crystal density
         rhoc = 1000
         
