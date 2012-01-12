@@ -36,7 +36,9 @@ mu = mean(gridL);
 sigma = 0.1*mu;
 gauss = @(x) exp(-((x-mu).^2/(2*sigma^2)));
 values = gauss(meanL);
+values = values.*(gridL(2:end)-gridL(1:end-1)); %transforming it into a number distribution 
 values = PD.seed_mass/(PD.rhoc*PD.kv*sum(values.*meanL.^3))/PD.init_volume*values(:);
+values = values./(gridL(2:end)-gridL(1:end-1))';
 PD.init_dist.F = values;
 
 

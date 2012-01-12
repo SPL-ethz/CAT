@@ -428,10 +428,9 @@ classdef ProblemDefinition < handle
                 PDpl_local = zeros(1,3);
                 
                 subplot(3,1,1)
-                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));
-                title(strcat('Setup: J = ',num2str(exist('nucleationrate'))))
+                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));                
                 ylabel('0^{th} moment')
-                if ~exist('nucleationrate')
+                if O.nucleationrate(1000,1000)==0
                     ylim([(1-0.015)*moments(O.calc_dist(1),0) 1.015*moments(O.calc_dist(1),0)])
                     set(gca,'ytick',[(1-0.01)*moments(O.calc_dist(1),0) moments(O.calc_dist(1),0) 1.01*moments(O.calc_dist(1),0)],'yticklabel',{'-1%' '0%' '+1%'});
                 end % if
