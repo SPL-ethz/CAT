@@ -192,7 +192,7 @@ classdef Distribution < handle
             % If possible, calculate moment. Otherwise do nothing
             if nargin > 1 && ~isempty(j) 
                 for i = icalc
-                    Fmo(icalc==i) = sum(O(i).F .* O(i).y.^j);
+                    Fmo(icalc==i) = sum(O(i).F .* diff(O(i).boundaries) .* O(i).y.^j);
                 end % for
             else
                 warning('Distribution:moments:nomoment',...
@@ -204,6 +204,7 @@ classdef Distribution < handle
             Fmo = Fmo(:)';
             
         end % function
+        
 
     end % methods
     
