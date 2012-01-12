@@ -252,6 +252,35 @@ classdef ProblemDefinition < handle
             
         end % function
         
+        %% Method set.coolingrate
+        
+        function set.coolingrate(O,value)
+            
+            % SET.GROWTHRATE
+            %
+            % Check the cooling rate: either it is a scalar (for cooling it
+            % should be less than zero) or a function handle
+            % arguments: t (scalar)
+            % output: dTdt (scalar)
+            
+            if strcmp(class(value),'function_handle')                
+                % Check the number of inputs
+                if nargin(value) ~=1                    
+                    warning('Distribution:setcoolingrate:Wrongnargin',...
+                            'The cooling rate must have a single input parameter (time).');
+                else
+                    % The growth rate function is OK, set it
+                    O.growthrate = value;
+                end % if else 
+            elseif isscalar(value)
+                O.growthrate = @(t) value;                
+            else
+                warning('Distribution:setcoolingrate:Wrongtype',...
+                    'The cooling rate must be defined as a function_handle with 1 input or a scalar for a constant cooling rate.');
+            end %if
+            
+        end % function
+        
         %% Method massbal
         
         function PDma = massbal(O)
@@ -290,7 +319,7 @@ classdef ProblemDefinition < handle
                 
                 PDpl = [];
                 
-                if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
+            if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
                     || ~isempty(find(strcmp(plotwhat,'distoverlap'))) ...
                     || ~isempty(find(strcmp(plotwhat,'results'))))
                 %% currently not active
