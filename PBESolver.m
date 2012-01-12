@@ -11,6 +11,26 @@ solvefun = str2func(PD.sol_method);
 solvefun = @(t,X) solvefun(t,X,PD);
 
 switch PD.sol_method
+    case 'hires'
+        finput.exp.f0 = PD.init_dist.F;
+
+        if ~isempty(PD.init_dist.boundaries)
+            finput.num.boundaries.dim1  = PD.init_dist.boundaries;
+            finput.num.ngrid            = length(PD.init_dist.boundaries)-1;
+        elseif ~isempty(PD.init_dist.y)
+            finput.num.y.dim1  = PD.init_dist.y;
+            finput.num.ngrid   = length(PD.init_dist.y);
+        end
+
+        output=HRFL_1dim(finput,PD);
+        output.PSD
+        SolutionTimes = output.time;
+        SolutionConc = output.c;
+        
+        for i = 1:length(SolutionTimes)
+            SolutionDists(i) = Distribution(output.PSD.xp.dim1,output.PSD.F(:,i),output.PSD.xb.dim1);
+        end
+ 
     case 'movingpivot'
         dL = 20e-6;
         X0 = [PD.init_dist.F PD.init_dist.y PD.init_dist.boundaries  PD.init_conc];
@@ -67,7 +87,7 @@ switch PD.sol_method
             X0 = addBin(X(end,:)'); 
             s = s + length(I);
         end %while        
-    otherwise
+    case 'centraldifference'
         y = PD.init_dist.y;
         X0 = [PD.init_dist.F  PD.init_conc];
         
