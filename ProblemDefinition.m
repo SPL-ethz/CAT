@@ -49,6 +49,7 @@ classdef ProblemDefinition < handle
         % Method to use - default to central difference
         sol_method = 'centraldifference'
         
+        % Solver options -  default none
         sol_options = {};
         
         % Growth rate function
@@ -406,7 +407,7 @@ classdef ProblemDefinition < handle
 
                 subplot(1,2,2)
                 PDpl_local(2) = surf(O.calc_time,O.calc_dist(1).y,...
-                    Fmat.*repmat(O.calc_dist(1).y(:).^3,1,size(O.calc_time))...
+                    Fmat.*repmat(O.calc_dist(1).y(:).^3,1,length(O.calc_time))...
                     ./repmat(moments(O.calc_dist,3),length(O.calc_dist(1).y),1),...
                     varargin{:});
                 ylabel('Mean Char. Length')
@@ -431,7 +432,7 @@ classdef ProblemDefinition < handle
                 PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));
                 title(strcat('Setup: J = ',num2str(exist('nucleationrate'))))
                 ylabel('0^{th} moment')
-                if ~exist('nucleationrate')
+                if ~isempty(O.nucleationrate)
                     ylim([(1-0.015)*moments(O.calc_dist(1),0) 1.015*moments(O.calc_dist(1),0)])
                     set(gca,'ytick',[(1-0.01)*moments(O.calc_dist(1),0) moments(O.calc_dist(1),0) 1.01*moments(O.calc_dist(1),0)],'yticklabel',{'-1%' '0%' '+1%'});
                 end % if
