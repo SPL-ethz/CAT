@@ -103,7 +103,9 @@ T(1) = PD.init_temp;
 
         % Find Growth Rates along all dimensions
         for i=1:numel(fields)
-            G.(fields{i}) = PD.growthrate(c(tcount),298,PSD.xp.(fields{i}));
+            G.(fields{i}) = PD.growthrate(c(tcount),T(tcount),PSD.xp.(fields{i}));
+            unique(G.dim1)
+%             pause
         end
 
         
