@@ -307,11 +307,19 @@ classdef ProblemDefinition < handle
             % simulation. plotwhat is a string that defines what exactly
             % should be plotted. Possible input:
             % 'results'         -   plot everything
+            % 'detailed_results'-   plot everything and more
+            %
+            % plotted using results
             % 'distributions'   -   plot distributions
             % 'distoverlap'     -   only plot overlapping distributions (2D)
             % 'dist3D'          -   only plot 3D surf plot of distributions
             % 'cumprop'         -   plot cumulative properties (moments)
             % 'process'         -   plot process variables (T, conc)
+            %
+            % additionally plotted in detailed mode
+            % 'moments'         -   plots of the first four moments
+            % 'integration'     -   details from the integration
+            % (massbalance over time,...)
             % 
             % and any combination thereof.
             %
@@ -374,6 +382,7 @@ classdef ProblemDefinition < handle
             
   
             % 3D plot of distributions over time
+            % Note this feature is diasbled for moving pivot
             if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
                     || ~isempty(find(strcmp(plotwhat,'dist3D'))) ...
                     || ~isempty(find(strcmp(plotwhat,'results')))...
@@ -409,6 +418,7 @@ classdef ProblemDefinition < handle
             
             % Cumulative Properties
             if (~isempty(find(strcmp(plotwhat,'results'))) || ...
+                ~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
                 ~isempty(find(strcmp(plotwhat,'cumprop'))))
                 
                 figure(21)
@@ -436,6 +446,33 @@ classdef ProblemDefinition < handle
                 xlabel('Time')
                 
                 PDpl = [PDpl PDpl_local];
+            elseif (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
+                ~isempty(find(strcmp(plotwhat,'moments'))))
+            
+            figure(22)
+            set(gcf,'numbertitle','off','name','Moments Only')  
+            PDpl_local = zeros(1,4);
+            
+            subplot(2,2,1)
+            PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));
+            ylabel('0^{th} moment')
+            xlabel('Time')
+            
+            subplot(2,2,2)
+            PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,1));
+            ylabel('1^{st} moment')
+            xlabel('Time')
+            
+            subplot(2,2,3)
+            PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,2));
+            ylabel('2^{nd} moment')
+            xlabel('Time')
+            
+            subplot(2,2,4)
+            PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,3));
+            ylabel('3^{th} moment')
+            xlabel('Time')
+                
             end % if
             
             % Process Variables
@@ -447,7 +484,8 @@ classdef ProblemDefinition < handle
             
             % Handles for plots
                 PDpl_local = zeros(1,1);
-                nopv = sum([~isempty(O.calc_conc) ~isempty(O.calc_temp) ~isempty(O.calc_volume)]);
+                nopv = sum([~isempty(O.calc_conc)...
+                    ~isempty(O.calc_temp) ~isempty(O.calc_volume)]);
                 
                 if nopv ~= 0
                     nopvit = 1;
@@ -486,6 +524,21 @@ classdef ProblemDefinition < handle
                     'Cumulative Properties profiles missing');
                 end % if
             end % if
+            
+            if (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
+                ~isempty(find(strcmp(plotwhat,'integration'))))
+                
+                if ~isempty(O.calc_conc)
+                    figure(41)
+                    set(gcf,'numbertitle','off','name',...
+                        'Details from Integration')
+                    PDpl_local = zeros(1,1);
+                    PDpl_local = plot(O.calc_time,massbal(O));
+                    PDpl = [PDpl PDpl_local];
+                end % if
+                
+                
+            end
             
         end % function
         
