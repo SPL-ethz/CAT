@@ -35,7 +35,8 @@ switch PD.sol_method
  
     case 'movingpivot'
         dL = 20e-6;
-        X0 = [PD.init_dist.F PD.init_dist.y PD.init_dist.boundaries  PD.init_conc PD.init_temp PD.init_volume];
+        X0 = [PD.init_dist.F.*(PD.init_dist.boundaries(2:end)-PD.init_dist.boundaries(1:end-1)) ...
+            PD.init_dist.y PD.init_dist.boundaries  PD.init_conc PD.init_temp PD.init_volume];
         tstart = PD.sol_time(1);
         tend = PD.sol_time(end);
         
@@ -79,10 +80,10 @@ switch PD.sol_method
             tstart = T(end); 
             
             % Break up the output to make it easier to assign. 
-            nBins = (size(X,2)-4)/3;
-            F = X(:,1:nBins);
+            nBins = (size(X,2)-4)/3;            
             y = X(:,nBins+1:2*nBins);            
-            boundaries = X(:,2*nBins+1:3*nBins+1);    
+            boundaries = X(:,2*nBins+1:3*nBins+1);
+            F = X(:,1:nBins)./(boundaries(:,2:end)-boundaries(:,1:end-1));
             
             for i = 1:length(I)
                 SolutionTimes(s+i) = T(I(i));
