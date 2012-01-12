@@ -77,10 +77,10 @@ switch PD.sol_method
             tstart = T(end); 
             
             % Break up the output to make it easier to assign. 
-            nBins = (size(X,2)-4)/3;
-            F = X(:,1:nBins);
+            nBins = (size(X,2)-4)/3;            
             y = X(:,nBins+1:2*nBins);            
-            boundaries = X(:,2*nBins+1:3*nBins+1);    
+            boundaries = X(:,2*nBins+1:3*nBins+1);
+            F = X(:,1:nBins)./(boundaries(:,2:end)-boundaries(:,1:end-1));
             
             for i = 1:length(I)
                 SolutionTimes(s+i) = T(I(i));
