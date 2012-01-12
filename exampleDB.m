@@ -37,18 +37,9 @@ PD.sol_time = [0 100];
 
 %% Solve
 
-[t_out SolF Solc] = PBESolver(PD);
+[PD.calc_time PD.calc_dist PD.calc_conc] = PBESolver(PD);
 
 
 %% Plot results
 
-moments(SolF,3,[1 4 5])
-
-% Plot distributions
-pls = plot(SolF);
-
-% Plot concentration
-figure
-plot(t_out,Solc)
-xlabel('Time')
-ylabel('Concentration')
+plot(PD,'results');

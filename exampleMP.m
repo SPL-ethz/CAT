@@ -46,11 +46,4 @@ PD.sol_method = 'movingpivot';
 
 %% Plot results
 
-% Plot distributions
-% pls = plot(SolF);
-% 
-% % Plot concentration
-% figure
-% plot(t_out,Solc)
-% xlabel('Time')
-% ylabel('Concentration')
+plot(PD,'results');
