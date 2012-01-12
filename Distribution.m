@@ -191,9 +191,17 @@ classdef Distribution < handle
             
             % If possible, calculate moment. Otherwise do nothing
             if nargin > 1 && ~isempty(j) 
+                if isempty(O(1).boundaries)
+                    for i=1:length(O)
+                        O(i).boundaries=[0 1];
+                    end
+                    warning('Distribution:boundaries:noboundaries',...
+                    'No boundaries were passed. Assumed F = # of particles.');
+                end
                 for i = icalc
                     Fmo(icalc==i) = sum(O(i).F .* diff(O(i).boundaries) .* O(i).y.^j);
                 end % for
+                    
             else
                 warning('Distribution:moments:nomoment',...
                     'No type of moment was indicated');

@@ -407,7 +407,7 @@ classdef ProblemDefinition < handle
                 PDpl = [PDpl PDpl_local];
             end % if
             
-            % Cumulative, Process and Control Properties
+            % Cumulative Properties
             if (~isempty(find(strcmp(plotwhat,'results'))) || ...
                 ~isempty(find(strcmp(plotwhat,'cumprop'))))
                 
@@ -447,26 +447,43 @@ classdef ProblemDefinition < handle
             
             % Handles for plots
                 PDpl_local = zeros(1,1);
-            
-                if ~exist('O.calc_cstar')
-                    
-                    subplot(1,3,1);                    
-                    PDpl_local = plot(O.calc_time,O.calc_conc);
-                    xlabel('Time')
-                    ylabel('Concentration')
-                    PDpl = [PDpl PDpl_local];
-                    
-                    subplot(1,3,2);                    
-                    PDpl_local = plot(O.calc_time,O.calc_temp);
-                    xlabel('Time')
-                    ylabel('Temperature')
-                    PDpl = [PDpl PDpl_local];
-                    
-                    subplot(1,3,3);                    
-                    PDpl_local = plot(O.calc_time,O.calc_volume);
-                    xlabel('Time')
-                    ylabel('Volume of reactor content')
-                    PDpl = [PDpl PDpl_local];
+                nopv = sum([~isempty(O.calc_conc) ~isempty(O.calc_temp) ~isempty(O.calc_volume)]);
+                
+                if nopv ~= 0
+                    nopvit = 1;
+                    if ~isempty(O.calc_conc)
+
+                        subplot(1,nopv,nopvit);                    
+                        PDpl_local = plot(O.calc_time,O.calc_conc);
+                        xlabel('Time')
+                        ylabel('Concentration')
+                        PDpl = [PDpl PDpl_local];
+
+                        nopvit = nopvit + 1;
+                    end % if
+                    if ~isempty(O.calc_temp)
+                        subplot(1,nopv,2);                    
+                        PDpl_local = plot(O.calc_time,O.calc_temp);
+                        xlabel('Time')
+                        ylabel('Temperature')
+                        PDpl = [PDpl PDpl_local];
+
+                        nopvit = nopvit + 1;
+                    end
+
+                    if ~isempty(O.calc_volume)
+
+                        subplot(1,nopv,3);                    
+                        PDpl_local = plot(O.calc_time,O.calc_volume);
+                        xlabel('Time')
+                        ylabel('Volume of reactor content')
+                        PDpl = [PDpl PDpl_local];
+
+                        nopvit = nopvit + 1;
+                    end
+                else
+                    warning('ProblemDefinition:PlotCumProp:Inexistent',...
+                    'Cumulative Properties profiles missing');
                 end % if
             end % if
             

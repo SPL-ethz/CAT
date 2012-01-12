@@ -22,7 +22,7 @@ switch PD.sol_method
             finput.num.ngrid   = length(PD.init_dist.y);
         end
 
-        output=HRFL_1dim(finput,PD);
+        output = hires(finput,PD);
         output.PSD
         SolutionTimes = output.time;
         SolutionConc = output.c;
