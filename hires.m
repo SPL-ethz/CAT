@@ -1,4 +1,4 @@
-function [output] = HRFL_ndim(finput,PD)
+function [output] = hires(finput,PD)
 %% n-dimensional High Resolution Flux limited PBE Solver
 % This algorithm solves the PDE arising from the population balance
 % equation in 1, 2 or 3 dimensions. The correct computation method is
@@ -6,12 +6,10 @@ function [output] = HRFL_ndim(finput,PD)
 % contains information on the experimental and numerical setup (including
 % kinetic data, initial distribution and concentration, etc.). 
 %
-% This code was written together with the HiRes_nD mediator function, so
-% check there if you are uncertain about the meaning of some variables.
+% This code is a modified version of the HRFL_ndim function I programmed
+% for the controller.
 %
 % Dave Ochsenbein, 12.01.2011
-
-
 
 
 %% Setup and Preparation
@@ -24,13 +22,10 @@ if ~isempty(PD.sol_options)
         if ~isempty(phistr)
             finput.setup.Phi = PD.sol_options{phistr+1};
         end
+else
+    finput.setup.Phi='vanleer';
 end
 
-
-% Cut of initial temperature from tail
-finput.exp.PWCT =   [PD.init_temp PD.init_temp PD.init_temp];
-PWCT    =   [PD.init_temp PD.init_temp];
-% Cut of final time from time points
 if isscalar(PD.sol_time);
     finput.exp.ttot  =   PD.sol_time;
 elseif isvector(PD.sol_time)
@@ -99,33 +94,19 @@ end
 tvec=0;
 
 %% Integration
-    t=0;tcount=1;c(1)=PD.init_conc;  
+    t=PD.sol_time(1);tcount=1;c(1)=PD.init_conc;  
     
-    Dt_temperature  =   finput.exp.ttot/length(PWCT); % time interval between PWCT points
-    t_temperature   =   [0; cumsum(Dt_temperature.*ones(length(PWCT),1))];  % Associated times for PWCT waypoints
-    i_temperature   =   1; % keep track of last-passed temperature waypoint
-    
-    T(1)            =   finput.exp.PWCT(1); % Initial Temperature
-
-%     cs(1)           =   finput.data.cs(T(1)); % Solubility
-    
+T(1) = PD.init_temp;
+ 
     flagdt=0;mu3=0;
     while t<finput.exp.ttot
 
         % Find Growth Rates along all dimensions
         for i=1:numel(fields)
-%             if finput.setup.G == 'i'
-%                 % Length Independent
-%                 G.(fields{i})   =   sign(c(tcount)-cs(tcount))*finput.data.kinpar.kg.(fields{i})*((abs(c(tcount)-cs(tcount)))/cs(tcount))^finput.data.kinpar.g.(fields{i}).*ones(1,length(PSD.xp.(fields{i})));
-%             elseif finput.setup.G == 'd'
-%                 % Length Dependent
-%                 G.(fields{i})   =    sign(c(tcount)-cs(tcount))*finput.data.kinpar.kg.(fields{i})*...
-%                     ((abs(c(tcount)-cs(tcount)))/cs(tcount))^finput.data.kinpar.g.(fields{i}).*...
-%                     (finput.data.kinpar.gamma1.(fields{i}) +finput.data.kinpar.gamma2.(fields{i}) .*PSD.xb.(fields{i})(2:end)); % Growth Rate
-%             end
-            G.(fields{i}) = PD.growthrate(c(tcount),T(tcount),PSD.xp.(fields{i}));
+            G.(fields{i}) = PD.growthrate(c(tcount),298,PSD.xp.(fields{i}));
         end
-         
+
+        
         % Autotimestepsizer based on CFL condition (eq. 24 in Gunawan 2004)
         if flagdt==0
             
@@ -134,7 +115,7 @@ tvec=0;
                 Dt(i)       =   abs(1*PSD.Dx.(fields{i})/G.(fields{i})(I));
             end
 
-            DtT     =   t_temperature-t; % how long to temperature waypoints
+%             DtT     =   t_temperature-t; % how long to temperature waypoints
             
             if isfield(finput.exp,'tline')
                 nexttline   =   finput.exp.tline(find(finput.exp.tline>t,1,'first'));
@@ -143,21 +124,16 @@ tvec=0;
                 Dttline     =   inf;
             end
             
-            Dt      =   min([0.1*finput.exp.ttot Dt finput.exp.ttot-t min(DtT(DtT>0)) Dttline]);   % choose minimum of expressions (not too coarse description for plotting purposes)
+            Dt      =   min([0.1*finput.exp.ttot Dt finput.exp.ttot-t Dttline]);   % choose minimum of expressions (not too coarse description for plotting purposes)
 
         end
 
         t           =   t+Dt; % update time step
-%         tau         =   t/finput.exp.ttot
+        tau         =   t/finput.exp.ttot
         
         % mini failsafe
         if finput.exp.ttot-t     <   1e-12
             t   =   finput.exp.ttot;
-        end
-        
-        [~,i_temp]   =   min(abs(t-t_temperature));
-        if t_temperature(i_temp)>t || t==finput.exp.ttot
-            i_temp       =   i_temp-1;
         end
 
         if ~isscalar(size_tot)
@@ -238,6 +214,7 @@ tvec=0;
             end
 
             fstar(3:end-1,:,:)    =   f_dummy;
+%             pause
 
             if ~isvector(fstar)
                 fstar   =   shiftdim(fstar,ndim-i+1);
@@ -282,8 +259,8 @@ tvec=0;
         
       
         % Addition of Nucleation term
-        if ~isempty(PD.nucleationrate(c,T))
-                B         =   PD.nucleationrate(c,T)*Dt;
+        if ~isempty(PD.nucleationrate)
+                B         =   PD.nucleationrate(c(tcount),T(tcount))*Dt;
                 if ndim==1
                     fstar(3)    =   fstar(3)        +   B;
                 elseif ndim==2
@@ -298,10 +275,8 @@ tvec=0;
         
         
         if t<=finput.exp.ttot
-            lambda=1-(t-t_temperature(i_temp))/(t_temperature(i_temp+1)-t_temperature(i_temp));
-            
-            T_dummy=lambda*finput.exp.PWCT(i_temp)+(1-lambda)*finput.exp.PWCT(i_temp+1);
-%             cs_dummy=finput.data.cs(T_dummy);     %Solubility
+
+            T_dummy = PD.init_temp+PD.coolingrate()*(t-PD.sol_time(1));
             % Check if result is approximately reasonable
             if  sum(sum(sum(-fstar(fstar<0))))<sum(sum(sum(fstar(fstar>0))))*1e-2 & c_dummy>0 
                 
