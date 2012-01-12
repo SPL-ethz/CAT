@@ -40,8 +40,6 @@ classdef ProblemDefinition < handle
         % Concentrations over time
         calc_conc
         
-        calc_massbal
-        
         % Method to use - default to central difference
         sol_method = 'centraldifference'
         
@@ -247,7 +245,9 @@ classdef ProblemDefinition < handle
         
         function PDma = massbal(O)
 
-            PDma = abs(moments(O.calc_dist,3,1)*O.rhoc*O.kv+O.init_conc-(moments(O.calc_dist,3)*O.rhoc*O.kv+O.calc_conc'))./(moments(O.calc_dist,3,1)*O.rhoc*O.kv+O.init_conc);
+            PDma = abs(moments(O.calc_dist,3,1)*O.rhoc*O.kv+O.init_conc-...
+                (moments(O.calc_dist,3)*O.rhoc*O.kv+O.calc_conc'))./...
+                (moments(O.calc_dist,3,1)*O.rhoc*O.kv+O.init_conc);
             
         end % function
         
