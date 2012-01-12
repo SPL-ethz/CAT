@@ -20,6 +20,15 @@ classdef ProblemDefinition < handle
         % Solution time vector
         sol_time
         
+        % Crystal density
+        rhoc = 1000
+        
+        % Shape factor
+        kv = 1
+        
+        % Seed Mass
+        seed_mass = 1; 
+        
         %% Results
         
         % Vector of actual times returned by solver
@@ -31,17 +40,12 @@ classdef ProblemDefinition < handle
         % Concentrations over time
         calc_conc
         
-        % Crystal density
-        rhoc = 1000
-        
-        % Shape factor
-        kv = 1
-        
-        % Seed Mass
-        seed_mass = 1; 
+        calc_massbal
         
         % Method to use - default to central difference
         sol_method = 'centraldifference'
+        
+        sol_options = {};
         
         % Growth rate function
         % This function should be called as growthrate(c,y) where c is the current
@@ -191,6 +195,24 @@ classdef ProblemDefinition < handle
             end % if else
             
         end % function
+        
+        function set.sol_options(O,value)
+            
+            % SET.SOL_OPTIONS
+            %
+            % Check the defined OPTIONS. Should be a cell array
+            %
+            % Probable more checks should be carried out at this point in
+            % the future
+            
+            if iscell(value)
+                O.sol_options = value;
+            else
+                warning('ProblemDefinition:SetSol_Options:WrongType',...
+                    'The property sol_options should be a cell');
+            end % if else
+            
+        end % function
                 
         %% Method set.growthrate
         
@@ -229,6 +251,14 @@ classdef ProblemDefinition < handle
                 warning('Distribution:setgrowthrate:Wrongtype',...
                     'The growth rate must be defined as a function');
             end %if
+            
+        end % function
+        
+        %% Method massbal
+        
+        function PDma = massbal(O)
+
+            PDma = abs(moments(O.calc_dist,3,1)*O.rhoc*O.kv+O.init_conc-(moments(O.calc_dist,3)*O.rhoc*O.kv+O.calc_conc'))./(moments(O.calc_dist,3,1)*O.rhoc*O.kv+O.init_conc);
             
         end % function
         
