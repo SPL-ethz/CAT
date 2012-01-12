@@ -27,7 +27,7 @@ PD.nucleationrate = @(c,T) NucleationRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T); 
 PD.seed_mass = 0.004; % seed mass - kg
 PD.init_volume = 0.02; % volume of reactor - m^3
 PD.sol_time = linspace(0,3600,51); % time the process is run
-PD.coolingrate = 0.0069; % in [K/s], equals 25°C/hr
+PD.coolingrate = -0.0069; % in [K/s], equals 25°C/hr
 
 %define a simple gaussian as initial distribution
 mu = mean(gridL);
@@ -43,7 +43,7 @@ PD.sol_method = 'movingpivot';
 
 
 %% Solve
-[PD.calc_time, PD.calc_dist, PD.calc_conc, bla, blub] = PBESolver(PD);
+[PD.calc_time, PD.calc_dist, PD.calc_conc, PD.calc_temp, PD.calc_volume] = PBESolver(PD);
 
 %% Plot results
 

@@ -42,7 +42,7 @@ switch PD.sol_method
         % if nucleation is present, bins are addded when the first bin
         % becomes too big
         if PD.nucleationrate(PD.init_conc,PD.init_temp) > 0
-            ODEoptions = odeset('Events',@(t,x) addBinEvent(t,x,dL));
+            ODEoptions = odeset('Events',@(t,x) EventAddBin(t,x,dL));
             X0 = addBin(X0(:)); %since nucleation is present, add an empty bin
         end
         
