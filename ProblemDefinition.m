@@ -262,7 +262,7 @@ classdef ProblemDefinition < handle
         
         function set.coolingrate(O,value)
             
-            % SET.GROWTHRATE
+            % SET.coolingrate
             %
             % Check the cooling rate: either it is a scalar (for cooling it
             % should be less than zero) or a function handle
@@ -290,11 +290,10 @@ classdef ProblemDefinition < handle
         %% Method massbal
         
         function PDma = massbal(O)
-
-            PDma = abs(moments(O.calc_dist,3,1)*O.rhoc*O.kv+O.init_conc-...
-                (moments(O.calc_dist,3)*O.rhoc*O.kv+O.calc_conc'))./...
-                (moments(O.calc_dist,3,1)*O.rhoc*O.kv+O.init_conc);
-            
+            mass_solution = O.calc_conc(:).*O.calc_volume(:);
+            m3 = moments(O.calc_dist,3);
+            mass_crystals = O.rhoc*O.kv*O.calc_volume(:).*m3(:);            
+            PDma = 100*(1-(mass_solution + mass_crystals)/(mass_solution(1)+mass_crystals(1)));          
         end % function
         
                 %% Method plot
@@ -533,6 +532,8 @@ classdef ProblemDefinition < handle
                         'Details from Integration')
                     PDpl_local = zeros(1,1);
                     PDpl_local = plot(O.calc_time,massbal(O));
+                    xlabel('Time')
+                    ylabel('Mass balance [% error]')
                     PDpl = [PDpl PDpl_local];
                 end % if
                 
