@@ -15,18 +15,19 @@ gridL = linspace(0,100e-6,nBins+1);
 meanL = (gridL(1:end-1)+gridL(2:end))/2;
 PD.init_dist.y = meanL;
 PD.init_dist.boundaries = gridL;
-PD.init_conc = 5*SolubilityAlphaLGLU(PD.init_temp);
+PD.init_conc = 1*SolubilityAlphaLGLU(PD.init_temp);
 
 % Define growth rate
 PD.growthrate = @(c,T,y) GrowthRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T,y);
 
 % Define nucleation rate
-% PD.nucleationrate = @(c,T) NucleationRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T); %comment to deactivate nucleation
+PD.nucleationrate = @(c,T) NucleationRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T); %comment to deactivate nucleation
 
 % Define operating conditions
 PD.seed_mass = 0.004; % seed mass - kg
 PD.init_volume = 0.02; % volume of reactor - m^3
-PD.sol_time = linspace(0,1000,51); % time the process is run
+PD.sol_time = linspace(0,3600,51); % time the process is run
+PD.coolingrate = 0.0069; % in [K/s], equals 25°C/hr
 
 %define a simple gaussian as initial distribution
 mu = mean(gridL);
@@ -42,7 +43,7 @@ PD.sol_method = 'movingpivot';
 
 
 %% Solve
-[PD.calc_time PD.calc_dist PD.calc_conc] = PBESolver(PD);
+[PD.calc_time, PD.calc_dist, PD.calc_conc, bla, blub] = PBESolver(PD);
 
 %% Plot results
 
