@@ -221,6 +221,168 @@ classdef ProblemDefinition < handle
             
         end % function
         
+                %% Method plot
+        
+        function PDpl = plot(O,plotwhat,varargin)
+            
+            % Plot function for the results
+            %
+            % Use plot(PD,plotwhat) to plot the results of the
+            % simulation. plotwhat is a string that defines what exactly
+            % should be plotted. Possible input:
+            % 'results'         -   plot everything
+            % 'distributions'   -   plot distributions
+            % 'distoverlap'     -   only plot overlapping distributions (2D)
+            % 'dist3D'          -   only plot 3D surf plot of distributions
+            % 'cumprop'         -   plot cumulative properties (moments)
+            % 'process'         -   plot process variables (T, conc)
+            % 
+            % and any combination thereof.
+            %
+            % PLOT returns the handles to the plot objects created. (If
+            % several plots are created the sequence of handles is the
+            % following: PSDs overlapping, PSDs3D, cumulative properties
+            % (moments), process variables (temperature, concentration)
+            %
+            % Graphs can currently not be plotted in existing figures !!
+            %
+                
+                PDpl = [];
+                
+                if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
+                    || ~isempty(find(strcmp(plotwhat,'distoverlap'))) ...
+                    || ~isempty(find(strcmp(plotwhat,'results'))))
+                %% currently not active
+%                 % Check if Parent axes are already defined
+%                 useaxpos = find(strcmp(varargin,'Parent'));
+% 
+%                 if ~isempty(useaxpos) && ishandle(varargin{useaxpos+1})
+%                     % Define this axes as the one to use
+%                     Fax = varargin{useaxpos+1};
+%                     % Remove this parent command from varargin, is added again
+%                     % later
+%                     varargin(useaxpos+(0:1)) = [];
+%                 else
+%%
+                    FFig = figure(11);
+                    set(gcf,'numbertitle','off','name','PSDs (overlapping)')
+                    Fax(1) = subplot(1,2,1);
+                    Fax(2) = subplot(1,2,2);
+                    xlabel(Fax(1),'Mean Char. Length')
+                    xlabel(Fax(2),'Mean Char. Length')
+                    ylabel(Fax(1),'Number Distribution')
+                    ylabel(Fax(2),'Normalized Volume Distribution')
+%                 end % if
+
+                % Handles for plots
+                PDpl_local = zeros(1,length(O.calc_dist));
+
+                hold(Fax(1),'all')
+                hold(Fax(2),'all')
+
+                % Plot every distribution
+                for i = 1:length(O.calc_dist)
+                    PDpl_local(i) = plot(...
+                        O.calc_dist(i).y,O.calc_dist(i).F,...
+                        'Parent',Fax(1),'DisplayName',['Dist ' num2str(i)],...
+                        varargin{:});
+                    
+                    PDpl_local(length(O.calc_dist)+i) = plot(...
+                        O.calc_dist(i).y,O.calc_dist(i).F.*O.calc_dist(i).y.^3./moments(O.calc_dist(i),3),...
+                        'Parent',Fax(2),'DisplayName',['Dist ' num2str(i)],...
+                        varargin{:});
+                end % for
+                
+                PDpl = [PDpl PDpl_local];
+            end % if
+            
+  
+            % 3D plot of distributions over time
+            if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
+                    || ~isempty(find(strcmp(plotwhat,'dist3D'))) ...
+                    || ~isempty(find(strcmp(plotwhat,'results')))...
+                    && ~strcmp(O.sol_method,'movingpivot'))
+                
+                for i = 1:length(O.calc_dist)
+                    Fmat(:,i) = O.calc_dist(i).F;
+                end % for
+                
+                figure(12)
+                set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
+                
+                % Handles for plots
+                PDpl_local = zeros(1,2);
+
+                subplot(1,2,1)
+                PDpl_local(1) = surf(O.calc_time(:),O.calc_dist(1).y(:),Fmat,varargin{:});
+                ylabel('Mean Char. Length')
+                xlabel('Time')
+                zlabel('Number Distribution')
+
+                subplot(1,2,2)
+                PDpl_local(2) = surf(O.calc_time,O.calc_dist(1).y,...
+                    Fmat.*repmat(O.calc_dist(1).y(:).^3,1,size(O.calc_time))...
+                    ./repmat(moments(O.calc_dist,3),length(O.calc_dist(1).y),1),...
+                    varargin{:});
+                ylabel('Mean Char. Length')
+                xlabel('Time')
+                zlabel('Normalized Volume Distribution')
+
+                PDpl = [PDpl PDpl_local];
+            end % if
+            
+            % Cumulative, Process and Control Properties
+            if (~isempty(find(strcmp(plotwhat,'results'))) || ...
+                ~isempty(find(strcmp(plotwhat,'cumprop'))))
+                
+                figure(21)
+                set(gcf,'numbertitle','off','name','PSD cumulative properties')  
+
+                % Handles for plots
+                PDpl_local = zeros(1,3);
+                
+                subplot(3,1,1)
+                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));
+                title(strcat('Setup: J = ',num2str(exist('nucleationrate'))))
+                ylabel('0^{th} moment')
+                if ~exist('nucleationrate')
+                    ylim([(1-0.015)*moments(O.calc_dist(1),0) 1.015*moments(O.calc_dist(1),0)])
+                    set(gca,'ytick',[(1-0.01)*moments(O.calc_dist(1),0) moments(O.calc_dist(1),0) 1.01*moments(O.calc_dist(1),0)],'yticklabel',{'-1%' '0%' '+1%'});
+                end % if
+
+                subplot(3,1,2)
+                PDpl_local(2) = plot(O.calc_time,moments(O.calc_dist,3));
+                ylabel('3^{rd} moment')
+                
+                subplot(3,1,3)
+                PDpl_local(3) = plot(O.calc_time,moments(O.calc_dist,4)./moments(O.calc_dist,3));
+                ylabel('Weight average length')
+                xlabel('Time')
+                
+                PDpl = [PDpl PDpl_local];
+            end % if
+            
+            % Process Variables
+            if (~isempty(find(strcmp(plotwhat,'results'))) || ...
+                ~isempty(find(strcmp(plotwhat,'process'))))
+            
+                figure(31)
+                set(gcf,'numbertitle','off','name','Process Variables')
+            
+            % Handles for plots
+                PDpl_local = zeros(1,1);
+            
+                if ~exist('O.calc_cstar')
+                    PDpl_local = plot(O.calc_time,O.calc_conc);
+                    xlabel('Time')
+                    ylabel('Concentration')
+
+                    PDpl = [PDpl PDpl_local];
+                end % if
+            end % if
+            
+        end % function
+        
     end % methods
     
 end % classdef
