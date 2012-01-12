@@ -60,7 +60,7 @@ classdef ProblemDefinition < handle
         
         % cooling rate
         % Defines the cooling rate dT/dt.         
-        coolingrate = 0;
+        coolingrate = @(t) 0;
         
         % anti-solvent addition rate
         % Defines the anti-solvent addition rate dV/dt.         
