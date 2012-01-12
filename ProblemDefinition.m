@@ -57,9 +57,12 @@ classdef ProblemDefinition < handle
         nucleationrate = @(c,T) 0
         
         % cooling rate
-        % Defines the cooling rate dT/dt. 
-        
+        % Defines the cooling rate dT/dt.         
         coolingrate = 0;
+        
+        % anti-solvent addition rate
+        % Defines the anti-solvent addition rate dV/dt.         
+        ASadditionrate = 0;
         
     end % properties
     
@@ -68,7 +71,7 @@ classdef ProblemDefinition < handle
         %% Method ProblemDefinition (constructor)
         
         function O = ProblemDefinition(init_dist,init_conc,sol_time,...
-                sol_method,growthrate, nucleationrate)
+                sol_method,growthrate, nucleationrate, coolingrate, ASadditionrate)
             
             % PROBLEMDEFINITION
             %
@@ -106,7 +109,15 @@ classdef ProblemDefinition < handle
             
             if nargin > 5 && ~isempty(nucleationrate)
                 O.nucleationrate = nucleationrate;
-            end % if    
+            end % if 
+            
+            if nargin > 6 && ~isempty(coolingrate)
+                O.coolingrate = coolingrate;
+            end % if 
+            
+            if nargin > 7 && ~isempty(ASadditionrate)
+                O.ASadditionrate = ASadditionrate;
+            end % if 
         end % function
         
         %% Method set.init_dist

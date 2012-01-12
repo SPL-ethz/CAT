@@ -1,4 +1,4 @@
-function [SolutionTimes SolutionDists SolutionConc] = PBESolver (PD)
+function [SolutionTimes SolutionDists SolutionConc SolutionTemp SolutionVolume] = PBESolver (PD)
 
 % PBESOLVER
 %
@@ -33,7 +33,7 @@ switch PD.sol_method
  
     case 'movingpivot'
         dL = 20e-6;
-        X0 = [PD.init_dist.F PD.init_dist.y PD.init_dist.boundaries  PD.init_conc];
+        X0 = [PD.init_dist.F PD.init_dist.y PD.init_dist.boundaries  PD.init_conc PD.init_temp PD.init_volume];
         tstart = PD.sol_time(1);
         tend = PD.sol_time(end);
         
@@ -43,20 +43,25 @@ switch PD.sol_method
         % becomes too big
         if PD.nucleationrate(PD.init_conc,PD.init_temp) > 0
             ODEoptions = odeset('Events',@(t,x) addBinEvent(t,x,dL));
+            X0 = addBin(X0(:)); %since nucleation is present, add an empty bin
         end
         
         nt = length(PD.sol_time);
         if(nt > 2)
             SolutionTimes = zeros(nt,1);
             SolutionConc = zeros(nt,1);
+            SolutionTemp = zeros(nt,1);
+            SolutionVolume = zeros(nt,1);
             SolutionDists = repmat(Distribution(),1,nt);
         end
         
-        SolutionTimes(1) = 0;
+        SolutionTimes(1) = tstart;
         SolutionConc(1) = PD.init_conc;
         SolutionDists(1) = PD.init_dist;
+        SolutionTemp(1) = PD.init_temp;
+        SolutionVolume(1) = PD.init_volume;
         
-        s = 0;
+        s = 1;
         while tstart<tend 
             ts = PD.sol_time(PD.sol_time > tstart & PD.sol_time < tend);
             
@@ -72,7 +77,7 @@ switch PD.sol_method
             tstart = T(end); 
             
             % Break up the output to make it easier to assign. 
-            nBins = (size(X,2)-2)/3;
+            nBins = (size(X,2)-4)/3;
             F = X(:,1:nBins);
             y = X(:,nBins+1:2*nBins);            
             boundaries = X(:,2*nBins+1:3*nBins+1);    
@@ -80,6 +85,8 @@ switch PD.sol_method
             for i = 1:length(I)
                 SolutionTimes(s+i) = T(I(i));
                 SolutionConc(s+i) = X(I(i),3*nBins+2);   
+                SolutionTemp(s+i) = X(I(i),3*nBins+3);   
+                SolutionVolume(s+i) = X(I(i),3*nBins+4);   
                 SolutionDists(s+i) = Distribution( y(I(i),:) , F(I(i),:), boundaries(I(i),:) );
             end % for
             
@@ -99,5 +106,7 @@ switch PD.sol_method
             SolutionDists(i) = Distribution( y , X_out(i,1:length(y)) );
         end % for
         SolutionConc = X_out(:,end);
+        SolutionTemp = ones(size(SolutionConc))*PD.init_temp;
+        SolutionVolume = ones(size(SolutionConc))*PD.init_volume;
 end %switch
 end % function

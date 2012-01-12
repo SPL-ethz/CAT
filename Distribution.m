@@ -175,7 +175,7 @@ classdef Distribution < handle
             
             % Calculate moments from distribution/distributions over time.
             %
-            % Use moments(F,j) to calculate the j'th moment of F over it's
+            % Use moments(F,j) to calculate the j'th moment of F over its
             % length. 
             %
             % moments returns the indicated moment as a row vector

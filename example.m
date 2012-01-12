@@ -21,7 +21,7 @@ PD.sol_time = [0 100];
 
 %% Solve
 
-[PD.calc_time PD.calc_dist PD.calc_conc] = PBESolver(PD);
+[PD.calc_time, PD.calc_dist, PD.calc_conc, ~, ~] = PBESolver(PD);
 
 
 %% Plot results
