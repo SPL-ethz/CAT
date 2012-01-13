@@ -24,7 +24,7 @@ PD.growthrate = @(c,T,y) GrowthRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T,y);
 % PD.nucleationrate = @(c,T) NucleationRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T); %comment to deactivate nucleation
 
 % Define operating conditions
-PD.seed_mass = 0.004; % seed mass - kg
+seed_mass = 0.004; % seed mass - kg
 PD.init_volume = 0.02; % volume of reactor - m^3
 PD.sol_time = linspace(0,1000,51); % time the process is run
 
@@ -33,7 +33,7 @@ mu = 5e-5;
 sigma = 0.1*100e-6;
 gauss = @(x) exp(-((x-mu).^2/(2*sigma^2)));
 values = gauss(meanL);
-values = PD.seed_mass/(PD.rhoc*PD.kv*sum(values.*meanL.^3))/PD.init_volume*values(:);
+values = seed_mass/(PD.rhoc*PD.kv*sum(values.*meanL.^3))/PD.init_volume*values(:);
 PD.init_dist.F = values*1e6;
 
 

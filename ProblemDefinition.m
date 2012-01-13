@@ -26,9 +26,6 @@ classdef ProblemDefinition < handle
         % Shape factor
         kv = 1
         
-        % Seed Mass
-        seed_mass = 1; 
-        
         %% Results
         
         % Vector of actual times returned by solver
