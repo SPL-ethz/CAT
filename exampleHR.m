@@ -21,7 +21,7 @@ PD.init_conc = 5*SolubilityAlphaLGLU(PD.init_temp);
 PD.growthrate = @(c,T,y) GrowthRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T,y);
 
 % Define nucleation rate
-% PD.nucleationrate = @(c,T) NucleationRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T); %comment to deactivate nucleation
+PD.nucleationrate = @(c,T) NucleationRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T); %comment to deactivate nucleation
 
 % Define operating conditions
 seed_mass = 0.004; % seed mass - kg
@@ -42,10 +42,10 @@ PD.sol_method = 'hires';
 PD.sol_options = {'Phi' 'vanleer'};
 
 %% Solve
-[PD.calc_time PD.calc_dist PD.calc_conc] = PBESolver(PD);
+[PD.calc_time, PD.calc_dist, PD.calc_conc, PD.calc_temp, PD.calc_volume]  = PBESolver(PD);
 
 %% Plot results
 
-plot(PD,'results');
+plot(PD,'detailed_results');
 
 rel_error=massbal(PD);

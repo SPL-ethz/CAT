@@ -15,7 +15,7 @@ gridL = linspace(0,1000e-6,nBins+1);
 meanL = (gridL(1:end-1)+gridL(2:end))/2;
 PD.init_dist.y = meanL;
 PD.init_dist.boundaries = gridL;
-PD.init_conc = 1*SolubilityAlphaLGLU(PD.init_temp);
+PD.init_conc = 5*SolubilityAlphaLGLU(PD.init_temp);
 
 % Define growth rate
 PD.growthrate = @(c,T,y) GrowthRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T,y);
@@ -51,4 +51,4 @@ PD.sol_method = 'movingpivot';
 
 %% Plot results
 
-plot(PD,'results');
+plot(PD,'detailed_results');
