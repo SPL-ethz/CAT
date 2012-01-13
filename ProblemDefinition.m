@@ -52,10 +52,10 @@ classdef ProblemDefinition < handle
         % Solver options -  default none
         sol_options = {};
         
-        % Growth rate function
-        % This function should be called as growthrate(c,y) where c is the current
-        % concentration and y is the size. It should return a vector the
-        % same size as y
+        % Growth rate function This function should be called as
+        % growthrate(c,T,y) where c is the current concentration, T is the
+        % temperature and y is the size. It should return a vector the same
+        % size as y
         growthrate = @(c,T,y) ones(size(y))
         
         % Nucleation rate function
