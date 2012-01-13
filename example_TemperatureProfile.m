@@ -25,7 +25,6 @@ PD.growthrate = @(c,T,y) GrowthRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T,y);
 
 % Define operating conditions
 seed_mass = 0.004;
-PD.seed_mass = seed_mass; % seed mass - kg
 PD.init_volume = 0.02; % volume of reactor - m^3
 tprofile = [0 3600 21600 84000];
 Tprofile = [308 303 298 298];
@@ -37,7 +36,7 @@ sigma = 0.1*mu;
 gauss = @(x) exp(-((x-mu).^2/(2*sigma^2)));
 values = gauss(meanL);
 values = values.*(gridL(2:end)-gridL(1:end-1)); %transforming it into a number distribution 
-values = PD.seed_mass/(PD.rhoc*PD.kv*sum(values.*meanL.^3))/PD.init_volume*values(:);
+values = seed_mass/(PD.rhoc*PD.kv*sum(values.*meanL.^3))/PD.init_volume*values(:);
 values = values./(gridL(2:end)-gridL(1:end-1))';
 PD.init_dist.F = values;
 

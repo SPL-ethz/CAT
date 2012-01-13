@@ -13,12 +13,12 @@ function [dxdt] = movingpivot(t, x, PD)
     J = PD.nucleationrate(c,T);
     G = PD.growthrate(c,T,[p; L]);
     
-    dNdt = [J; -N(2:nBins)/V*PD.ASadditionrate];    
+    dNdt = [J; -N(2:nBins)/V*PD.ASadditionrate(t)];    
     dpdt = [0.5*G(1); G(2:nBins)'];
     dLdt = [0; G(nBins+2:2*nBins+1)'];
     
-    dcdt = -3*PD.rhoc*PD.kv*sum(p.^2.*dpdt(2).*N)-c/V*PD.ASadditionrate;
+    dcdt = -3*PD.rhoc*PD.kv*sum(p.^2.*dpdt(2).*N)-c/V*PD.ASadditionrate(t);
     dTdt = PD.coolingrate(t);
-    dVdt = PD.ASadditionrate;
+    dVdt = PD.ASadditionrate(t);
     dxdt = [dNdt; dpdt; dLdt; dcdt; dTdt; dVdt];
 end
