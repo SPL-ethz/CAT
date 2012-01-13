@@ -24,7 +24,7 @@ PD.growthrate = @(c,T,y) GrowthRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T,y);
 % PD.nucleationrate = @(c,T) NucleationRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T); %comment to deactivate nucleation
 
 % Define operating conditions
-seed_mass = 0.004;
+% seed_mass = 0.004;
 PD.init_volume = 0.02; % volume of reactor - m^3
 tprofile = [0 3600 21600 84000];
 Tprofile = [308 303 298 298];

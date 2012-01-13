@@ -13,7 +13,7 @@ function [output] = hires(finput,PD)
 
 
 %% Setup and Preparation
-if exist('arrayDivision')==0 && exist('Phifinder')==0
+if exist('arrayDivision','file')==0 && exist('Phifinder','file')==0
     error('You lack some necessary functions...')
 end
 
@@ -44,24 +44,26 @@ if isfield(finput.num,'boundaries')
 % Find out dimensionality
     fields  =   fieldnames(finput.num.boundaries);
     ndim    =   numel(fields);
+    size_tot=   zeros(ndim,1);
     for i=1:ndim
         xb_loc              =   finput.num.boundaries.(fields{i});
-        PSD.Dx.(fields{i})  =   [xb_loc(2)-xb_loc(1)]; % no support for geogrid
-        PSD.xp.(fields{i})  =   [xb_loc(2:end)+xb_loc(1:end-1)]/2;
+        PSD.Dx.(fields{i})  =   xb_loc(2)-xb_loc(1); % no support for geogrid
+        PSD.xp.(fields{i})  =   (xb_loc(2:end)+xb_loc(1:end-1))/2;
         PSD.xb.(fields{i})  =   xb_loc;
         size_loc            =   size(PSD.xp.(fields{i}));
-        size_tot            =   [size_tot size_loc(2)+3];
+        size_tot(i)         =   size_loc(2)+3;
     end
 elseif isfield(finput.num,'y')
     fields  =   fieldnames(finput.num.y);
     ndim    =   numel(fields);
+    size_tot=   zeros(ndim,1);
     for i=1:ndim
         xp_loc              =   [finput.num.y.(fields{i})]; 
-        PSD.Dx.(fields{i})  =   [xp_loc(2)-xp_loc(1)]; % no support for geogrid
-        xb_loc              =   cumsum([0 repmat(PSD.Dx.(fields{i}),1,length(xp_loc))]);
+        PSD.Dx.(fields{i})  =   xp_loc(2)-xp_loc(1); % no support for geogrid
+        PSD.xb.(fields{i})  =   cumsum([0 repmat(PSD.Dx.(fields{i}),1,length(xp_loc))]);
         PSD.xp.(fields{i})  =   xp_loc;
         size_loc            =   size(PSD.xp.(fields{i}));
-        size_tot            =   [size_tot size_loc(2)+3];
+        size_tot(i)         =   size_loc(2)+3;
     end
 end
 
@@ -91,33 +93,32 @@ if ndim>2
     xp3_arr             =   repmat(permute(PSD.xp.dim3(:),[3 2 1]),[finput.num.ngrid(1:2) 1]); 
 end
 
-tvec=PD.sol_time(1);
+tvec    =   PD.sol_time(1);
 
 %% Integration
     t=PD.sol_time(1);tcount=1;c(1)=PD.init_conc;  
     
-T(1) = PD.init_temp;
+    T(1) = PD.init_temp; V(1) = PD.init_volume;
  
-    flagdt=0;mu3=0;
+    flagdt=0;
+    
+    % Various memory preallocating
+    Dtsub = zeros(numel(fields),1);
+    infin = zeros(numel(fields),1);
     while t<finput.exp.ttot
 
         % Find Growth Rates along all dimensions
         for i=1:numel(fields)
             G.(fields{i}) = PD.growthrate(c(tcount),T(tcount),PSD.xp.(fields{i}));
-            unique(G.dim1)
-%             pause
         end
 
-        
         % Autotimestepsizer based on CFL condition (eq. 24 in Gunawan 2004)
         if flagdt==0
             
             for i=1:numel(fields)
                 [~,I]       =   max(abs(G.(fields{i}))./PSD.Dx.(fields{i}));
-                Dt(i)       =   abs(1*PSD.Dx.(fields{i})/G.(fields{i})(I));
+                Dtsub(i)    =   abs(1*PSD.Dx.(fields{i})/G.(fields{i})(I));
             end
-
-%             DtT     =   t_temperature-t; % how long to temperature waypoints
             
             if isfield(finput.exp,'tline')
                 nexttline   =   finput.exp.tline(find(finput.exp.tline>t,1,'first'));
@@ -126,7 +127,7 @@ T(1) = PD.init_temp;
                 Dttline     =   inf;
             end
             
-            Dt      =   min([0.1*finput.exp.ttot Dt finput.exp.ttot-t Dttline]);   % choose minimum of expressions (not too coarse description for plotting purposes)
+            Dt      =   min([0.1*finput.exp.ttot Dtsub finput.exp.ttot-t Dttline]);   % choose minimum of expressions (not too coarse description for plotting purposes)
 
         end
 
@@ -188,13 +189,13 @@ T(1) = PD.init_temp;
             Gmat                    =   repmat([0; 0; Gvec(:); 0],size(fstar(1,:,:)));
 
             % Calculate (potential) next distribution
-            if length(unique(G.(fields{i})))>1 & min(G.(fields{i}))>=0
+            if length(unique(G.(fields{i})))>1 && min(G.(fields{i}))>=0
 
                 f_dummy=fstar(3:end-1,:,:)-Dt./PSD.Dx.(fields{i}).*(Gmat(3:end-1,:,:).*fstar(3:end-1,:,:)-Gmat(2:end-2,:,:).*fstar(2:end-2,:,:))-...           % f(t=t+Dt) saved in a dummy variable for convenience
                         (Dt./(2*PSD.Dx.(fields{i})).*Gmat(3:end-1,:,:).*(1-(Dt./PSD.Dx.(fields{i}).*Gmat(3:end-1,:,:))).*(fstar(4:end,:,:)-fstar(3:end-1,:,:)).*Phi(2:end,:,:)-...
                         Dt./(2*PSD.Dx.(fields{i})).*Gmat(2:end-2,:,:).*(1-Dt./PSD.Dx.(fields{i}).*Gmat(2:end-2,:,:)).*(fstar(3:end-1,:,:)-fstar(2:end-2,:,:)).*Phi(1:end-1,:,:));
 
-                elseif length(unique(G.(fields{i})))>1 & min(G.(fields{i}))<=0
+                elseif length(unique(G.(fields{i})))>1 && min(G.(fields{i}))<=0
 
 
                     f_dummy=fstar(3:end-1,:,:)-Dt./PSD.Dx.(fields{i}).*(Gmat(4:end,:,:).*fstar(4:end,:,:)-Gmat(3:end-1,:,:).*fstar(3:end-1,:,:))+...           % f(t=t+Dt) saved in a dummy variable for convenience
@@ -210,13 +211,12 @@ T(1) = PD.init_temp;
 
                     f_dummy=fstar(3:end-1,:,:)-Dt*G.(fields{i})(1)./PSD.Dx.(fields{i}).*(fstar(4:end,:,:)-fstar(3:end-1,:,:))-Dt*G.(fields{i})(1)./(PSD.Dx.(fields{i})*2).*(1+Dt*G.(fields{i})(1)./PSD.Dx.(fields{i})).*...
                         ((fstar(3:end-1,:,:)-fstar(2:end-2,:,:)).*Phi(1:end-1,:,:)-(fstar(4:end,:,:)-fstar(3:end-1,:,:)).*Phi(2:end,:,:));     
-
-                else
-                    error('Wait a second','Epic Fail')
             end
-
-            fstar(3:end-1,:,:)    =   f_dummy;
-%             pause
+            
+            % Possible Volume change
+            f_dummy             =   f_dummy - PD.ASadditionrate(t)*fstar(3:end-1,:,:)/V(tcount)*Dt;
+            % Copy back
+            fstar(3:end-1,:,:)  =   f_dummy;
 
             if ~isvector(fstar)
                 fstar   =   shiftdim(fstar,ndim-i+1);
@@ -224,38 +224,24 @@ T(1) = PD.init_temp;
         
         end
          
-        % Calculate moments if necessary
-        if ndim==1 && ~isempty(PD.nucleationrate)
-            mu3     =   sum(fstar(3:end-1) .*PSD.Dx.dim1 .* xp1_arr.^3);
-            
-        elseif ndim==2 && strcmp(finput.setup.J,'on')
-            
-            mu3     =   sum(sum(fstar(3:end-1,3:end-1).* xp1_arr.^2.*xp2_arr.*PSD.Dx.dim1.*PSD.Dx.dim2));
-            
-        elseif ndim==3
-            fstarstar(1:infin(1)+3,1:infin(2)+3,1:infin(3)+3)   =   fstar;
-            fstar   =   fstarstar;
-            if strcmp(finput.setup.J,'on')
-                mu3     =   sum(sum(sum(fstar(3:end-1,3:end-1,3:end-1) .* PSD.Dx.dim1.* PSD.Dx.dim2.* PSD.Dx.dim3 .* xp1_arr .* xp2_arr .* xp3_arr)));
-            end
-
-        end
-
-  
         % Calculation of concentration at next timestep
         if ndim==1
-            c_dummy     =    c(tcount)-3 *PD.rhoc*PD.kv*sum(G.dim1(:).*f(3:end-1,tcount).*PSD.Dx.dim1.*xp1_arr(:).^2)*Dt;
+            c_dummy     =    c(tcount)-3 *PD.rhoc*PD.kv*sum(G.dim1(:).*f(3:end-1,tcount).*PSD.Dx.dim1.*xp1_arr(:).^2)*Dt ...
+                -PD.ASadditionrate(t)*c(tcount)/V(tcount)*Dt;
             
         elseif ndim==2
             
             c_dummy     =   c(tcount)-PD.rhoc*PD.kv*sum(sum((2*xp1_arr.*repmat(G.dim1',1,length(PSD.xp.dim2)).*xp2_arr+...
-                repmat(G.dim2,length(PSD.xp.dim1),1).*xp1_arr.^2).*f(3:end-1,3:end-1,tcount).*PSD.Dx.dim1.*PSD.Dx.dim2))*Dt;
+                repmat(G.dim2,length(PSD.xp.dim1),1).*xp1_arr.^2).*f(3:end-1,3:end-1,tcount).*PSD.Dx.dim1.*PSD.Dx.dim2))*Dt...
+            -PD.ASadditionrate(t)*c(tcount)/V(tcount)*Dt;
             
         elseif ndim==3
             
             c_dummy     =   c(tcount)-PD.rhoc*PD.kv*sum(sum(sum((xp1_arr.*xp2_arr.*repmat(permute(G.dim3(:),[3 2 1]),[size_tot(1:2)-3 1])+...
                 xp1_arr.*xp3_arr.*repmat(G.dim2(:)',[size_tot(1)-3 1 size_tot(3)-3])+...
-                xp2_arr.*xp3_arr.*repmat(G.dim1(:),[1 size_tot(2:3)-3])).*f(3:end-1,3:end-1,3:end-1,tcount).*PSD.Dx.dim1.*PSD.Dx.dim2.*PSD.Dx.dim3))).*Dt;
+                xp2_arr.*xp3_arr.*repmat(G.dim1(:),[1 size_tot(2:3)-3])).*...
+                f(3:end-1,3:end-1,3:end-1,tcount).*PSD.Dx.dim1.*PSD.Dx.dim2.*PSD.Dx.dim3))).*Dt...
+                -PD.ASadditionrate(t)*c(tcount)/V(tcount)*Dt;
             
         end
         
@@ -271,16 +257,16 @@ T(1) = PD.init_temp;
                     fstar(3,3,3)=   fstar(3,3,3)    +   B;
                     c_dummy     =   c_dummy-B*PD.rhoc .* PSD.xp.dim1(1) .* PSD.Dx.dim1.*PSD.Dx.dim2.*PSD.Dx.dim3 .* PSD.xp.dim2(1) .* PSD.xp.dim3(1);
                 end
-        elseif strcmp(finput.setup.J,'off')
-            ;
         end
         
         
         if t<=finput.exp.ttot
 
             T_dummy = PD.init_temp+PD.coolingrate(t)*(t-PD.sol_time(1));
+            V_dummy = PD.init_volume+PD.ASadditionrate(t)*(t-PD.sol_time(1));
+            
             % Check if result is approximately reasonable
-            if  sum(sum(sum(-fstar(fstar<0))))<sum(sum(sum(fstar(fstar>0))))*1e-2 & c_dummy>0 
+            if  sum(sum(sum(-fstar(fstar<0))))<sum(sum(sum(fstar(fstar>0))))*1e-2 && c_dummy>0 
                 
                 % Finalize Timestep
                 if ndim==1
@@ -294,6 +280,7 @@ T(1) = PD.init_temp;
                 c(tcount+1)     =   c_dummy;
 
                 T(tcount+1)     =   T_dummy; % Temperature
+                V(tcount+1)     =   V_dummy;
                 
                 tvec    =   [tvec t];
                 tcount  =   tcount+1;   
@@ -322,7 +309,7 @@ elseif ndim==3
 end
 PSD.F=f;
 
-output  =   struct('PSD',PSD,'time',tvec(:),'Temp',T(:),'c',c(:),'ndim',ndim,'fields',{fields});
+output  =   struct('PSD',PSD,'time',tvec(:),'Temp',T(:),'Volume',V(:),'c',c(:),'ndim',ndim,'fields',{fields});
 end
 
 
