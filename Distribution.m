@@ -84,10 +84,10 @@ classdef Distribution < handle
             
             % SET.Y
             %
-            % Check input for y: a vector, all positive, monotonically
-            % increasing. Always set y as a row vector
-            
-            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
+            % Check input for y: a vector, all positive, increasing. Always
+            % set y as a row vector
+
+            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value)
                 O.y = value(:)';
             else
                 warning('Distribution:SetY:WrongValue',...
