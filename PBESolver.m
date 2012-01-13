@@ -27,7 +27,7 @@ switch PD.sol_method
         SolutionTimes = output.time;
         SolutionConc = output.c;
         SolutionTemp = output.Temp;
-        SolutionVolume = PD.init_volume*ones(size(SolutionConc)); % not implemented yet
+        SolutionVolume = output.Volume;
         
         for i = 1:length(SolutionTimes)
             SolutionDists(i) = Distribution(output.PSD.xp.dim1,output.PSD.F(:,i),output.PSD.xb.dim1);
