@@ -171,7 +171,7 @@ classdef Distribution < handle
         
         %% Method moments(F,j)
         
-        function Fmo = moments(O,j,icalc,varargin)
+        function Fmo = moments(O,j,icalc)
             
             % Calculate moments from distribution/distributions over time.
             %
@@ -181,12 +181,12 @@ classdef Distribution < handle
             % moments returns the indicated moment as a row vector
             %
             % To calculate moments at specific time points, use e.g.:
-            % moments(F,3,[1 3 5])
+            %   F.moments(3,[1 3 5])
             % This returns the moment at the times equal t_out([1 3 5])
             
        
-            if nargin <= 2 && ~exist('icalc')
-                icalc = [1:length(O)];
+            if nargin <= 2 && ~exist('icalc','var')
+                icalc = 1:length(O);
             end
             
             % If possible, calculate moment. Otherwise do nothing
@@ -198,6 +198,10 @@ classdef Distribution < handle
                     warning('Distribution:boundaries:noboundaries',...
                     'No boundaries were passed. Assumed F = # of particles.');
                 end
+                
+                % Preallocate Fmo
+                Fmo = zeros(size(icalc));
+                
                 for i = icalc
                     Fmo(icalc==i) = sum(O(i).F .* diff(O(i).boundaries) .* O(i).y.^j);
                 end % for
