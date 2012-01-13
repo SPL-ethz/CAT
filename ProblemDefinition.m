@@ -335,6 +335,7 @@ classdef ProblemDefinition < handle
                 
             if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
                     || ~isempty(find(strcmp(plotwhat,'distoverlap'))) ...
+                    || ~isempty(find(strcmp(plotwhat,'detailed_results')))...
                     || ~isempty(find(strcmp(plotwhat,'results'))))
                 %% currently not active
 %                 % Check if Parent axes are already defined
@@ -386,6 +387,7 @@ classdef ProblemDefinition < handle
             if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
                     || ~isempty(find(strcmp(plotwhat,'dist3D'))) ...
                     || ~isempty(find(strcmp(plotwhat,'results')))...
+                    || ~isempty(find(strcmp(plotwhat,'detailed_results')))...
                     && ~strcmp(O.sol_method,'movingpivot'))
                 
                 for i = 1:length(O.calc_dist)
@@ -448,34 +450,35 @@ classdef ProblemDefinition < handle
             elseif (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
                 ~isempty(find(strcmp(plotwhat,'moments'))))
             
-            figure(22)
-            set(gcf,'numbertitle','off','name','Moments Only')  
-            PDpl_local = zeros(1,4);
-            
-            subplot(2,2,1)
-            PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));
-            ylabel('0^{th} moment')
-            xlabel('Time')
-            
-            subplot(2,2,2)
-            PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,1));
-            ylabel('1^{st} moment')
-            xlabel('Time')
-            
-            subplot(2,2,3)
-            PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,2));
-            ylabel('2^{nd} moment')
-            xlabel('Time')
-            
-            subplot(2,2,4)
-            PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,3));
-            ylabel('3^{th} moment')
-            xlabel('Time')
+                figure(22)
+                set(gcf,'numbertitle','off','name','Moments Only')  
+                PDpl_local = zeros(1,4);
+
+                subplot(2,2,1)
+                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));
+                ylabel('0^{th} moment')
+                xlabel('Time')
+
+                subplot(2,2,2)
+                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,1));
+                ylabel('1^{st} moment')
+                xlabel('Time')
+
+                subplot(2,2,3)
+                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,2));
+                ylabel('2^{nd} moment')
+                xlabel('Time')
+
+                subplot(2,2,4)
+                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,3));
+                ylabel('3^{th} moment')
+                xlabel('Time')
                 
             end % if
             
             % Process Variables
             if (~isempty(find(strcmp(plotwhat,'results'))) || ...
+                || ~isempty(find(strcmp(plotwhat,'detailed_results')))...
                 ~isempty(find(strcmp(plotwhat,'process'))))
             
                 figure(31)
