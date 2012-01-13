@@ -7,8 +7,8 @@ function [xout] = addBin(xin)
     p = xin(nBins+1:2*nBins); %pivot sizes
     L = xin(2*nBins+1:3*nBins+1); %boundaries
     c = xin(3*nBins+2); %solution concentration
-    T = xin(3*nBins+3); %solution concentration
-    V = xin(3*nBins+4); %solution concentration
+    T = xin(3*nBins+3); %temperature
+    V = xin(3*nBins+4); %volume of reactor content
     
     %shift old contents and add new bin
     N = [0; N];

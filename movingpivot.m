@@ -1,5 +1,5 @@
 function [dxdt] = movingpivot(t, x, PD)
-% movingpivot method for nucleation and growth, the 
+% movingpivot method for nucleation and growth
 
     nBins = (length(x)-4)/3; % number of bins   
     
@@ -13,11 +13,11 @@ function [dxdt] = movingpivot(t, x, PD)
     J = PD.nucleationrate(c,T);
     G = PD.growthrate(c,T,[p; L]);
     
-    dNdt = [J; -N(2:nBins)/V*PD.ASadditionrate];
+    dNdt = [J; -N(2:nBins)/V*PD.ASadditionrate];    
     dpdt = [0.5*G(1); G(2:nBins)'];
     dLdt = [0; G(nBins+2:2*nBins+1)'];
     
-    dcdt = -3*PD.rhoc*PD.kv*sum(p.^2.*dpdt.*N)-c/V*PD.ASadditionrate;
+    dcdt = -3*PD.rhoc*PD.kv*sum(p.^2.*dpdt(2).*N)-c/V*PD.ASadditionrate;
     dTdt = PD.coolingrate(t);
     dVdt = PD.ASadditionrate;
     dxdt = [dNdt; dpdt; dLdt; dcdt; dTdt; dVdt];

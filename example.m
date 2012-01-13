@@ -26,4 +26,4 @@ PD.sol_time = [0 100];
 
 %% Plot results
 
-plot(PD,'results');
+plot(PD,'detailed_results');

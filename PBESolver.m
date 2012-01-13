@@ -34,20 +34,21 @@ switch PD.sol_method
         end
  
     case 'movingpivot'
-        dL = 20e-6;
+        dL = 50e-6;
         X0 = [PD.init_dist.F.*(PD.init_dist.boundaries(2:end)-PD.init_dist.boundaries(1:end-1)) ...
             PD.init_dist.y PD.init_dist.boundaries  PD.init_conc PD.init_temp PD.init_volume];
         tstart = PD.sol_time(1);
         tend = PD.sol_time(end);
         
-        ODEoptions = odeset;
+        
         
         % if nucleation is present, bins are addded when the first bin
         % becomes too big
-        if PD.nucleationrate(PD.init_conc,PD.init_temp) > 0
-            ODEoptions = odeset('Events',@(t,x) EventAddBin(t,x,dL));
-            X0 = addBin(X0(:)); %since nucleation is present, add an empty bin
-        end
+        ODEoptions = odeset('RelTol', 1e-8);         
+%         if PD.nucleationrate(PD.init_conc,PD.init_temp) > 0
+            ODEoptions = odeset(ODEoptions, 'Events',@(t,x) EventAddBin(t,x,dL));
+%        end
+
         
         nt = length(PD.sol_time);
         if(nt > 2)
@@ -64,17 +65,18 @@ switch PD.sol_method
         SolutionTemp(1) = PD.init_temp;
         SolutionVolume(1) = PD.init_volume;
         
+        X = X0;
         s = 1;
         while tstart<tend 
             ts = PD.sol_time(PD.sol_time > tstart & PD.sol_time < tend);
-            
-            % Solve until the next event where the nucleation bin becomes to big (as defined by parameters.dL)
+            X0 = addBin(X(end,:)'); 
+            % Solve until the next event where the nucleation bin becomes to big (as defined by dL)
             [T,X] = ode15s(solvefun, [tstart ts tend],X0, ODEoptions);
             
             if(nt > 2)
                 [~, I] = intersect(T,PD.sol_time);
             else
-                I = 1:length(T);
+                I = 2:length(T);
             end
             
             tstart = T(end); 
@@ -84,6 +86,7 @@ switch PD.sol_method
             y = X(:,nBins+1:2*nBins);            
             boundaries = X(:,2*nBins+1:3*nBins+1);
             F = X(:,1:nBins)./(boundaries(:,2:end)-boundaries(:,1:end-1));
+            F(isnan(F)) = 0;
             
             for i = 1:length(I)
                 SolutionTimes(s+i) = T(I(i));
@@ -92,9 +95,8 @@ switch PD.sol_method
                 SolutionVolume(s+i) = X(I(i),3*nBins+4);   
                 SolutionDists(s+i) = Distribution( y(I(i),:) , F(I(i),:), boundaries(I(i),:) );
             end % for
-            
-            ODEoptions = odeset(ODEoptions,'InitialStep',T(end)-T(end-1)); %choosing step size based on the last step size
-            X0 = addBin(X(end,:)'); 
+%             ODEoptions = odeset(ODEoptions,'InitialStep',T(nt)-T(end-1),...
+%                            'MaxStep',T(end)-T(1));
             s = s + length(I);
         end %while        
     case 'centraldifference'
