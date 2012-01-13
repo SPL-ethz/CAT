@@ -11,7 +11,7 @@ PD = ProblemDefinition;
 
 % Define grid
 nBins = 100;
-gridL = linspace(0,100e-6,nBins+1);
+gridL = linspace(0,100e-5,nBins+1);
 meanL = (gridL(1:end-1)+gridL(2:end))/2;
 PD.init_dist.y = meanL;
 PD.init_dist.boundaries = gridL;
@@ -32,7 +32,7 @@ Tprofile = [308 303 298 298];
 
 
 %define a simple gaussian as initial distribution
-mu = mean(gridL);
+mu = 5e-5;
 sigma = 0.1*mu;
 gauss = @(x) exp(-((x-mu).^2/(2*sigma^2)));
 values = gauss(meanL);
@@ -43,7 +43,7 @@ PD.init_dist.F = values;
 
 
 % Set solver method to moving pivot
-PD.sol_method = 'movingpivot';
+PD.sol_method = 'hires';
 
 
 %% Solve
