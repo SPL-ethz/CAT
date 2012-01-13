@@ -91,7 +91,7 @@ if ndim>2
     xp3_arr             =   repmat(permute(PSD.xp.dim3(:),[3 2 1]),[finput.num.ngrid(1:2) 1]); 
 end
 
-tvec=0;
+tvec=PD.sol_time(1);
 
 %% Integration
     t=PD.sol_time(1);tcount=1;c(1)=PD.init_conc;  
@@ -131,7 +131,7 @@ T(1) = PD.init_temp;
         end
 
         t           =   t+Dt; % update time step
-        tau         =   t/finput.exp.ttot
+%         tau         =   t/finput.exp.ttot
         
         % mini failsafe
         if finput.exp.ttot-t     <   1e-12
@@ -278,7 +278,7 @@ T(1) = PD.init_temp;
         
         if t<=finput.exp.ttot
 
-            T_dummy = PD.init_temp+PD.coolingrate()*(t-PD.sol_time(1));
+            T_dummy = PD.init_temp+PD.coolingrate(t)*(t-PD.sol_time(1));
             % Check if result is approximately reasonable
             if  sum(sum(sum(-fstar(fstar<0))))<sum(sum(sum(fstar(fstar>0))))*1e-2 & c_dummy>0 
                 
@@ -294,8 +294,6 @@ T(1) = PD.init_temp;
                 c(tcount+1)     =   c_dummy;
 
                 T(tcount+1)     =   T_dummy; % Temperature
-
-%                 cs(tcount+1)    =   cs_dummy; % Solubility
                 
                 tvec    =   [tvec t];
                 tcount  =   tcount+1;   

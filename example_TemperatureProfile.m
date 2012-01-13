@@ -11,7 +11,7 @@ PD = ProblemDefinition;
 
 % Define grid
 nBins = 100;
-gridL = linspace(0,100e-5,nBins+1);
+gridL = linspace(0,2.5e-4,nBins+1);
 meanL = (gridL(1:end-1)+gridL(2:end))/2;
 PD.init_dist.y = meanL;
 PD.init_dist.boundaries = gridL;
