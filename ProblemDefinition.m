@@ -178,7 +178,7 @@ classdef ProblemDefinition < handle
             
         end % function
         
-        %% Method set.method
+        %% Method set.sol_method
         
         function set.sol_method(O,value)
             
@@ -197,6 +197,8 @@ classdef ProblemDefinition < handle
             end % if else
             
         end % function
+        
+        %% Method set.sol_options
         
         function set.sol_options(O,value)
             
