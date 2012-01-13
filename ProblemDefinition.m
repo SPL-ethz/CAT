@@ -66,7 +66,7 @@ classdef ProblemDefinition < handle
         
         % anti-solvent addition rate
         % Defines the anti-solvent addition rate dV/dt.         
-        ASadditionrate = 0;
+        ASadditionrate = @(t) 0;
         
     end % properties
     
@@ -283,6 +283,35 @@ classdef ProblemDefinition < handle
             else
                 warning('Distribution:setcoolingrate:Wrongtype',...
                     'The cooling rate must be defined as a function_handle with 1 input or a scalar for a constant cooling rate.');
+            end %if
+            
+        end % function
+        
+        %% Method set.ASadditionrate
+        
+        function set.ASadditionrate(O,value)
+            
+            % SET.ASadditionrate
+            %
+            % Check the AS addition rate: function handle with one input,
+            % or scalar (transformed to function)
+            % arguments: t (scalar)
+            % output: dVdt (scalar)
+            
+            if strcmp(class(value),'function_handle')                
+                % Check the number of inputs
+                if nargin(value) ~=1                    
+                    warning('Distribution:setcoolingrate:Wrongnargin',...
+                            'The cooling rate must have a single input parameter (time).');
+                else
+                    % The growth rate function is OK, set it
+                    O.ASadditionrate = value;
+                end % if else 
+            elseif isscalar(value)
+                O.ASadditionrate = @(t) double(value);                
+            else
+                warning('Distribution:setcoolingrate:Wrongtype',...
+                    'The cooling rate must be defined as a function_handle with 1 input or a scalar for a constant AS addition rate.');
             end %if
             
         end % function
