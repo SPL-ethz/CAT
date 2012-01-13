@@ -87,11 +87,29 @@ classdef Distribution < handle
             % Check input for y: a vector, all positive, increasing. Always
             % set y as a row vector
 
-            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value)
+            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
                 O.y = value(:)';
             else
                 warning('Distribution:SetY:WrongValue',...
                     'The property y must be a vector of positive values, in increasing order (duplicates allowed)');
+            end % if
+            
+        end % function
+                    
+        %% Method set.boundaries
+        
+        function set.boundaries(O,value)
+            
+            % SET.Y
+            %
+            % Check input for boundaries: a vector, all positive (and 0),
+            % duplicates allowed. Always set boundaries as a row vector
+            
+            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
+                O.boundaries = value(:)';
+            else
+                warning('Distribution:SetBoundaries:WrongValue',...
+                    'The property boundaries must be a vector of positive values, in increasing order (duplicates allowed)');
             end % if
             
         end % function
@@ -113,24 +131,6 @@ classdef Distribution < handle
                 % Value is not OK - display warning
                 warning('Distribution:setF0:WrongType',...
                     'F has to be a function handle or a vector');
-            end % if
-            
-        end % function
-            
-        %% Method set.boundaries
-        
-        function set.boundaries(O,value)
-            
-            % SET.Y
-            %
-            % Check input for boundaries: a vector, all positive (and 0),
-            % duplicates allowed. Always set boundaries as a row vector
-            
-            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
-                O.boundaries = value(:)';
-            else
-                warning('Distribution:SetBoundaries:WrongValue',...
-                    'The property boundaries must be a vector of positive values, in increasing order (duplicates allowed)');
             end % if
             
         end % function
