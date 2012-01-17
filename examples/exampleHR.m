@@ -4,6 +4,8 @@ clear all
 clc
 close all
 
+addALLthepaths
+
 %% Set up problem
 
 % Basic object
@@ -42,7 +44,8 @@ PD.sol_method = 'hires';
 PD.sol_options = {'Phi' 'vanleer'};
 
 %% Solve
-[PD.calc_time, PD.calc_dist, PD.calc_conc, PD.calc_temp, PD.calc_volume]  = PBESolver(PD);
+% [PD.calc_time, PD.calc_dist, PD.calc_conc, PD.calc_temp, PD.calc_volume]  = PBESolver(PD);
+PD = ProfileManager(PD);
 
 %% Plot results
 

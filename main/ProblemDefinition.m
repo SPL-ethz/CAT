@@ -14,6 +14,12 @@ classdef ProblemDefinition < handle
         % Initial temperature
         init_temp = 298;
         
+        % Temperature profile
+        Tprofile = [];
+        
+        % Time profile
+        tprofile = [];
+        
         % Initial volume
         init_volume = 1;
         
@@ -217,7 +223,39 @@ classdef ProblemDefinition < handle
             end % if else
             
         end % function
-                
+        
+        function set.Tprofile(O,value)
+            
+            % SET.Tprofile
+            %
+            % Check the Temperature profile. It must be a vector with
+            % positive, finite elements
+
+            if isvector(value) && length(value)>1 && all(value >= 0) && all(isfinite(value))
+                O.Tprofile = value(:)';
+            else
+                warning('ProblemDefinition:SetTprofile:WrongType',...
+                    'The Tprofile property must be a positive, finite vector (may be zero)');
+            end % if else
+            
+        end % function
+        
+        function set.tprofile(O,value)
+            
+            % SET.tprofile
+            %
+            % Check the time profile (for Temperature profiles). It must be
+            % a strictly increasing(!), positive vector
+
+            if isvector(value) && length(value)>1 &&  all(value >= 0) && all(isfinite(value)) && ~any(diff(value)<0)
+                O.tprofile = value(:)';
+            else
+                warning('ProblemDefinition:Settprofile:WrongType',...
+                    'The tprofile property must be a positive, finite, strictly increasing vector.');
+            end % if else
+            
+        end % function
+        
         %% Method set.growthrate
         
         function set.growthrate(O,value)
