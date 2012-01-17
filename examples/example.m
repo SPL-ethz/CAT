@@ -24,7 +24,9 @@ PD.sol_time = [0 100];
 
 %% Solve
 
-[PD.calc_time, PD.calc_dist, PD.calc_conc, PD.calc_temp, PD.calc_volume] = PBESolver(PD);
+% [PD.calc_time, PD.calc_dist, PD.calc_conc, PD.calc_temp, PD.calc_volume] = PBESolver(PD);
+
+PD = ProfileManager(PD);
 
 
 %% Plot results
