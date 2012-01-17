@@ -42,7 +42,7 @@ PD.init_dist.F = values;
 
 
 % Set solver method to moving pivot
-PD.sol_method = 'hires';
+PD.sol_method = 'movingpivot';
 
 
 %% Solve
