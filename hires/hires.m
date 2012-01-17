@@ -287,6 +287,7 @@ tvec    =   PD.sol_time(1);
                 flagdt  =   0;
 
             else
+
                 % Use a smaller timestep and repeat everything
                 t       =   t-Dt;
                 flagdt  =   1;

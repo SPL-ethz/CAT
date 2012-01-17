@@ -23,12 +23,12 @@ switch PD.sol_method
         end
 
         output = hires(finput,PD);
-        output.PSD
         SolutionTimes = output.time;
         SolutionConc = output.c;
         SolutionTemp = output.Temp;
         SolutionVolume = output.Volume;
         
+        SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  %# Pre-Allocation for speed 
         for i = 1:length(SolutionTimes)
             SolutionDists(i) = Distribution(output.PSD.xp.dim1,output.PSD.F(:,i),output.PSD.xb.dim1);
         end

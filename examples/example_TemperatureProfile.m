@@ -4,6 +4,8 @@ clear all
 clc
 close all
 
+addALLthepaths
+
 %% Set up problem
 
 % Basic object
