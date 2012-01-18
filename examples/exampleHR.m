@@ -23,7 +23,7 @@ PD.init_conc = 5*SolubilityAlphaLGLU(PD.init_temp);
 PD.growthrate = @(c,T,y) GrowthRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T,y);
 
 % Define nucleation rate
-PD.nucleationrate = @(c,T) NucleationRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T); %comment to deactivate nucleation
+% PD.nucleationrate = @(c,T) NucleationRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T); %comment to deactivate nucleation
 
 % Define operating conditions
 seed_mass = 0.004; % seed mass - kg
