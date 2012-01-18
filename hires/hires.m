@@ -262,8 +262,10 @@ tvec    =   PD.sol_time(1);
         
         if t<=finput.exp.ttot
 
-            T_dummy = PD.init_temp+PD.coolingrate(t)*(t-PD.sol_time(1));
-            V_dummy = PD.init_volume+PD.ASadditionrate(t)*(t-PD.sol_time(1));
+%             T_dummy = T(tcount)+PD.coolingrate(t)*Dt;
+            [~,Y] = ode45(@(x,y) hires_tempvol(x,y,PD) , [t-Dt t] , [T(tcount) V(tcount)]);
+            T_dummy = Y(end,1);
+            V_dummy = Y(end,2);
             
             % Check if result is approximately reasonable
             if  sum(sum(sum(-fstar(fstar<0))))<sum(sum(sum(fstar(fstar>0))))*1e-2 && c_dummy>0 
