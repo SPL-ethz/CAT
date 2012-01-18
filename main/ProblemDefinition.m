@@ -17,6 +17,9 @@ classdef ProblemDefinition < handle
         % Temperature profile
         Tprofile = [];
         
+        % Cooling Rate profile
+        coolingrateprofile = {};
+        
         % Time profile
         tprofile = [];
         
@@ -323,6 +326,37 @@ classdef ProblemDefinition < handle
                     'The cooling rate must be defined as a function_handle with 1 input or a scalar for a constant cooling rate.');
             end %if
             
+        end % function
+        
+        function set.coolingrateprofile(O,value)
+            
+            % SET.coolingrateprofile
+            %
+            % Check the cooling rate profile: Must be cell array of
+            % function handels or scalar
+            
+            if iscell(value)
+                for i = 1:length(value)
+                    if strcmp(class(value{i}),'function_handle')                
+                        % Check the number of inputs
+                        if nargin(value{i}) ~=1                    
+                            warning('ProblemDefinition:setcoolingrateprofile:Wrongnargin',...
+                                    'The elements of the cooling rate profile must have a single input parameter (time).');
+                        else
+                            % The cooling rate function is OK, set it
+                            O.coolingrateprofile{i} = value{i};
+                        end % if else 
+                    elseif isscalar(value{i})
+                        O.coolingrateprofile{i} = @(t) double(value{i});                
+                    else
+                        warning('ProblemDefinition:setcoolingrateprofile:Wrongtype',...
+                            'The elements of the cooling rate profile must be defined as a function_handle with 1 input or a scalar for a constant cooling rate.');
+                    end %if
+                end % for
+            else
+                warning('ProblemDefinition:setcoolingrateprofile:TotalWrongtype',...
+                            'The cooling rate profile must be a cell array of scalars or function handles.');
+            end % if
         end % function
         
         %% Method set.ASadditionrate
