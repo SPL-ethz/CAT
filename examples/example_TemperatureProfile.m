@@ -29,8 +29,8 @@ PD.growthrate = @(c,T,y) GrowthRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T,y);
 seed_mass = 0.004;
 PD.init_volume = 0.02; % volume of reactor - m^3
 PD.tprofile = [0 3600 21600 84000];
-% PD.Tprofile = [308 303 298 298];
-PD.coolingrateprofile={@(t) -1e-6*t 0 0};
+PD.Tprofile = [290 295 295 290];
+% PD.coolingrateprofile={@(t) -1e-6*t 0 1e-5};
 
 
 %define a simple gaussian as initial distribution

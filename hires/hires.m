@@ -262,10 +262,19 @@ tvec    =   PD.sol_time(1);
         
         if t<=finput.exp.ttot
 
-%             T_dummy = T(tcount)+PD.coolingrate(t)*Dt;
-            [~,Y] = ode45(@(x,y) hires_tempvol(x,y,PD) , [t-Dt t] , [T(tcount) V(tcount)]);
-            T_dummy = Y(end,1);
-            V_dummy = Y(end,2);
+%             
+            try
+                [~,Y] = ode45(@(x,y) hires_tempvol(x,y,PD) , [tvec(end) t] , [T(tcount) V(tcount)]);
+                T_dummy = Y(end,1);
+                V_dummy = Y(end,2);
+            catch
+                T_dummy = T(tcount)+PD.coolingrate(t)*Dt;
+                V_dummy = V(tcount)+PD.ASadditionrate(t)*Dt;
+            end
+            
+            % complex T and V profiles are probably not handled well by
+            % this solver if Dt large as G(T) is taken only at T(t0)...
+            
             
             % Check if result is approximately reasonable
             if  sum(sum(sum(-fstar(fstar<0))))<sum(sum(sum(fstar(fstar>0))))*1e-2 && c_dummy>0 

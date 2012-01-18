@@ -236,6 +236,8 @@ classdef ProblemDefinition < handle
 
             if isvector(value) && length(value)>1 && all(value >= 0) && all(isfinite(value))
                 O.Tprofile = value(:)';
+                
+                O.init_temp = value(1);
             else
                 warning('ProblemDefinition:SetTprofile:WrongType',...
                     'The Tprofile property must be a positive, finite vector (may be zero)');
@@ -333,7 +335,7 @@ classdef ProblemDefinition < handle
             % SET.coolingrateprofile
             %
             % Check the cooling rate profile: Must be cell array of
-            % function handels or scalar
+            % function handels or scalars
             
             if iscell(value)
                 for i = 1:length(value)
