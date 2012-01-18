@@ -20,8 +20,14 @@ classdef ProblemDefinition < handle
         % Cooling Rate profile
         coolingrateprofile = {};
         
-        % Time profile
-        tprofile = [];
+        % (Anti)solvent addition Rate profile
+        ASadditionrateprofile = {};
+        
+        % Time profile Temperature
+        tTprofile = [];
+        
+        % Time profile ASaddition
+        tQprofile = [];
         
         % Initial volume
         init_volume = 1;
@@ -245,18 +251,34 @@ classdef ProblemDefinition < handle
             
         end % function
         
-        function set.tprofile(O,value)
+        function set.tTprofile(O,value)
             
-            % SET.tprofile
+            % SET.tTprofile
             %
             % Check the time profile (for Temperature profiles). It must be
             % a strictly increasing(!), positive vector
 
             if isvector(value) && length(value)>1 &&  all(value >= 0) && all(isfinite(value)) && ~any(diff(value)<0)
-                O.tprofile = value(:)';
+                O.tTprofile = value(:)';
             else
                 warning('ProblemDefinition:Settprofile:WrongType',...
-                    'The tprofile property must be a positive, finite, strictly increasing vector.');
+                    'The tTprofile property must be a positive, finite, strictly increasing vector.');
+            end % if else
+            
+        end % function
+        
+        function set.tQprofile(O,value)
+            
+            % SET.tQprofile
+            %
+            % Check the time profile (for addition profiles). It must be
+            % a strictly increasing(!), positive vector
+
+            if isvector(value) && length(value)>1 &&  all(value >= 0) && all(isfinite(value)) && ~any(diff(value)<0)
+                O.tQprofile = value(:)';
+            else
+                warning('ProblemDefinition:Settprofile:WrongType',...
+                    'The tQprofile property must be a positive, finite, strictly increasing vector.');
             end % if else
             
         end % function
@@ -388,6 +410,37 @@ classdef ProblemDefinition < handle
                     'The cooling rate must be defined as a function_handle with 1 input or a scalar for a constant AS addition rate.');
             end %if
             
+        end % function
+        
+        function set.ASadditionrateprofile(O,value)
+            
+            % SET.ASadditionrateprofile
+            %
+            % Check the addition rate profile: Must be cell array of
+            % function handels or scalars (transformed to function)
+            
+            if iscell(value)
+                for i = 1:length(value)
+                    if strcmp(class(value{i}),'function_handle')                
+                        % Check the number of inputs
+                        if nargin(value{i}) ~=1                    
+                            warning('ProblemDefinition:setASadditionrateprofile:Wrongnargin',...
+                                    'The elements of the addition rate profile must have a single input parameter (time).');
+                        else
+                            % The cooling rate function is OK, set it
+                            O.ASadditionrateprofile{i} = value{i};
+                        end % if else 
+                    elseif isscalar(value{i})
+                        O.ASadditionrateprofile{i} = @(t) double(value{i});                
+                    else
+                        warning('ProblemDefinition:setASadditionrateprofile:Wrongtype',...
+                            'The elements of the addition rate profile must be defined as a function_handle with 1 input or a scalar for a constant cooling rate.');
+                    end %if
+                end % for
+            else
+                warning('ProblemDefinition:setASadditionrateprofile:TotalWrongtype',...
+                            'The addition rate profile must be a cell array of scalars or function handles.');
+            end % if
         end % function
         
         %% Method massbal
@@ -584,7 +637,7 @@ classdef ProblemDefinition < handle
                 ~isempty(find(strcmp(plotwhat,'process'))))
             
                 figure(31)
-                set(gcf,'numbertitle','off','name','Process Variables')
+                set(gcf,'numbertitle','off','name','Process Variables (I)')
             
             % Handles for plots
                 PDpl_local = zeros(1,1);
@@ -623,7 +676,22 @@ classdef ProblemDefinition < handle
 
                         nopvit = nopvit + 1;
                     end
-                else
+                    
+                    if ~isempty(O.calc_temp) && ~isempty(O.calc_conc) && ...
+                            (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
+                            ~isempty(find(strcmp(plotwhat,'process'))))
+                        PDpl_local = zeros(1,1);
+                        
+                        figure(32)
+                        set(gcf,'numbertitle','off','name','Process Variables (II)')
+                        PDpl_local = plot(O.calc_temp,O.calc_conc);
+                        xlabel('Temperature')
+                        ylabel('Concentration')
+                        
+                        PDpl = [PDpl PDpl_local];
+                    end
+                        
+                else % nopv == 0
                     warning('ProblemDefinition:PlotCumProp:Inexistent',...
                     'Cumulative Properties profiles missing');
                 end % if

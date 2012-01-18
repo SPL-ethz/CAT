@@ -28,9 +28,12 @@ PD.growthrate = @(c,T,y) GrowthRateAlphaLGLU(c/SolubilityAlphaLGLU(T),T,y);
 % Define operating conditions
 seed_mass = 0.004;
 PD.init_volume = 0.02; % volume of reactor - m^3
-PD.tprofile = [0 3600 21600 84000];
-PD.Tprofile = [290 295 295 290];
+PD.tTprofile = [0 36 216 1000];
+PD.Tprofile = [290 286 286 280];
 % PD.coolingrateprofile={@(t) -1e-6*t 0 1e-5};
+% PD.init_temp=290;
+PD.ASadditionrateprofile={1e-6 0};
+PD.tQprofile = [0 100 1000];
 
 
 %define a simple gaussian as initial distribution
@@ -45,7 +48,8 @@ PD.init_dist.F = values;
 
 
 % Set solver method to moving pivot
-PD.sol_method = 'movingpivot';
+% PD.sol_method = 'movingpivot';
+PD.sol_method = 'hires';
 
 
 PD = ProfileManager(PD);
