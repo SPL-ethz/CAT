@@ -6,17 +6,6 @@ m = PD.init_massmedium+(PD.ASprofile(t)-PD.ASprofile(0));
 % Current mass fraction antisolvent
 xm = PD.ASprofile(t)/m;
 
-% Current concentration
-c = X(end);
-
-% Grid
-y = PD.init_dist.y;
-ya = y([2:end end]);
-yb = y([1 1:end-2 end-2]);
-
-% Current temperature
-T = PD.Tprofile(t);
-
 % Current supersaturation
 S = c/PD.solubility(T,xm);
 
@@ -24,18 +13,22 @@ S = c/PD.solubility(T,xm);
 Q = (PD.ASprofile(t+1e-12)-PD.ASprofile(t-1e-12))/2e-12;
     
 
+c = X(end);
+y = PD.init_dist.y;
+T = PD.Tprofile(t);
 F = X(1:length(y))';
 
+ya = y([2:end end]);
 Ga = PD.growthrate(S, T, ya );
 Fa = F( [2:end end] );
 
-Gb = PD.growthrate(S, T, yb );
+yb = y([1 1:end-2 end-2]);
+Gb = PD.growthrate(c, T, yb );
 Fb = F( [1 1:end-2 end-2] );
 
 % Growth derivative
 dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';
-dc = -3*PD.kv*PD.rhoc*sum(PD.growthrate(S,T,y(:)).*X(1:end-1).*y(:).^2);
 
-dXdt = [dF-Q*X(1:end-1)/m; dc];
+dXdt = [dF; 0];
 
 end % function

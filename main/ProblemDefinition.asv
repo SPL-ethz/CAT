@@ -12,7 +12,7 @@ classdef ProblemDefinition < handle
         init_conc = 1;
         
         % Solubility
-        solubility = @(T,xm) 0.5;
+        solubility = @(T,xm) T;
         
         % Temperature profile
         Tprofile = @(t) 298;
@@ -158,11 +158,11 @@ classdef ProblemDefinition < handle
             if isscalar(value) && value >= 0 && isfinite(value)
                 O.init_conc = value;
                 
-            elseif ischar(value) && strcmpi(value,'sat') % solution is saturated in the beginning
+            elseif ischar(value) && strcmpi(value,'sat')
                 O.init_conc = O.solubility(O.Tprofile(0));
             else
                 warning('ProblemDefinition:SetInit_Conc:WrongType',...
-                    'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
+                    'The init_conc property must be a positive, finite scalar (may be zero)');
             end % if else
             
         end % function

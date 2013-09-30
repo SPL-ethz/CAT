@@ -1,4 +1,4 @@
-function [SolutionTimes SolutionDists SolutionConc SolutionTemp SolutionVolume] = PBESolver (PD)
+function [SolutionTimes SolutionDists SolutionConc SolutionMassMedium] = PBESolver (PD)
 
 % PBESOLVER
 %
@@ -11,37 +11,14 @@ solvefun = str2func(PD.sol_method);
 solvefun = @(t,X) solvefun(t,X,PD);
 
 switch PD.sol_method
-    case 'hires'
-        finput.exp.f0 = PD.init_dist.F;
 
-        if ~isempty(PD.init_dist.boundaries)
-            finput.num.boundaries.dim1  = PD.init_dist.boundaries;
-            finput.num.ngrid            = length(PD.init_dist.boundaries)-1;
-        elseif ~isempty(PD.init_dist.y)
-            finput.num.y.dim1  = PD.init_dist.y;
-            finput.num.ngrid   = length(PD.init_dist.y);
-        end
-
-        output = hires(finput,PD);
-        SolutionTimes = output.time;
-        SolutionConc = output.c;
-        SolutionTemp = output.Temp;
-        SolutionVolume = output.Volume;
-        
-        SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  %# Pre-Allocation for speed 
-        for i = 1:length(SolutionTimes)
-            SolutionDists(i) = Distribution(output.PSD.xp.dim1,output.PSD.F(:,i),output.PSD.xb.dim1);
-        end
- 
     case 'movingpivot'
         dL = 50e-6;
         X0 = [PD.init_dist.F.*(PD.init_dist.boundaries(2:end)-PD.init_dist.boundaries(1:end-1)) ...
             PD.init_dist.y PD.init_dist.boundaries  PD.init_conc PD.init_temp PD.init_volume];
         tstart = PD.sol_time(1);
         tend = PD.sol_time(end);
-        
-        
-        
+
         % if nucleation is present, bins are addded when the first bin
         % becomes too big
         ODEoptions = odeset('RelTol', 1e-8);         
@@ -111,7 +88,6 @@ switch PD.sol_method
             SolutionDists(i) = Distribution( y , X_out(i,1:length(y)) );
         end % for
         SolutionConc = X_out(:,end);
-        SolutionTemp = ones(size(SolutionConc))*PD.init_temp;
-        SolutionVolume = ones(size(SolutionConc))*PD.init_volume;
+        SolutionMassMedium = ones(size(SolutionConc))*PD.init_massmedium;
 end %switch
 end % function
