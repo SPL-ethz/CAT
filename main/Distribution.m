@@ -207,8 +207,11 @@ classdef Distribution < handle
                     else
                         Dy = diff(O(i).boundaries);
                     end
-                    
-                    Fmo(icalc==i) = sum(O(i).F(:) .* Dy(:).* O(i).y(:).^j);
+%                     try
+                        Fmo(icalc==i) = sum(O(i).F(:) .* Dy(:).* O(i).y(:).^j);
+%                     catch
+%                         keyboard
+%                     end
                 end % for
                     
             else
