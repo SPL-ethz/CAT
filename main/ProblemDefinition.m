@@ -23,6 +23,9 @@ classdef ProblemDefinition < handle
         % nodes for non-smooth input profiles
         tNodes = [];
         
+        % Seed mass
+        init_seed = 1;
+        
         % Initial mass of solvent + antisolvent
         init_massmedium = 1;
         
@@ -142,6 +145,23 @@ classdef ProblemDefinition < handle
                     'The init_dist property must be a Distribution object');
             else
                 O.init_dist = value;
+            end % if else
+            
+        end % function
+        
+        %% Method set.init_seed
+        
+        function set.init_seed(O,value)
+            
+            % SET.INIT_SEED
+            %
+            % Set mass of seeds
+            
+            if isscalar(value) && ~isnan(value) && value>0 && ~isinf(value)
+                O.init_seed = value;
+            else
+                warning('ProblemDefinition:SetInit_Seed:WrongType',...
+                    'The init_seed property must be a positive scalar');
             end % if else
             
         end % function

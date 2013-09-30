@@ -13,18 +13,18 @@ addALLthepaths
 PD = ProblemDefinition;
 
 % Define initial conditions
-PD.init_dist.y = linspace(0,2);
-PD.init_dist.F = @(x) normpdf(x,0.5,0.1);
+PD.init_dist.y = linspace(10,500);
+PD.init_dist.F = @(x) normpdf(x,100,30);
+PD.init_seed = 1;
+PD.init_massmedium = 1000;
 
 % Define growth rate
-PD.growthrate = @(S,T,y) 1e-2*S*ones(size(y));
+PD.growthrate = @(S,T,y) 1e-1*log(S)*ones(size(y));
 
 % Define solution parameters - time
-PD.sol_time = [0 100];
+PD.sol_time = [0 60*60];
 
 %% Solve
-
-% [PD.calc_time, PD.calc_dist, PD.calc_conc, PD.calc_temp, PD.calc_volume] = PBESolver(PD);
 
 PD = ProfileManager(PD);
 

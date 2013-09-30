@@ -1,8 +1,9 @@
 function [PD] = ProfileManager(PD)
 
-flagTp = 0;flagQp = 0;tprofile=[];
 %% Solve
 PD.calc_dist = Distribution;
+% keyboard
+PD.init_dist.mass = [PD.init_seed PD.kv PD.rhoc];
 
 if ~isempty(PD.tNodes)
     for i = 2:length(PD.tNodes) % make sure you hit the different nodes of the non-smooth profiles
