@@ -1,0 +1,7 @@
+function [f] = hiResNucleation(c0,cs0,f0,Dt,finput,Dx,xp,ndim,xp1_arr,xp2_arr,xp3_arr)
+
+%% Addition of Nucleation term
+
+
+f = f0;
+f(3)    =   f0(3)        +   B;
