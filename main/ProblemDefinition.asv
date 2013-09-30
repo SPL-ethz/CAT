@@ -15,10 +15,10 @@ classdef ProblemDefinition < handle
         solubility = @(T,xm) 0.5;
         
         % Temperature profile
-        Tprofile = @(t) 298;
+        Tprofile = @(t) 298*ones(size(t));
         
         % (Anti)solvent added mass profile
-        ASprofile = @(t) 0;
+        ASprofile = @(t) 0*t;
 
         % nodes for non-smooth input profiles
         tNodes = [];
@@ -48,9 +48,6 @@ classdef ProblemDefinition < handle
         
         % Concentrations over time [g solute / g total solvents]
         calc_conc
-        
-        % Mass (of solvent + antisolvent) over time
-        calc_massmedium
         
         % Method to use - default to central difference
         sol_method = 'centraldifference'
@@ -119,13 +116,6 @@ classdef ProblemDefinition < handle
                 O.nucleationrate = nucleationrate;
             end % if 
             
-            if nargin > 6 && ~isempty(coolingrate)
-                O.coolingrate = coolingrate;
-            end % if 
-            
-            if nargin > 7 && ~isempty(ASadditionrate)
-                O.ASadditionrate = ASadditionrate;
-            end % if 
         end % function
         
         %% Method set.init_dist
@@ -411,9 +401,10 @@ classdef ProblemDefinition < handle
         %% Method massbal
         
         function PDma = massbal(O)
-            mass_solute = O.calc_conc(:).*O.calc_massmedium(:);   % total mass of solute
+            mscalc = O.init_massmedium+O.ASprofile(O.calc_time)-O.ASprofile(0);
+            mass_solute = O.calc_conc(:).*mscalc(:);   % total mass of solute
             m3 = moments(O.calc_dist,3);                            % third moment over time
-            mass_crystals = O.rhoc*O.kv*O.calc_massmedium(:).*m3(:);    % total mass of crystals
+            mass_crystals = O.rhoc*O.kv*mscalc(:).*m3(:);    % total mass of crystals
             
             PDma = 100*((mass_solute + mass_crystals)/(mass_solute(1)+mass_crystals(1))-1);     % mass balance error   
         end % function
@@ -454,6 +445,7 @@ classdef ProblemDefinition < handle
                 
                 PDpl = [];
                 Tcalc = O.Tprofile(O.calc_time);
+                mscalc = O.init_massmedium+O.ASprofile(O.calc_time)-O.ASprofile(0);
                 
             if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
                     || ~isempty(find(strcmp(plotwhat,'distoverlap'))) ...
@@ -538,6 +530,42 @@ classdef ProblemDefinition < handle
                 zlabel('Normalized Volume Distribution')
 
                 PDpl = [PDpl PDpl_local];
+                
+            elseif (~isempty(find(strcmp(plotwhat,'distributions'))) ...
+                    || ~isempty(find(strcmp(plotwhat,'dist3D'))) ...
+                    || ~isempty(find(strcmp(plotwhat,'results')))...
+                    || ~isempty(find(strcmp(plotwhat,'detailed_results')))...
+                    && strcmp(O.sol_method,'movingpivot'))
+                
+                figure(12)
+                set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
+                
+                % Handles for plots
+                PDpl_local = zeros(1,2);
+
+                subplot(1,2,1)
+                for i = 1:length(O.calc_time)
+                    PDpl_local(i) = plot3(repmat(O.calc_time(i),size(O.calc_dist(i).y)),O.calc_dist(i).y(:),O.calc_dist(i).F,{varargin{:});
+                    hold on
+                end
+                ylabel('Mean Char. Length')
+                xlabel('Time')
+                zlabel('Number Distribution')
+
+                subplot(1,2,2)
+                for i = 1:length(O.calc_time)
+                    PDpl_local(i) = plot3(repmat(O.calc_time(i),size(O.calc_dist(i).y)),O.calc_dist(i).y,...
+                    O.calc_dist(i).F(:).*O.calc_dist(i).y(:).^3./...
+                    moments(O.calc_dist,3,i),...
+                    varargin{:});
+                hold on
+                end
+                ylabel('Mean Char. Length')
+                xlabel('Time')
+                zlabel('Normalized Volume Distribution')
+
+                PDpl = [PDpl PDpl_local];
+                
             end % if
             
             % Cumulative Properties
@@ -553,20 +581,16 @@ classdef ProblemDefinition < handle
                 
                 subplot(3,1,1)
                 PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));                
-                ylabel('0^{th} moment')
-                if O.nucleationrate(1000,1000)==0
-                    ylim([(1-0.015)*moments(O.calc_dist(1),0) 1.015*moments(O.calc_dist(1),0)])
-                    set(gca,'ytick',[(1-0.01)*moments(O.calc_dist(1),0) moments(O.calc_dist(1),0) 1.01*moments(O.calc_dist(1),0)],'yticklabel',{'-1%' '0%' '+1%'});
-                end % if
-
+                ylabel('0^{th} moment [#/g]')
+                
                 subplot(3,1,2)
                 PDpl_local(2) = plot(O.calc_time,moments(O.calc_dist,3));
-                ylabel('3^{rd} moment')
+                ylabel('3^{rd} moment [\mum^3/g]')
                 
                 subplot(3,1,3)
                 PDpl_local(3) = plot(O.calc_time,moments(O.calc_dist,4)./moments(O.calc_dist,3));
-                ylabel('Weight average length')
-                xlabel('Time')
+                ylabel('Weight average length [\mum]')
+                xlabel('Time [s]')
                 
                 PDpl = [PDpl PDpl_local];
             elseif (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
@@ -612,9 +636,9 @@ classdef ProblemDefinition < handle
                 nopvit = 1;
                 if ~isempty(O.calc_conc)
 
-                    subplot(1,3,nopvit);                    
+                    subplot(2,2,nopvit);                    
                     PDpl_local = plot(O.calc_time,O.calc_conc,'linewidth',1.5);
-                    xlim([min(O.calc_time) max(O.calc_time)];
+                    xlim([min(O.calc_time) max(O.calc_time)])
                     xlabel('Time [s]')
                     ylabel('Concentration [g/g]')
                     grid on
@@ -624,23 +648,39 @@ classdef ProblemDefinition < handle
                 end % if
                 
                 if ~isempty(O.calc_conc)
-                    subplot(1,3,nopvit);                    
+                    subplot(2,2,nopvit);                    
                     PDpl_local = plot(O.calc_time,O.calc_conc./O.solubility(O.Tprofile(O.calc_time)),'linewidth',1.5);
                     xlabel('Time [s]')
+                    xlim([min(O.calc_time) max(O.calc_time)])
                     ylabel('Supersaturation [-]')
                     grid on
                     PDpl = [PDpl PDpl_local];
 
                     nopvit = nopvit + 1;
                 end % if
-
-                if ~isempty(O.calc_massmedium)
-
-                    subplot(1,3,3);                    
-                    PDpl_local = plot(O.calc_time,O.calc_massmedium);
-                    xlabel('Time')
-                    ylabel('Total mass Solvent + Antisolvent [g]')
+                
+                if ~isempty(O.calc_conc)
+                    subplot(2,2,nopvit);                    
+                    PDpl_local = plot(O.calc_time,Tcalc,'linewidth',1.5);
+                    xlabel('Time [s]')
+                    xlim([min(O.calc_time) max(O.calc_time)])
+                    ylabel('Temperature [^\circC]')
+                    grid on
                     PDpl = [PDpl PDpl_local];
+
+                    nopvit = nopvit + 1;
+                end % if
+
+                if ~isempty(mscalc)
+
+                    subplot(2,2,nopvit);                    
+                    PDpl_local = plot(O.calc_time,mscalc,'linewidth',1.5);
+                    xlabel('Time')
+                    xlim([min(O.calc_time) max(O.calc_time)])
+                    ylabel('Total mass Solvent + Antisolvent [g]')
+                    grid on
+%                     keyboard
+                    PDpl = [PDpl PDpl_local(:)'];
 
                     nopvit = nopvit + 1;
                 end
@@ -654,14 +694,14 @@ classdef ProblemDefinition < handle
                     set(gcf,'numbertitle','off','name','Process Variables (II)')
                     Tvec = linspace(min(Tcalc)-5,max(Tcalc)+5);
                     plot(Tvec,O.solubility(Tvec),'--','linewidth',1.5)
-                    legend('Solubility')
+                    legend('Solubility','location','southeast')
                     hold on
                     PDpl_local = plot(Tcalc,O.calc_conc,'linewidth',1.5);
                     xlabel('Temperature')
                     ylabel('Concentration [g/g]')
                     grid on
-
-                    PDpl = [PDpl PDpl_local];
+%                     keyboard
+                    PDpl = [PDpl PDpl_local(:)'];
                 end
                         
             end % if

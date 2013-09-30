@@ -12,7 +12,7 @@ addALLthepaths
 PD = ProblemDefinition;
 
 % Define grid
-nBins = 500;
+nBins = 50;
 gridL = linspace(0,5e2,nBins+1);
 meanL = (gridL(1:end-1)+gridL(2:end))/2;
 PD.init_dist.y = meanL;
@@ -39,8 +39,8 @@ PD.init_dist.F = gauss(meanL);
 
 
 % Set solver method to moving pivot
-% PD.sol_method = 'movingpivot';
-PD.sol_method = 'centraldifference';
+PD.sol_method = 'movingpivot';
+% PD.sol_method = 'centraldifference';
 PD = ProfileManager(PD);
 
 

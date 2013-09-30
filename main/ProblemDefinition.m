@@ -530,6 +530,46 @@ classdef ProblemDefinition < handle
                 zlabel('Normalized Volume Distribution')
 
                 PDpl = [PDpl PDpl_local];
+                
+            elseif (~isempty(find(strcmp(plotwhat,'distributions'))) ...
+                    || ~isempty(find(strcmp(plotwhat,'dist3D'))) ...
+                    || ~isempty(find(strcmp(plotwhat,'results')))...
+                    || ~isempty(find(strcmp(plotwhat,'detailed_results')))...
+                    && strcmp(O.sol_method,'movingpivot'))
+                
+                figure(12)
+                set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
+                
+                % Handles for plots
+                PDpl_local = zeros(1,2);
+
+                subplot(1,2,1)
+                for i = 1:length(O.calc_time)
+                    PDpl_local(i) = plot3(repmat(O.calc_time(i),size(O.calc_dist(i).y)),O.calc_dist(i).y(:),O.calc_dist(i).F,varargin{:});
+                    hold on
+                end
+                grid on
+                hold off
+                ylabel('Mean Char. Length')
+                xlabel('Time')
+                zlabel('Number Distribution')
+
+                subplot(1,2,2)
+                for i = 1:length(O.calc_time)
+                    PDpl_local(i+length(O.calc_time)) = plot3(repmat(O.calc_time(i),size(O.calc_dist(i).y)),O.calc_dist(i).y,...
+                    O.calc_dist(i).F(:).*O.calc_dist(i).y(:).^3./...
+                    moments(O.calc_dist,3,i),...
+                    varargin{:});
+                hold on
+                end
+                grid on
+                hold off
+                ylabel('Mean Char. Length')
+                xlabel('Time')
+                zlabel('Normalized Volume Distribution')
+                set(PDpl_local,'linewidth',1.5,'color','k')
+                PDpl = [PDpl PDpl_local];
+                
             end % if
             
             % Cumulative Properties
