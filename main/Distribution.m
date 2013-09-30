@@ -38,8 +38,6 @@ classdef Distribution < handle
         % Define as vector
         boundaries
         
-        % mass of distribution (in g)
-        mass
         
     end % properties
     
@@ -48,6 +46,9 @@ classdef Distribution < handle
         % Initial distribution
         % Define as either a function or a vector
         F = [];
+        
+        % mass of distribution (in g)
+        mass
         
     end % properties
     
@@ -125,7 +126,7 @@ classdef Distribution < handle
             %
             % Check input: vector, function handle, or empty
             
-            if strcmp(class(value),'function_handle')
+            if isa(value,'function_handle')
                 % Value is ok, set                
                     O.pF = value;                
             elseif isvector(value) || isempty(value)
@@ -148,7 +149,7 @@ classdef Distribution < handle
             % at y. If F is a vector, check so that its size is the same
             % as that of y
             
-            if strcmp(class(O.pF),'function_handle')
+            if isa(O.pF,'function_handle')
                 % Function handle - calculate values
                 
                 Fout = O.pF(O.y);
@@ -201,8 +202,8 @@ classdef Distribution < handle
                 for i = icalc
                     if isempty(O(1).boundaries)
                         Dy = diff([0 O(i).y]);
-                        warning('Distribution:boundaries:noboundaries',...
-                        'No boundaries were passed. Assumed F = density.');
+%                         warning('Distribution:boundaries:noboundaries',...
+%                         'No boundaries were passed. Assumed F = density.');
                     else
                         Dy = diff(O(i).boundaries);
                     end
@@ -223,7 +224,7 @@ classdef Distribution < handle
         
         function set.mass(O,value)
             
-            O.F = O.F*value(1)/(moments(O,3)*value(2)*value(3));
+            O.F = O.F*value(1)/(moments(O,3)*value(2)*value(3)*value(4));
                         
         end % function
         
