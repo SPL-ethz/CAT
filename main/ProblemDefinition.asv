@@ -12,7 +12,7 @@ classdef ProblemDefinition < handle
         init_conc = 1;
         
         % Solubility
-        solubility = @(T,xm) 0.5;
+        solubility = @(T,xm) T;
         
         % Temperature profile
         Tprofile = @(t) 298;
@@ -22,9 +22,6 @@ classdef ProblemDefinition < handle
 
         % nodes for non-smooth input profiles
         tNodes = [];
-        
-        % Seed mass
-        init_seed = 1;
         
         % Initial mass of solvent + antisolvent
         init_massmedium = 1;
@@ -149,23 +146,6 @@ classdef ProblemDefinition < handle
             
         end % function
         
-        %% Method set.init_seed
-        
-        function set.init_seed(O,value)
-            
-            % SET.INIT_SEED
-            %
-            % Set mass of seeds
-            
-            if isscalar(value) && ~isnan(value) && value>0 && ~isinf(value)
-                O.init_seed = value;
-            else
-                warning('ProblemDefinition:SetInit_Seed:WrongType',...
-                    'The init_seed property must be a positive scalar');
-            end % if else
-            
-        end % function
-        
         %% Method set.init_conc
         
         function set.init_conc(O,value)
@@ -178,11 +158,11 @@ classdef ProblemDefinition < handle
             if isscalar(value) && value >= 0 && isfinite(value)
                 O.init_conc = value;
                 
-            elseif ischar(value) && strcmpi(value,'sat') % solution is saturated in the beginning
+            elseif ischar(value) && strcmpi(value,'sat')
                 O.init_conc = O.solubility(O.Tprofile(0));
             else
                 warning('ProblemDefinition:SetInit_Conc:WrongType',...
-                    'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
+                    'The init_conc property must be a positive, finite scalar (may be zero)');
             end % if else
             
         end % function

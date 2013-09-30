@@ -38,9 +38,6 @@ classdef Distribution < handle
         % Define as vector
         boundaries
         
-        % mass of distribution (in g)
-        mass
-        
     end % properties
     
     properties (Dependent)
@@ -200,14 +197,14 @@ classdef Distribution < handle
                 
                 for i = icalc
                     if isempty(O(1).boundaries)
-                        Dy = diff([0 O(i).y]);
+                        Dy = diff(O(i).y);
                         warning('Distribution:boundaries:noboundaries',...
                         'No boundaries were passed. Assumed F = density.');
                     else
                         Dy = diff(O(i).boundaries);
                     end
                     
-                    Fmo(icalc==i) = sum(O(i).F(:) .* Dy(:).* O(i).y(:).^j);
+                    Fmo(icalc==i) = sum(O(i).F .* Dy.* O(i).y.^j);
                 end % for
                     
             else
@@ -221,12 +218,11 @@ classdef Distribution < handle
             
         end % function
         
-        function set.mass(O,value)
+        function setMass(value,kv,rhoc)
             
-            O.F = O.F*value(1)/(moments(O,3)*value(2)*value(3));
+            O.F = O.F*value/(O.F.moments(O.F,3)*;
                         
         end % function
-        
 
     end % methods
     
