@@ -1,7 +1,7 @@
 function [value,isterminal,direction] = EventAddBin(~,x,dL)
 % Locate the time when the cell where nucleation happens becomes too big.
 
-    nBins = (length(x)-4)/3;
+    nBins = (length(x)-2)/3;
     
     L = x(2*nBins+1:2*nBins+2);
         

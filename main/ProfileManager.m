@@ -9,11 +9,10 @@ if ~isempty(PD.tNodes)
     for i = 2:length(PD.tNodes) % make sure you hit the different nodes of the non-smooth profiles
         
         PD.sol_time = [PD.tNodes(i-1) PD.tNodes(i)];  
-        [a b c e] = PBESolver(PD);
+        [a b c] = PBESolver(PD);
         PD.calc_time(end+1:end+length(a)) = a;
         PD.calc_dist(end+1:end+length(b)) = b;    
         PD.calc_conc(end+1:end+length(a)) = c; 
-        PD.calc_massmedium(end+1:end+length(a)) = e;
 
         PD.init_dist = PD.calc_dist(end);
         PD.init_conc = PD.calc_conc(end);
@@ -26,7 +25,7 @@ if ~isempty(PD.tNodes)
 else    
     
     try
-        [PD.calc_time, PD.calc_dist, PD.calc_conc, PD.calc_massmedium] = PBESolver(PD);
+        [PD.calc_time, PD.calc_dist, PD.calc_conc] = PBESolver(PD);
     catch ME
         keyboard
         error('ProfileManager:tryconsttemp:PBESolverfail',...

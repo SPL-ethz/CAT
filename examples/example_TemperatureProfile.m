@@ -1,7 +1,7 @@
 %% Clean up
 
-clear all
-clc
+% clear all
+% clc
 close all
 
 addALLthepaths
@@ -9,7 +9,7 @@ addALLthepaths
 %% Set up problem
 
 % Basic object
-PD = ProblemDefinition;
+% PD = ProblemDefinition;
 
 % Define grid
 nBins = 100;
@@ -24,7 +24,7 @@ PD.growthrate = @(S,T,y) 1e-1*(S-1)*ones(size(y));
 PD.solubility = @(T) (0.0056*(T-273).^2+0.0436.*(T-273)+3.7646)/1000;
 
 % Define operating conditions
-PD.init_seed = 5;
+PD.init_seed = 1;
 PD.init_massmedium = 2000; % mass of solvent in the beginning
 PD.sol_time = [0 60*60];
 PD.Tprofile = [0 5*60 10*60 60*60;
@@ -39,11 +39,12 @@ PD.init_dist.F = gauss(meanL);
 
 
 % Set solver method to moving pivot
-PD.sol_method = 'centraldifference';
-
+% % PD.sol_method = 'movingpivot';
+% PD.sol_method = 'centraldifference';
+% % PD.sol_method = 'hires';
 PD = ProfileManager(PD);
 
 
 
 %% Plot results
-plot(PD,'detailed_results');
+% plot(PD,'detailed_results');
