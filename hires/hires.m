@@ -1,47 +1,30 @@
 function [TIME,Y] = hiResSlave(PD,varargin)
-%% n-dimensional High Resolution Flux limited PBE Solver
-% This algorithm solves the PDE arising from the population balance
-% equation in 1, 2 or 3 dimensions. The correct computation method is
-% chosen depending on the shape of the input. The input structure 'input'
-% contains information on the experimental and numerical setup (including
-% kinetic data, initial distribution and concentration, etc.). 
-%
-% This code was written together with the HiRes_nD mediator function, so
-% check there if you are uncertain about the meaning of some variables.
-%
-% Dave Ochsenbein, 23.12.2011
 
 %% Setup and Preparation
 mlim = 0; % anteil von partikeln, welcher fuer die simulation vernachlaessigt werden darf --> HAS TO BE 0 WHEN WORKING WITH HEAVYSIDE FUNCTION IN F0
-% keyboard
-if ~isfield(input,'offline')
-    input = hiResOLPreparator(input);
-end
-
-% Die Idee ist spaeter das hier alles abzuschaffen und nur noch input zu
-% passen
-f               = PD.init_dist.F;
-fstar           = f;
-
 c            =   PD.init_conc;  
 
 
 TIME = PD.sol_time(1);
 %% Integration
 flagdt=0;
-t=input.offline.t0;tcount=1;
+t=PD.sol_time(1);tcount=1;
 
-% keyboard
-sfx = size(input.offline.f);sfx(sfx==1)=[];
-F = arrayCrop(input.offline.f,[3;sfx-1]);
+fstar = PD.init_dist.F(:);
+x = PD.init_dist.y(:);
+fstar = [0;0;fstar;0];
+sfx = length(fstar);
+F = arrayCrop(fstar,[3;sfx-1]);
+Y(1,:) = [F(:)' c];
+Dx = diff(PD.init_dist.boundaries);
 
-    while t<input.exp.ttot
+    while t<PD.sol_time(end)
         T = PD.Tprofile(t);
         cs = PD.solubility(T);
         S = c/cs;
         % Find Growth Rates along all dimensions
         if c>cs+eps
-            G = PD.growthrate(S,T,PD.init_dist.boundaries);
+            G = PD.growthrate(S,T,PD.init_dist.boundaries(2:end));
         end
         
         % Autotimestepsizer based on CFL condition (eq. 24 in Gunawan 2004)
@@ -51,22 +34,24 @@ F = arrayCrop(input.offline.f,[3;sfx-1]);
             % (1-mlim) of the distribution (otherwise, for length dependent
             % growth, large L dominate and Dt is small even though there
             % are no crystals at these sizes).
-            GI = boundingBoxFinder(fstar(3:end-1),ndim,mlim);
+            GI = boundingBoxFinder(fstar(3:end-1),1,mlim);
             
-
-            [~,I]   =   max(abs(G(GI(1):GI(2)))./Dx);
-
+            try
+            [~,I]   =   max(abs(G(GI(1):GI(2)-1))./Dx(GI(1):GI(2)-1));
+            catch
+                keyboard
+            end
             Dt       =   abs(Dx/G(I));
 
             
-            if isfield(input.exp,'tline')
-                nexttline   =   input.exp.tline(find(input.exp.tline>t,1,'first'));
+            if length(PD.sol_time)>2
+                nexttline   =   PD.sol_time(find(PD.sol_time>t,1,'first'));
                 Dttline =   nexttline-t;
             else
                 Dttline     =   inf;
             end
        
-            Dt      =   min([2000 max([min(Dt) input.exp.ttot*1e-5]) input.exp.ttot-t Dttline]);   % choose minimum of expressions (not too coarse description for plotting purposes)
+            Dt      =   min([2000 max([min(Dt) PD.sol_time(end)*1e-5]) PD.sol_time(end)-t Dttline]);   % choose minimum of expressions (not too coarse description for plotting purposes)
             
 %             
         end %flagdt
@@ -74,8 +59,8 @@ F = arrayCrop(input.offline.f,[3;sfx-1]);
         t           =   t+Dt; % update time step
 
         % mini failsafe
-        if input.exp.ttot-t     <   1e-12
-            t   =   input.exp.ttot;
+        if PD.sol_time(end)-t     <   1e-12
+            t   =   PD.sol_time(end);
         end
 
         Dtstar = Dt;
@@ -83,12 +68,11 @@ F = arrayCrop(input.offline.f,[3;sfx-1]);
         %% Growth 
         fstar0 = fstar;
         if abs(c-cs)>eps 
-            fstar(:,:,:,:,1) = hiResGrowth(fstar(:,:,:,:,1),G,Dtstar,Dx,GI);
+            fstar = hiResGrowth(fstar,G,Dtstar,Dx,GI);
             %% Calculation of concentration at next timestep (Component 1, Growth only)
 
-            DeltacGrowth = sum((fstar(3:end-1,:,:,:,1)-fstar0(3:end-1,:,:,:,1))...
-                .*Dx...
-                *PD.rhoc.*PD.kv);
+            DeltacGrowth = sum((fstar(3:end-1)-fstar0(3:end-1)).*x.^3.*...
+                Dx(:)*PD.rhoc.*PD.kv);
         else
             fstar = fstar0;
             DeltacGrowth = 0;
@@ -99,8 +83,10 @@ F = arrayCrop(input.offline.f,[3;sfx-1]);
         cs_dummy   =   PD.solubility(T_dummy);     %Solubility
         
         %% Nucleation
-        if strcmp(input.setup.J,'on') && c>cs
-            f0(3)  = B/Dx;
+        if  c>cs
+            J = PD.nucleationrate(S,T,fstar(3:end-1));
+            fstar(3)  = fstar(3) + J/Dx(1);
+            DeltaCNuc = J*x(1)^3*PD.kv*PD.rhoc*Dt;
             
             c_dummy = c_dummy + sum(DeltaCNuc);
         end
@@ -108,13 +94,14 @@ F = arrayCrop(input.offline.f,[3;sfx-1]);
 %% finishing        
 
         DeltaS          =   abs(c_dummy./cs_dummy-c./cs); 
+        S_dummy = S + DeltaS;
         DeltaG  = abs(max(PD.growthrate(S,T,PD.init_dist.boundaries))-max(PD.growthrate(S_dummy,T_dummy,PD.init_dist.boundaries)))/max(PD.growthrate(S_dummy,T_dummy,PD.init_dist.boundaries));
         
-        if t<=input.exp.ttot
+        if t<=PD.sol_time(end)
             % Check if result is (superficially) reasonable
 
             if  (sum(sum(sum(-fstar(fstar<0))))<sum(sum(sum(fstar(fstar>0))))*1e-2 &&...
-                    c_dummy>0 && DeltaS<0.1 && DeltaG<0.1|| ...
+                    c_dummy>0 && DeltaS<0.05 && DeltaG<0.05|| ...
                     flagdt > 50)
                 
                 if Dt<1e4*eps
@@ -127,9 +114,8 @@ F = arrayCrop(input.offline.f,[3;sfx-1]);
                 tcount  =   tcount+1;   
                 flagdt  =   0;
                 
-                F = arrayCrop(fstar,[3;sfx-1]);
-                Y(tcount,1:end-1) = F(:)';
-                Y(tcount,end) = c;
+                F = arrayCrop(fstar,[3;sfx-1])';
+                Y(tcount,:) = [F(:)' c];
 
             else
                 % Use a smaller timestep and repeat everything
@@ -145,7 +131,11 @@ F = arrayCrop(input.offline.f,[3;sfx-1]);
         
     end
 
-
+if length(PD.sol_time)>2
+    [~,I] = intersect(TIME,PD.sol_time);
+    TIME = TIME(I);
+    Y = Y(I,:);
+end
 end
 
 

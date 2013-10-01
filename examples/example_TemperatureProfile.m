@@ -1,7 +1,7 @@
 %% Clean up
 
-clear all
-clc
+% clear all
+% clc
 close all
 
 addALLthepaths
@@ -9,10 +9,10 @@ addALLthepaths
 %% Set up problem
 
 % Basic object
-PD = ProblemDefinition;
+% PD = ProblemDefinition;
 
 % Define grid
-nBins = 50;
+nBins = 100;
 gridL = linspace(0,5e2,nBins+1);
 meanL = (gridL(1:end-1)+gridL(2:end))/2;
 PD.init_dist.y = meanL;
@@ -39,11 +39,12 @@ PD.init_dist.F = gauss(meanL);
 
 
 % Set solver method to moving pivot
-PD.sol_method = 'movingpivot';
+% % PD.sol_method = 'movingpivot';
 % PD.sol_method = 'centraldifference';
+% % PD.sol_method = 'hires';
 PD = ProfileManager(PD);
 
 
 
 %% Plot results
-plot(PD,'detailed_results');
+% plot(PD,'detailed_results');

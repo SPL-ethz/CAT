@@ -27,15 +27,12 @@ switch PD.sol_method
         if(nt > 2)
             SolutionTimes = zeros(nt,1);
             SolutionConc = zeros(nt,1);
-            SolutionTemp = zeros(nt,1);
-            SolutionMassMedium = zeros(nt,1);
             SolutionDists = repmat(Distribution(),1,nt);
         end
         
         SolutionTimes(1) = tstart;
         SolutionConc(1) = PD.init_conc;
         SolutionDists(1) = PD.init_dist;
-        SolutionMassMedium(1) = PD.init_massmedium;
         
         X = X0;
         s = 1;
@@ -80,7 +77,18 @@ switch PD.sol_method
             SolutionDists(i) = Distribution( y , X_out(i,1:length(y)) );
         end % for
         SolutionConc = X_out(:,end);
-        SolutionMassMedium = ones(size(SolutionConc))*PD.init_massmedium;
+
+    case 'hires'
+
+        [SolutionTimes,X_out] = hires(PD);
+        
+        % Create solution        
+        SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  %# Pre-Allocation for speed       
+        for i = 1:length(SolutionTimes)
+            SolutionDists(i) = Distribution( PD.init_dist.y, X_out(i,1:length(PD.init_dist.y)),PD.init_dist.boundaries );
+        end % for
+        SolutionConc = X_out(:,end);
+
 end %switch
 
 

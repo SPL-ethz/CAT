@@ -1,4 +1,4 @@
-%% Clean up
+    %% Clean up
 
 clear all
 clc
@@ -23,7 +23,7 @@ PD.init_dist.F = @(x) normpdf(x,100,30);
 PD.init_seed = 1;
 PD.init_massmedium = 1000;
 
-PD.sol_method = 'movingpivot';
+PD.sol_method = 'hires';
 
 % Define growth rate
 PD.growthrate = @(S,T,y) 1e-1*log(S)*ones(size(y));

@@ -66,7 +66,7 @@ classdef ProblemDefinition < handle
         % supersaturation, T is the temperature. Optionally, the user can
         % specificy that the nucleation rate depends on a moment m of the
         % passed distribution F
-        nucleationrate = @(S,T,m,F) 0
+        nucleationrate = @(S,T,F) 0
         
   
     end % properties
@@ -375,19 +375,19 @@ classdef ProblemDefinition < handle
             % SET.nucleationrate
             %
             % Check the nucleationrate rate: should be a function handle, accept 4
-            % arguments: S (supersaturation), T (temperature), and m (moment), F (distribution). The output should be
+            % arguments: S (supersaturation), T (temperature),, F (distribution). The output should be
             % a scalar
             
             if isa(value,'function_handle')
                 
                 % Check the number of inputs
-                if nargin(value) == 4
+                if nargin(value) == 3
                     
                     O.nucleationrate = value;
                     
                 elseif nargin(value) == 2
                     
-                    O.nucleationrate = @(S,T,~,~) value(S,T);
+                    O.nucleationrate = @(S,T,~) value(S,T);
                 end
                 
             else % not a function handle
