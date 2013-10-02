@@ -41,24 +41,26 @@ clear PD
 
 figure(1) % final PSD
 subplot(1,2,1) % number weighted
-plot(PDCD.calc_dist(end).y,PDCD.calc_dist(end).F,'k-o')
+plot(PDCD.calc_dist(1).y,PDCD.calc_dist(1).F,'g--')
 hold on
+plot(PDCD.calc_dist(end).y,PDCD.calc_dist(end).F,'k-o')
 plot(PDMP.calc_dist(end).y,PDMP.calc_dist(end).F,'b-x')
 plot(PDHR.calc_dist(end).y,PDHR.calc_dist(end).F,'r-^')
 grid on
 xlabel('L [\mum]')
 ylabel('f [1/(g \mum)]')
-legend('Central Differences','Moving Pivot','High Resolution')
+legend('Initial','Central Differences','Moving Pivot','High Resolution')
 
 subplot(1,2,2)
-plot(PDCD.calc_dist(end).y,PDCD.calc_dist(end).F.*PDCD.calc_dist(end).y.^3,'k-o')
+plot(PDCD.calc_dist(1).y,PDCD.calc_dist(1).F.*PDCD.calc_dist(1).y.^3,'g--')
 hold on
+plot(PDCD.calc_dist(end).y,PDCD.calc_dist(end).F.*PDCD.calc_dist(end).y.^3,'k-o')
 plot(PDMP.calc_dist(end).y,PDMP.calc_dist(end).F.*PDMP.calc_dist(end).y.^3,'b-x')
 plot(PDHR.calc_dist(end).y,PDHR.calc_dist(end).F.*PDHR.calc_dist(end).y.^3,'r-^')
 grid on
 xlabel('L [\mum]')
 ylabel('f L^3 [\mum^3/(g \mum)]')
-legend('Central Differences','Moving Pivot','High Resolution')
+legend('Initial','Central Differences','Moving Pivot','High Resolution')
 
 figure(2) % number and volume weighted average sizes over time
 subplot(2,2,1)
