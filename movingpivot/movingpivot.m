@@ -17,13 +17,15 @@ T = PD.Tprofile(t);
 S = c/PD.solubility(T,xm);
 
 % Current mass flow rate antisolvent (evaluated using simplistic FD)
-Q = (PD.ASprofile(t+1e-12)-PD.ASprofile(t-1e-12))/2e-12;
+Q = (PD.ASprofile(t+1e-6)-PD.ASprofile(t))/1e-6;
+if isnan(Q)
+    Q = (PD.ASprofile(t)-PD.ASprofile(t-1e-6))/1e-6;
+end
 
     
-N = x(1:nBins); %particle numbers
+N = x(1:nBins); N = N(:); %particle numbers
 p = x(nBins+1:2*nBins); %pivot sizes
 b = x(2*nBins+1:3*nBins+1); %boundaries
-c = x(3*nBins+2); %solution concentration 
 
 J = PD.nucleationrate(S,T);
 Gp = PD.growthrate(S,T,p);
@@ -33,5 +35,5 @@ dNdt = [J; zeros(nBins-1,1)]-N(1:nBins)/m*Q;
 
 dcdt = -3*PD.rhoc*PD.kv*sum(p.^2.*Gp.*N)-c/m*Q;
 dxdt = [dNdt; Gp; Gb; dcdt;];
-% keyboard
+
 end

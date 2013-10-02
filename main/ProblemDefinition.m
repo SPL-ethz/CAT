@@ -274,12 +274,16 @@ classdef ProblemDefinition < handle
                 end
                 O.Tprofile = @(t) interp1(value(1,:),value(2,:),t); %
                 O.tNodes = unique([O.tNodes value(1,:)]);
-                
-                
 
 
             elseif isa(value,'function_handle') && nargin(value)==1
-                O.Tprofile = value;
+                
+                if length(value([0 10]))==1
+                    O.Tprofile = @(t) value(t)*ones(size(t)); % output should be a vector of same size as input
+                else
+                    O.Tprofile = value;
+                end
+                    
 
             else
                 warning('ProblemDefinition:SetTprofile:WrongType',...
@@ -297,14 +301,23 @@ classdef ProblemDefinition < handle
             %
             % Check the time profile (for added AS profiles). It must be
             % a strictly increasing(!), positive vector
-            if (ismatrix(value) && length(value(:,1))==2 && all(value >= 0) && all(isfinite(value)) && all(diff(value(2,:))>0)) || (isa(value,'function_handle') && nargin(value)==1)
-
-                O.ASprofile = @(t) interp1(value(1,:),value(2,:),t);
-
+%             keyboard
+            if ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
+               
+                if value(1,end)<O.sol_time(end)
+                    value = [value [0;0]];
+                    value(1,end) = O.sol_time(end);
+                    value(2,end) = value(2,end-1);
+                end
+                O.ASprofile = @(t) interp1(value(1,:),value(2,:),t); %
                 O.tNodes = unique([O.tNodes value(1,:)]);
 
+
+            elseif isa(value,'function_handle') && nargin(value)==1
+                O.ASprofile = value;
+
             else
-                warning('ProblemDefinition:SetASprofile:WrongType',...
+                warning('ProblemDefinition:SetTprofile:WrongType',...
                     'The ASprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
                 
             end % if else
@@ -401,7 +414,7 @@ classdef ProblemDefinition < handle
         %% Method massbal
         
         function PDma = massbal(O)
-            mscalc = O.init_massmedium+O.ASprofile(O.calc_time)-O.ASprofile(0);
+            mscalc = O.init_massmedium+O.ASprofile(O.calc_time)-O.ASprofile(0); % total amount of medium
             mass_solute = O.calc_conc(:).*mscalc(:);   % total mass of solute
             m3 = moments(O.calc_dist,3);                            % third moment over time
             mass_crystals = O.rhoc*O.kv*mscalc(:).*m3(:);    % total mass of crystals
@@ -658,7 +671,7 @@ classdef ProblemDefinition < handle
                     xlim([min(O.calc_time) max(O.calc_time)])
                     ylabel('Supersaturation [-]')
                     grid on
-                    PDpl = [PDpl PDpl_local];
+                    PDpl = [PDpl PDpl_local(:)'];
 
                     nopvit = nopvit + 1;
                 end % if
@@ -670,7 +683,7 @@ classdef ProblemDefinition < handle
                     xlim([min(O.calc_time) max(O.calc_time)])
                     ylabel('Temperature [^\circC]')
                     grid on
-                    PDpl = [PDpl PDpl_local];
+                    PDpl = [PDpl PDpl_local(:)'];
 
                     nopvit = nopvit + 1;
                 end % if
@@ -700,7 +713,7 @@ classdef ProblemDefinition < handle
                     plot(Tvec,O.solubility(Tvec),'--','linewidth',1.5)
                     legend('Solubility','location','southeast')
                     hold on
-                    PDpl_local = plot(Tcalc,O.calc_conc,'linewidth',1.5);
+                    PDpl_local = plot(Tcalc,O.calc_conc,'r-','linewidth',1.5);
                     xlabel('Temperature')
                     ylabel('Concentration [g/g]')
                     grid on

@@ -22,8 +22,9 @@ T = PD.Tprofile(t);
 % Current supersaturation
 S = c/PD.solubility(T,xm);
 
-% Current mass flow rate antisolvent (evaluated using simplistic FD)
-Q = (PD.ASprofile(t+1e-12)-PD.ASprofile(t-1e-12))/2e-12;
+% Current mass flow rate antisolvent (evaluated using simplistic FFD)
+Q = (PD.ASprofile(t+1e-6)-PD.ASprofile(t))/1e-6;
+% keyboard
 
 G = PD.growthrate(S,T,y(:));
 
@@ -35,12 +36,14 @@ Fb = F( [1 1:end-2 end-2] );
 
 % Growth derivative
 dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';
+
 dc = -3*PD.kv*PD.rhoc*sum(G.*F(:).*Dy(:).*y(:).^2)-c/m*Q;
 
 % nucleation
 J = PD.nucleationrate(S,T);
 X(1) = J/G(1);
 
-dXdt = [dF-Q*X(1:end-1)/m; dc];
+dXdt = [dF(:)-Q*F(:)/m; dc];
+% keyboard
 
 end % function
