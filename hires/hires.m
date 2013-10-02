@@ -101,10 +101,10 @@ Dx = diff(PD.init_dist.boundaries);
         %% Nucleation
         if  c>cs
             J = PD.nucleationrate(S,T,fstar(3:end-1));
-            fstar(3)  = fstar(3) + J/Dx(1);
+            fstar(3)  = fstar(3) + J/Dx(1)*Dt;
             DeltaCNuc = J*x(1)^3*PD.kv*PD.rhoc*Dt;
             
-            c_dummy = c_dummy + sum(DeltaCNuc);
+            c_dummy = c_dummy - sum(DeltaCNuc);
         end
         
 %% finishing        

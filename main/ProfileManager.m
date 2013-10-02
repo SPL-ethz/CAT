@@ -9,8 +9,9 @@ if ~isempty(PD.tNodes)
     for i = 2:length(PD.tNodes) % make sure you hit the different nodes of the non-smooth profiles
         
         PD.sol_time = [PD.tNodes(i-1) PD.tNodes(i)];  
-%         keyboard
+        
         [a b c] = PBESolver(PD);
+%         keyboard
         PD.calc_time(end+1:end+length(a)) = a;
         PD.calc_dist(end+1:end+length(b)) = b;    
         PD.calc_conc(end+1:end+length(a)) = c; 

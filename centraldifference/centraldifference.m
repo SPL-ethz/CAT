@@ -8,7 +8,8 @@ xm = PD.ASprofile(t)/m;
 
 % Grid
 y = PD.init_dist.y;
-Dy = diff([0 y(:)']);
+% keyboard
+Dy = diff(PD.init_dist.boundaries);
 ya = y([2:end end]);
 yb = y([1 1:end-2 end-2]);
 
@@ -33,15 +34,18 @@ Fa = F( [2:end end] );
 
 Gb = PD.growthrate(S, T, yb );
 Fb = F( [1 1:end-2 end-2] );
+J = PD.nucleationrate(S,T);
+Fb(1) = J/G(1);
 
 % Growth derivative
 dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';
 
-dc = -3*PD.kv*PD.rhoc*sum(G.*F(:).*Dy(:).*y(:).^2)-c/m*Q;
-
 % nucleation
-J = PD.nucleationrate(S,T);
-X(1) = J/G(1);
+
+% dF(1) = dF(1) + J/Dy(1);
+
+% concentration
+dc = -3*PD.kv*PD.rhoc*sum(G.*F(:).*Dy(:).*y(:).^2)-c/m*Q-J*y(1)^3*PD.kv*PD.rhoc;
 
 dXdt = [dF(:)-Q*F(:)/m; dc];
 % keyboard

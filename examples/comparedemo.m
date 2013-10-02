@@ -5,12 +5,14 @@ global demo
 
 if nargin == 0
    example = 'example_ASandTProfile'; 
+   nBinsv = [200 500 500]; %number of bins for MP,CD,HR respectively;
 end
 
 close all;clc;
 addALLthepaths
 PD = ProblemDefinition;
 PD.sol_method = 'movingpivot';
+nBins = nBinsv(1);
 tic
 eval(example)
 f = toc;
@@ -19,6 +21,7 @@ PDMP = PD;
 clear PD
 PD = ProblemDefinition;
 PD.sol_method = 'centraldifference';
+nBins = nBinsv(2);
 tic
 eval(example)
 f= toc;
@@ -27,6 +30,7 @@ PDCD = PD;
 clear PD
 PD = ProblemDefinition;
 PD.sol_method = 'hires';
+nBins = nBinsv(3);
 tic
 eval(example)
 f=toc;
@@ -56,7 +60,7 @@ ylabel('f L^3 [\mum^3/(g \mum)]')
 legend('Central Differences','Moving Pivot','High Resolution')
 
 figure(2) % number and volume weighted average sizes over time
-subplot(1,2,1)
+subplot(2,2,1)
 plot(PDCD.calc_time,moments(PDCD.calc_dist,1)./moments(PDCD.calc_dist,0),'k-o')
 hold on
 plot(PDMP.calc_time,moments(PDMP.calc_dist,1)./moments(PDMP.calc_dist,0),'b-x')
@@ -67,7 +71,7 @@ legend('Central Differences','Moving Pivot','High Resolution','location','southe
 xlabel('Time [s]')
 ylabel('\mu1/\mu0')
 
-subplot(1,2,2)
+subplot(2,2,2)
 plot(PDCD.calc_time,moments(PDCD.calc_dist,4)./moments(PDCD.calc_dist,3),'k-o')
 hold on
 plot(PDMP.calc_time,moments(PDMP.calc_dist,4)./moments(PDMP.calc_dist,3),'b-x')
@@ -77,6 +81,28 @@ grid on
 legend('Central Differences','Moving Pivot','High Resolution','location','southeast')
 xlabel('Time [s]')
 ylabel('\mu4/\mu3')
+
+subplot(2,2,3)
+plot(PDCD.calc_time,moments(PDCD.calc_dist,0),'k-o')
+hold on
+plot(PDMP.calc_time,moments(PDMP.calc_dist,0),'b-x')
+plot(PDHR.calc_time,moments(PDHR.calc_dist,0),'r-^')
+axis tight
+grid on
+legend('Central Differences','Moving Pivot','High Resolution','location','southeast')
+xlabel('Time [s]')
+ylabel('\mu0')
+
+subplot(2,2,4)
+plot(PDCD.calc_time,moments(PDCD.calc_dist,3),'k-o')
+hold on
+plot(PDMP.calc_time,moments(PDMP.calc_dist,3),'b-x')
+plot(PDHR.calc_time,moments(PDHR.calc_dist,3),'r-^')
+axis tight
+grid on
+legend('Central Differences','Moving Pivot','High Resolution','location','southeast')
+xlabel('Time [s]')
+ylabel('\mu3')
 
 figure(3) % Process
 subplot(2,2,1)

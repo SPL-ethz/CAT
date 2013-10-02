@@ -33,7 +33,7 @@ Gb = PD.growthrate(S,T,b);
 
 dNdt = [J; zeros(nBins-1,1)]-N(1:nBins)/m*Q;    
 
-dcdt = -3*PD.rhoc*PD.kv*sum(p.^2.*Gp.*N)-c/m*Q;
+dcdt = -3*PD.rhoc*PD.kv*sum(p.^2.*Gp.*N)-c/m*Q-J*p(1)^3*PD.kv*PD.rhoc;
 dxdt = [dNdt; Gp; Gb; dcdt;];
 
 end
