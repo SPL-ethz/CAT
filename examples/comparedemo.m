@@ -5,8 +5,10 @@ global demo
 
 if nargin == 0
 %    example = 'example_ASandTProfile'; 
-   example = 'example_Nucleation'; 
-   nBinsv = [200 500 500]; %number of bins for MP,CD,HR respectively;
+    example = 'example_ASandTProfileBlock'; % uses a discontinuous initial distribution (nBins muss gleich sein fuer alle!!). Stefan findet: Deine Mudda!
+%    example = 'example_Nucleation'; 
+%     example = 'example_sizeDependentGrowth'; 
+   nBinsv = [200 200 200]; %number of bins for MP,CD,HR respectively;
 end
 
 close all;clc;
@@ -122,8 +124,8 @@ ylabel('Concentration [g/g]')
 subplot(2,2,2)
 plot(PDCD.calc_time,PDCD.calc_conc(:)./PDCD.solubility(PDCD.Tprofile(PDCD.calc_time(:))),'k-o','linewidth',1.5)
 hold on
-plot(PDMP.calc_time,PDMP.calc_conc./PDMP.solubility(PDMP.Tprofile(PDMP.calc_time)),'b-x','linewidth',1.5)
-plot(PDHR.calc_time,PDHR.calc_conc./PDHR.solubility(PDHR.Tprofile(PDHR.calc_time)),'r-^','linewidth',1.5)
+plot(PDMP.calc_time,PDMP.calc_conc(:)./PDMP.solubility(PDMP.Tprofile(PDMP.calc_time(:))),'b-x','linewidth',1.5)
+plot(PDHR.calc_time,PDHR.calc_conc(:)./PDHR.solubility(PDHR.Tprofile(PDHR.calc_time(:))),'r-^','linewidth',1.5)
 axis tight
 legend('Central Differences','Moving Pivot','High Resolution','location','southeast')
 grid on

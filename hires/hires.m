@@ -116,17 +116,18 @@ Dx = diff(PD.init_dist.boundaries);
 
         DeltaS          =   c_dummy./cs_dummy-c./cs;
         S_dummy = c_dummy./cs_dummy;
-        if max(PD.growthrate(S,T,PD.init_dist.boundaries)) > eps && max(PD.growthrate(S_dummy,T_dummy,PD.init_dist.boundaries))
-            DeltaG  = abs(max(PD.growthrate(S,T,PD.init_dist.boundaries))-max(PD.growthrate(S_dummy,T_dummy,PD.init_dist.boundaries)))/max(PD.growthrate(S_dummy,T_dummy,PD.init_dist.boundaries));
-        else
+%         G_dummy =  PD.growthrate(S_dummy,T_dummy,PD.init_dist.boundaries(2:end));
+%         if max(PD.growthrate(S,T,PD.init_dist.boundaries)) > eps && max(PD.growthrate(S_dummy,T_dummy,PD.init_dist.boundaries))
+%             DeltaG  = abs(max(G(GI(1):GI(2)))-max(G_dummy(GI(1):GI(2))))/max(G_dummy(GI(1):GI(2)));
+%         else
             DeltaG = 0;
-        end
+% %         end
         
         if t<=PD.sol_time(end)
             % Check if result is (superficially) reasonable
             
             if  (sum(-fstar(fstar<0))<sum(fstar(fstar>0))*1e-2 &&...
-                    c_dummy>0 && DeltaS<0.05 && DeltaG<0.05|| ...
+                    c_dummy>0 && ((DeltaS < 0 && DeltaS>-0.01) || (DeltaS > 0 && DeltaS<0.001)) && DeltaG<0.05|| ...
                     flagdt > 50)
                 
                 if Dt<1e4*eps
