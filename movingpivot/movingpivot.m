@@ -1,6 +1,7 @@
 function [dxdt] = movingpivot(t, x, PD)
 % movingpivot method for nucleation and growth
 
+
 nBins = (length(x)-2)/3; % number of bins   
 c = x(end);
     
@@ -26,14 +27,23 @@ end
 N = x(1:nBins); N = N(:); %particle numbers
 p = x(nBins+1:2*nBins); %pivot sizes
 b = x(2*nBins+1:3*nBins+1); %boundaries
+Dp = diff(b);Dp = Dp(:);
 
-J = PD.nucleationrate(S,T);
+if nargin(PD.nucleationrate)==3
+    dist = Distribution(p,N./Dp,b);
+    J = PD.nucleationrate(S,T,dist);
+else
+    J = PD.nucleationrate(S,T);
+end
+
 Gp = PD.growthrate(S,T,p);
 Gb = PD.growthrate(S,T,b);
+
 
 dNdt = [J; zeros(nBins-1,1)]-N(1:nBins)/m*Q;    
 
 dcdt = -3*PD.rhoc*PD.kv*sum(p.^2.*Gp.*N)-c/m*Q-J*p(1)^3*PD.kv*PD.rhoc;
 dxdt = [dNdt; Gp; Gb; dcdt;];
+
 
 end

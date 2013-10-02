@@ -34,7 +34,14 @@ Fa = F( [2:end end] );
 
 Gb = PD.growthrate(S, T, yb );
 Fb = F( [1 1:end-2 end-2] );
-J = PD.nucleationrate(S,T);
+
+
+if nargin(PD.nucleationrate)==3
+    dist = Distribution(y,F,PD.init_dist.boundaries);
+    J = PD.nucleationrate(S,T,dist);
+else
+    J = PD.nucleationrate(S,T);
+end
 Fb(1) = J/G(1);
 
 % Growth derivative

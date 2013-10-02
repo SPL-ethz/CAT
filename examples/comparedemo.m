@@ -4,7 +4,8 @@ function cumparedemo(example)
 global demo
 
 if nargin == 0
-   example = 'example_ASandTProfile'; 
+%    example = 'example_ASandTProfile'; 
+   example = 'example_Nucleation'; 
    nBinsv = [200 500 500]; %number of bins for MP,CD,HR respectively;
 end
 

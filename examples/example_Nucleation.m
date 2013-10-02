@@ -16,8 +16,8 @@ if ~exist('PD','var')
     nBins = 100;
     
     % Set solver method to moving pivot
-    % PD.sol_method = 'movingpivot';
-    PD.sol_method = 'centraldifference';
+%     PD.sol_method = 'movingpivot';
+%     PD.sol_method = 'centraldifference';
     % % PD.sol_method = 'hires';
 end
 
@@ -31,7 +31,8 @@ PD.init_conc = 6.5e-3;
 
 % Define growth rate
 PD.growthrate = @(S,T,y) 1e-1*(S-1)*ones(size(y));
-PD.nucleationrate = @(S,T) (S>1)*exp(-100/log(S)/T);
+PD.nucleationrate = @(S,T,F) (S>1)*exp(-100/log(S)/T)*moments(F,3)/moments(PD.init_dist,3);
+% PD.nucleationrate = @(S,T) (S>1)*exp(-100/log(S)/T);
 PD.solubility = @(T) (0.0056*(T-273).^2+0.0436.*(T-273)+3.7646)/1000;
 
 % Define operating conditions

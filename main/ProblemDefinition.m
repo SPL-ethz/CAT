@@ -394,14 +394,14 @@ classdef ProblemDefinition < handle
             if isa(value,'function_handle')
                 
                 % Check the number of inputs
-                if nargin(value) == 3
+%                 if nargin(value) == 3
                     
                     O.nucleationrate = value;
                     
-                elseif nargin(value) == 2
+%                 elseif nargin(value) == 2
                     
-                    O.nucleationrate = @(S,T,~) value(S,T);
-                end
+%                     O.nucleationrate = @(S,T,~) value(S,T);
+%                 end
                 
             else % not a function handle
                 warning('Distribution:setgrowthrate:Wrongtype',...

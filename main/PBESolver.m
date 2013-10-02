@@ -55,6 +55,9 @@ switch PD.sol_method
             % Break up the output to make it easier to assign. 
             nBins = (size(X,2)-2)/3;            
             y = X(:,nBins+1:2*nBins);            
+            if any(diff(y(end,:))<0)
+                keyboard
+            end
             boundaries = X(:,2*nBins+1:3*nBins+1);
 %             keyboard
             F = X(:,1:nBins)./diff(boundaries,1,2);

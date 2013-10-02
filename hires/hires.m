@@ -100,7 +100,12 @@ Dx = diff(PD.init_dist.boundaries);
         
         %% Nucleation
         if  c>cs
-            J = PD.nucleationrate(S,T,fstar(3:end-1));
+            if nargin(PD.nucleationrate) == 3
+                dist = Distribution(x,fstar(3:end-1));
+                J = PD.nucleationrate(S,T,dist);
+            else
+                J = PD.nucleationrate(S,T);
+            end
             fstar(3)  = fstar(3) + J/Dx(1)*Dt;
             DeltaCNuc = J*x(1)^3*PD.kv*PD.rhoc*Dt;
             
