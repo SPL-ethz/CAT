@@ -8,7 +8,8 @@ xm = PD.ASprofile(t)/m;
 
 % Grid
 y = PD.init_dist.y;
-Dy = diff([0 y(:)']);
+% keyboard
+Dy = diff(PD.init_dist.boundaries);
 ya = y([2:end end]);
 yb = y([1 1:end-2 end-2]);
 
@@ -22,8 +23,9 @@ T = PD.Tprofile(t);
 % Current supersaturation
 S = c/PD.solubility(T,xm);
 
-% Current mass flow rate antisolvent (evaluated using simplistic FD)
-Q = (PD.ASprofile(t+1e-12)-PD.ASprofile(t-1e-12))/2e-12;
+% Current mass flow rate antisolvent (evaluated using simplistic FFD)
+Q = (PD.ASprofile(t+1e-6)-PD.ASprofile(t))/1e-6;
+% keyboard
 
 G = PD.growthrate(S,T,y(:));
 
@@ -33,14 +35,26 @@ Fa = F( [2:end end] );
 Gb = PD.growthrate(S, T, yb );
 Fb = F( [1 1:end-2 end-2] );
 
+
+if nargin(PD.nucleationrate)==3
+    dist = Distribution(y,F,PD.init_dist.boundaries);
+    J = PD.nucleationrate(S,T,dist);
+else
+    J = PD.nucleationrate(S,T);
+end
+Fb(1) = J/G(1);
+
 % Growth derivative
 dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';
-dc = -3*PD.kv*PD.rhoc*sum(G.*F(:).*Dy(:).*y(:).^2)-c/m*Q;
 
 % nucleation
-J = PD.nucleationrate(S,T);
-X(1) = J/G(1);
 
-dXdt = [dF-Q*X(1:end-1)/m; dc];
+% dF(1) = dF(1) + J/Dy(1);
+
+% concentration
+dc = -3*PD.kv*PD.rhoc*sum(G.*F(:).*Dy(:).*y(:).^2)-c/m*Q-J*y(1)^3*PD.kv*PD.rhoc;
+
+dXdt = [dF(:)-Q*F(:)/m; dc];
+% keyboard
 
 end % function

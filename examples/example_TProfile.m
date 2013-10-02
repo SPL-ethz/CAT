@@ -1,8 +1,10 @@
 %% Clean up
 
-% clear all
-% clc
-close all
+if ~exist('demo','var')
+    clear all
+    clc
+    close all
+end
 
 addALLthepaths
 
@@ -47,4 +49,6 @@ PD = ProfileManager(PD);
 
 
 %% Plot results
-% plot(PD,'detailed_results');
+if ~exist('demo','var')
+    plot(PD,'detailed_results');
+end

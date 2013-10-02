@@ -13,7 +13,7 @@ solvefun = @(t,X) solvefun(t,X,PD);
 switch PD.sol_method
 
     case 'movingpivot'
-        dL = 50; % critical bin size for event listener
+        dL = 10; % critical bin size for event listener
         X0 = [PD.init_dist.F.*diff(PD.init_dist.boundaries) ...
             PD.init_dist.y PD.init_dist.boundaries PD.init_conc];
         tstart = PD.sol_time(1); % local start time
@@ -22,7 +22,7 @@ switch PD.sol_method
         % if nucleation is present, bins are addded when the first bin
         % becomes too big
         ODEoptions = odeset('RelTol', 1e-8, 'Events',@(t,x) EventAddBin(t,x,dL));
-        
+%         keyboard
         nt = length(PD.sol_time);
         if(nt > 2)
             SolutionTimes = zeros(nt,1);
@@ -38,7 +38,9 @@ switch PD.sol_method
         s = 1;
         while tstart<tend 
             ts = PD.sol_time(PD.sol_time > tstart & PD.sol_time < tend);
-            X0 = addBin(X(end,:)'); 
+            if tstart ~= PD.sol_time(1)
+                X0 = addBin(X(end,:)'); 
+            end
             % Solve until the next event where the nucleation bin becomes to big (as defined by dL)
             [T,X] = ode15s(solvefun, [tstart ts tend],X0, ODEoptions);
             
@@ -53,6 +55,9 @@ switch PD.sol_method
             % Break up the output to make it easier to assign. 
             nBins = (size(X,2)-2)/3;            
             y = X(:,nBins+1:2*nBins);            
+            if any(diff(y(end,:))<0)
+                keyboard
+            end
             boundaries = X(:,2*nBins+1:3*nBins+1);
 %             keyboard
             F = X(:,1:nBins)./diff(boundaries,1,2);
@@ -74,7 +79,7 @@ switch PD.sol_method
         % Create solution        
         SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  %# Pre-Allocation for speed       
         for i = 1:length(SolutionTimes)
-            SolutionDists(i) = Distribution( y , X_out(i,1:length(y)) );
+            SolutionDists(i) = Distribution( y , X_out(i,1:length(y)), PD.init_dist.boundaries );
         end % for
         SolutionConc = X_out(:,end);
 
