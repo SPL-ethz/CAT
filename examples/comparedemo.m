@@ -1,13 +1,18 @@
 
+function cumparedemo(example)
 
 global demo
+
+if nargin == 0
+   example = 'example_ASandTProfile'; 
+end
 
 close all;clc;
 addALLthepaths
 PD = ProblemDefinition;
 PD.sol_method = 'movingpivot';
 tic
-example_ASProfile
+eval(example)
 f = toc;
 fprintf('Solution Time for Moving Pivot Method %4.2f s\n',f)
 PDMP = PD;
@@ -15,7 +20,7 @@ clear PD
 PD = ProblemDefinition;
 PD.sol_method = 'centraldifference';
 tic
-example_ASProfile
+eval(example)
 f= toc;
 fprintf('Solution Time for Central Differences Method %4.2f s\n',f)
 PDCD = PD;
@@ -23,7 +28,7 @@ clear PD
 PD = ProblemDefinition;
 PD.sol_method = 'hires';
 tic
-example_ASProfile
+eval(example)
 f=toc;
 fprintf('Solution Time for High Resolution Method %4.2fs\n',f)
 PDHR = PD;
