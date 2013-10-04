@@ -66,7 +66,7 @@ classdef ProblemDefinition < handle
         % supersaturation, T is the temperature. Optionally, the user can
         % specificy that the nucleation rate depends on a moment m of the
         % passed distribution F
-        nucleationrate = @(S,T,F) 0
+        nucleationrate = @(S,T) 0
         
   
     end % properties
@@ -272,7 +272,8 @@ classdef ProblemDefinition < handle
                     value(1,end) = O.sol_time(end);
                     value(2,end) = value(2,end-1);
                 end
-                O.Tprofile = @(t) interp1(value(1,:),value(2,:),t); %
+%                 O.Tprofile = @(t) interp1(value(1,:),value(2,:),t); %
+                O.Tprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
                 O.tNodes = unique([O.tNodes value(1,:)]);
 
 
@@ -309,7 +310,8 @@ classdef ProblemDefinition < handle
                     value(1,end) = O.sol_time(end);
                     value(2,end) = value(2,end-1);
                 end
-                O.ASprofile = @(t) interp1(value(1,:),value(2,:),t); %
+%                 O.ASprofile = @(t) interp1(value(1,:),value(2,:),t); %
+                O.ASprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
                 O.tNodes = unique([O.tNodes value(1,:)]);
 
 
@@ -665,8 +667,9 @@ classdef ProblemDefinition < handle
                 end % if
                 
                 if ~isempty(O.calc_conc)
-                    subplot(2,2,nopvit);                    
-                    PDpl_local = plot(O.calc_time,O.calc_conc./O.solubility(O.Tprofile(O.calc_time)),'linewidth',1.5);
+                    subplot(2,2,nopvit);              
+%                     keyboard
+                    PDpl_local = plot(O.calc_time(:),O.calc_conc(:)./O.solubility(O.Tprofile(O.calc_time(:))),'linewidth',1.5);
                     xlabel('Time [s]')
                     xlim([min(O.calc_time) max(O.calc_time)])
                     ylabel('Supersaturation [-]')

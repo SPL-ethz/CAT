@@ -49,9 +49,10 @@ if any(max(G)>eps)
         Gloc = [0;0;G(:); 0];Gloc = Gloc(FI(1):FI(2));Gloc=Gloc(:);
 
         if min(Gloc(:))>=0
-            f_dummy=fstar(3:end-1)-Dt./Dx.*(Gloc(3:end-1).*fstar(3:end-1)-Gloc(2:end-2).*fstar(2:end-2,:,:,:))-...           % f(t=t+Dt) saved in a dummy variable for convenience
-                            (Dt./(2*Dx).*Gloc(3:end-1).*(1-(Dt./Dx.*Gloc(3:end-1))).*(fstar(4:end,:,:,:)-fstar(3:end-1)).*Phi(2:end,:,:,:)-...
-                            Dt./(2*Dx).*Gloc(2:end-2).*(1-Dt./Dx.*Gloc(2:end-2)).*(fstar(3:end-1)-fstar(2:end-2,:,:,:)).*Phi(1:end-1,:,:,:));
+%             keyboard
+            f_dummy=fstar(3:end-1)-Dt./Dx(3:end-1).*(Gloc(3:end-1).*fstar(3:end-1)-Gloc(2:end-2).*fstar(2:end-2,:,:,:))-...           % f(t=t+Dt) saved in a dummy variable for convenience
+                            (Dt./(2*Dx(3:end-1)).*Gloc(3:end-1).*(1-(Dt./Dx(3:end-1).*Gloc(3:end-1))).*(fstar(4:end,:,:,:)-fstar(3:end-1)).*Phi(2:end,:,:,:)-...
+                            Dt./(2*Dx(2:end-2)).*Gloc(2:end-2).*(1-Dt./Dx(2:end-2).*Gloc(2:end-2)).*(fstar(3:end-1)-fstar(2:end-2,:,:,:)).*Phi(1:end-1,:,:,:));
 
         else
             f_dummy=fstar(3:end-1,:,:)-Dt./Dx.*(Gloc(4:end,:,:).*fstar(4:end,:,:)-Gloc(3:end-1,:,:).*fstar(3:end-1,:,:))+...           % f(t=t+Dt) saved in a dummy variable for convenience
