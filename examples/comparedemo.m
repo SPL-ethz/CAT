@@ -1,13 +1,13 @@
 
-function cumparedemo(example)
+function comparedemo(example)
 
 global demo
 
 if nargin == 0
 %    example = 'example_ASandTProfile'; 
-    example = 'example_ASandTProfileBlock'; % uses a discontinuous initial distribution (nBins muss gleich sein fuer alle!!). Stefan findet: Deine Mudda!
+%     example = 'example_ASandTProfileBlock'; % uses a discontinuous initial distribution (nBins muss gleich sein fuer alle!!). Stefan findet: Deine Mudda!
 %    example = 'example_Nucleation'; 
-%     example = 'example_sizeDependentGrowth'; 
+    example = 'example_sizeDependentGrowth'; 
    nBinsv = [200 200 200]; %number of bins for MP,CD,HR respectively;
 end
 

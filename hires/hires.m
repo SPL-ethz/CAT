@@ -127,7 +127,7 @@ Dx = diff(PD.init_dist.boundaries);
             % Check if result is (superficially) reasonable
             
             if  (sum(-fstar(fstar<0))<sum(fstar(fstar>0))*1e-2 &&...
-                    c_dummy>0 && ((DeltaS < 0 && DeltaS>-0.01) || (DeltaS > 0 && DeltaS<0.001)) && DeltaG<0.05|| ...
+                    c_dummy>0 && ((DeltaS <= 0 && DeltaS>=-0.001) || (DeltaS > 0 && DeltaS<0.001)) && DeltaG<0.05|| ...
                     flagdt > 50)
                 
                 if Dt<1e4*eps
@@ -145,6 +145,7 @@ Dx = diff(PD.init_dist.boundaries);
 
             else
                 % Use a smaller timestep and repeat everything
+%                 keyboard
                 fstar   =   fstar0;
                 t       =   t-Dt;
                 flagdt  =   flagdt+1;

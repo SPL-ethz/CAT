@@ -667,8 +667,9 @@ classdef ProblemDefinition < handle
                 end % if
                 
                 if ~isempty(O.calc_conc)
-                    subplot(2,2,nopvit);                    
-                    PDpl_local = plot(O.calc_time,O.calc_conc./O.solubility(O.Tprofile(O.calc_time)),'linewidth',1.5);
+                    subplot(2,2,nopvit);              
+%                     keyboard
+                    PDpl_local = plot(O.calc_time(:),O.calc_conc(:)./O.solubility(O.Tprofile(O.calc_time(:))),'linewidth',1.5);
                     xlabel('Time [s]')
                     xlim([min(O.calc_time) max(O.calc_time)])
                     ylabel('Supersaturation [-]')
