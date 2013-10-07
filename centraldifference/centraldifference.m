@@ -35,26 +35,27 @@ Fa = F( [2:end end] );
 Gb = PD.growthrate(S, T, yb );
 Fb = F( [1 1:end-2 end-2] );
 
-
+% nucleation
 if nargin(PD.nucleationrate)==3
     dist = Distribution(y,F,PD.init_dist.boundaries);
     J = PD.nucleationrate(S,T,dist);
+    % nucleation
+    Fb(1) = J/G(1);
 else
     J = PD.nucleationrate(S,T);
+    % nucleation
+    Fb(1) = J/G(1);
 end
-Fb(1) = J/G(1);
+
 
 % Growth derivative
 dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';
 
-% nucleation
-
-% dF(1) = dF(1) + J/Dy(1);
 
 % concentration
 dc = -3*PD.kv*PD.rhoc*sum(G.*F(:).*Dy(:).*y(:).^2)-c/m*Q-J*y(1)^3*PD.kv*PD.rhoc;
 
 dXdt = [dF(:)-Q*F(:)/m; dc];
-% keyboard
+% t/3600
 
 end % function

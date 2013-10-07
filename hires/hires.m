@@ -47,13 +47,8 @@ Dx = diff(PD.init_dist.boundaries);
             % (1-mlim) of the distribution (otherwise, for length dependent
             % growth, large L dominate and Dt is small even though there
             % are no crystals at these sizes).
-            GI = boundingBoxFinder(fstar(3:end-1),1,mlim);
-            
-            try
+            GI = boundingBoxFinder(fstar(3:end-1),mlim);
             [~,I]   =   max(abs(G(GI(1):GI(2)-1))./Dx(GI(1):GI(2)-1));
-            catch
-                keyboard
-            end
             Dt       =   abs(Dx(I)/G(I));
 
             
@@ -115,19 +110,12 @@ Dx = diff(PD.init_dist.boundaries);
 %% finishing        
 
         DeltaS          =   c_dummy./cs_dummy-c./cs;
-        S_dummy = c_dummy./cs_dummy;
-%         G_dummy =  PD.growthrate(S_dummy,T_dummy,PD.init_dist.boundaries(2:end));
-%         if max(PD.growthrate(S,T,PD.init_dist.boundaries)) > eps && max(PD.growthrate(S_dummy,T_dummy,PD.init_dist.boundaries))
-%             DeltaG  = abs(max(G(GI(1):GI(2)))-max(G_dummy(GI(1):GI(2))))/max(G_dummy(GI(1):GI(2)));
-%         else
-            DeltaG = 0;
-% %         end
         
         if t<=PD.sol_time(end)
             % Check if result is (superficially) reasonable
             
             if  (sum(-fstar(fstar<0))<sum(fstar(fstar>0))*1e-2 &&...
-                    c_dummy>0 && ((DeltaS <= 0 && DeltaS>=-0.001) || (DeltaS > 0 && DeltaS<0.001)) && DeltaG<0.05|| ...
+                    c_dummy>0 && ((DeltaS <= 0 && DeltaS>=-0.001) || (DeltaS > 0 && DeltaS<0.001)) || ...
                     flagdt > 50)
                 
                 if Dt<1e4*eps
@@ -150,8 +138,7 @@ Dx = diff(PD.init_dist.boundaries);
                 t       =   t-Dt;
                 flagdt  =   flagdt+1;
                 Dt      =   Dt/2;
-%                 keyboard
-                                                      
+                                             
             end
 
         end

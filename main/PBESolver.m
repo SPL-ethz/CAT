@@ -73,8 +73,9 @@ switch PD.sol_method
     case 'centraldifference'
         y = PD.init_dist.y;
         X0 = [PD.init_dist.F  PD.init_conc];
+        options = odeset('reltol',1e-4);
         
-        [SolutionTimes,X_out] = ode15s(solvefun , PD.sol_time , X0 );
+        [SolutionTimes,X_out] = ode15s(solvefun , PD.sol_time , X0 ,options);
         
         % Create solution        
         SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  %# Pre-Allocation for speed       
