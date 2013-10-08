@@ -12,7 +12,7 @@ classdef ProblemDefinition < handle
         init_conc = 1;
         
         % Solubility
-        solubility = @(T,xm) 0.5;
+        solubility = @(T,xm) 0.5*T.^0;
         
         % Temperature profile
         Tprofile = @(t) 298*ones(size(t));
