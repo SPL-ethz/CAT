@@ -4,11 +4,11 @@ function [PD] = ProfileManager(PD)
 PD.calc_dist = Distribution;
 % keyboard
 PD.init_dist.mass = [PD.init_seed PD.kv PD.rhoc PD.init_massmedium];
-
+sol_time = PD.sol_time;
 if ~isempty(PD.tNodes)
     for i = 2:length(PD.tNodes) % make sure you hit the different nodes of the non-smooth profiles
         
-        PD.sol_time = [PD.tNodes(i-1) PD.tNodes(i)];  
+        PD.sol_time = [PD.tNodes(i-1) sol_time(sol_time>PD.tNodes(i-1) & sol_time<PD.tNodes(i)) PD.tNodes(i)];  
         
         [a b c] = PBESolver(PD);
 %         keyboard
@@ -22,7 +22,7 @@ if ~isempty(PD.tNodes)
     end % for
 
         PD.calc_dist = PD.calc_dist(2:end);
-        PD.sol_time = [PD.tNodes(1) PD.tNodes(end)];
+        PD.sol_time = sol_time;
         PD.init_dist = PD.calc_dist(1);
 else    
     
@@ -36,8 +36,14 @@ else
     end
 end
 
-%% Make sanity check of results
-% keyboard
+if length(PD.sol_time)>2
+    [~,I] = intersect(PD.calc_time,PD.sol_time);
+    PD.calc_time = PD.calc_time(I);
+    PD.calc_dist = PD.calc_dist(I);
+    PD.calc_conc = PD.calc_conc(I);
+end
+
+%% Check Mass balance
 if any(PD.massbal > 5)
    warning('ProfileManager:massbalcheck:largeerror',...
                     'Your mass balance error is unusually large (%4.2f%%). Check validity of equations and consider increasing the number of bins.',max(PD.massbal)); 

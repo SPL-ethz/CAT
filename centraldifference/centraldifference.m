@@ -53,7 +53,7 @@ dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';
 
 
 % concentration
-dc = -3*PD.kv*PD.rhoc*sum(G.*F(:).*Dy(:).*y(:).^2)-c/m*Q-J*y(1)^3*PD.kv*PD.rhoc;
+dc = -3*PD.kv*PD.rhoc*sum(G(:).*F(:).*Dy(:).*y(:).^2)-c/m*Q-J*y(1)^3*PD.kv*PD.rhoc;
 
 dXdt = [dF(:)-Q*F(:)/m; dc];
 % t/3600

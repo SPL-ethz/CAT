@@ -2,18 +2,18 @@
 function comparedemo(example)
 
 global demo
-
+% addALLthepaths
 if nargin == 0
 %    example = 'example_ASandTProfile'; 
 %     example = 'example_ASandTProfileBlock'; % uses a discontinuous initial distribution (nBins muss gleich sein fuer alle!!). Stefan findet: Deine Mudda!
-%    example = 'example_Nucleation'; 
+   example = 'example_Nucleation'; 
 %     example = 'example_sizeDependentGrowth'; 
-    example = 'example_geoGrid'; 
-   nBinsv = [100 50 50]; %number of bins for MP,CD,HR respectively;
+%     example = 'example_geoGrid'; 
+   nBinsv = [100 100 100]; %number of bins for MP,CD,HR respectively;
 end
 
 close all;clc;
-addALLthepaths
+
 PD = ProblemDefinition;
 PD.sol_method = 'movingpivot';
 nBins = nBinsv(1);
@@ -170,3 +170,16 @@ legend('','Central Differences','Moving Pivot','High Resolution','location','sou
 grid on
 xlabel('Temperature [\circC]')
 ylabel('Concentration [g/g]')
+
+figure(5) % mass balance error
+semilogy(PDCD.calc_time,abs(PDCD.massbal),'k-o','linewidth',1.5)
+hold on
+semilogy(PDMP.calc_time,abs(PDMP.massbal),'b-x','linewidth',1.5)
+semilogy(PDHR.calc_time,abs(PDHR.massbal),'r-^','linewidth',1.5)
+axis tight
+legend('Central Differences','Moving Pivot','High Resolution','location','southeast')
+grid on
+xlabel('Time [s]')
+ylabel('Mass balance error [%]')
+
+keyboard

@@ -38,6 +38,9 @@ classdef ProblemDefinition < handle
         % Shape factor
         kv = 1
         
+        % Solver Options
+        ODEoptions = [];
+        
         %% Results
         
         % Vector of actual times returned by solver
@@ -390,21 +393,13 @@ classdef ProblemDefinition < handle
             % SET.nucleationrate
             %
             % Check the nucleationrate rate: should be a function handle, accept 4
-            % arguments: S (supersaturation), T (temperature),, F (distribution). The output should be
+            % arguments: S (supersaturation), T (temperature), F (distribution). The output should be
             % a scalar
             
             if isa(value,'function_handle')
-                
-                % Check the number of inputs
-%                 if nargin(value) == 3
-                    
-                    O.nucleationrate = value;
-                    
-%                 elseif nargin(value) == 2
-                    
-%                     O.nucleationrate = @(S,T,~) value(S,T);
-%                 end
-                
+    
+                O.nucleationrate = value;
+
             else % not a function handle
                 warning('Distribution:setgrowthrate:Wrongtype',...
                     'The growth rate must be defined as a function');

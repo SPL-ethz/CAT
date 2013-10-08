@@ -1,25 +1,22 @@
 %% Clean up
 
 if ~exist('demo','var')
+    addALLthepaths
     clear all
     clc
     close all
-end
-
-addALLthepaths
-
-%% Set up problem
-
-% Basic object
-if ~exist('PD','var')
-    PD = ProblemDefinition;
-    nBins = 100;
     
-    % Set solver method to moving pivot
+    PD = ProblemDefinition;
+    
 %     PD.sol_method = 'movingpivot';
 %     PD.sol_method = 'centraldifference';
-    % % PD.sol_method = 'hires';
+    PD.sol_method = 'hires';
+    nBins = 100;
 end
+
+
+
+%% Set up problem
 
 % Define grid
 % 
