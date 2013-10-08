@@ -1,22 +1,20 @@
 %% Clean up
 
 if ~exist('demo','var')
+%     addALLthepaths
     clear all
     clc
     close all
-end
-
-% addALLthepaths
-
-%% Set up problem
-
-% Basic object
-if ~exist('PD','var')
+    
     PD = ProblemDefinition;
+    
+%     PD.sol_method = 'movingpivot';
+%     PD.sol_method = 'centraldifference';
+    PD.sol_method = 'hires';
+    nBins = 100;
 end
 
 % Define grid
-nBins = 100;
 gridL = linspace(0,5e2,nBins+1);
 meanL = (gridL(1:end-1)+gridL(2:end))/2;
 PD.init_dist.y = meanL;

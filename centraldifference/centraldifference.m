@@ -25,7 +25,9 @@ S = c/PD.solubility(T,xm);
 
 % Current mass flow rate antisolvent (evaluated using simplistic FFD)
 Q = (PD.ASprofile(t+1e-6)-PD.ASprofile(t))/1e-6;
-% keyboard
+if isnan(Q)
+    Q = (PD.ASprofile(t)-PD.ASprofile(t-1e-6))/1e-6;
+end
 
 G = PD.growthrate(S,T,y(:));
 
@@ -50,12 +52,12 @@ end
 
 % Growth derivative
 dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';
-
+dF(isnan(dF)) = 0;
 
 % concentration
 dc = -3*PD.kv*PD.rhoc*sum(G(:).*F(:).*Dy(:).*y(:).^2)-c/m*Q-J*y(1)^3*PD.kv*PD.rhoc;
 
 dXdt = [dF(:)-Q*F(:)/m; dc];
-% t/3600
+
 
 end % function

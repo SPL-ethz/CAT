@@ -36,6 +36,9 @@ else
     end
 end
 
+PD.init_conc = PD.calc_conc(1);
+PD.init_dist = PD.calc_dist(1);
+
 if length(PD.sol_time)>2
     [~,I] = intersect(PD.calc_time,PD.sol_time);
     PD.calc_time = PD.calc_time(I);

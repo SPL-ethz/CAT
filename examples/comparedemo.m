@@ -4,9 +4,10 @@ function comparedemo(example)
 global demo
 % addALLthepaths
 if nargin == 0
-%    example = 'example_ASandTProfile'; 
+%     example = 'example_ASProfile'; 
+   example = 'example_ASandTProfile'; 
 %     example = 'example_ASandTProfileBlock'; % uses a discontinuous initial distribution (nBins muss gleich sein fuer alle!!). Stefan findet: Deine Mudda!
-   example = 'example_Nucleation'; 
+%    example = 'example_Nucleation'; 
 %     example = 'example_sizeDependentGrowth'; 
 %     example = 'example_geoGrid'; 
    nBinsv = [100 100 100]; %number of bins for MP,CD,HR respectively;

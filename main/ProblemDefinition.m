@@ -407,14 +407,20 @@ classdef ProblemDefinition < handle
             
         end % function
 
-
+        %% Mass solvent + antisolvent at t
+        function mscalc = massmedium(O,t)
+            if ~exist('t','var')
+                t = O.calc_time(:);
+            end
+            mscalc = O.init_massmedium+O.ASprofile(t)-O.ASprofile(0); % total amount of medium  
+        end % function
+        
         %% Method massbal
         
         function PDma = massbal(O)
-            mscalc = O.init_massmedium+O.ASprofile(O.calc_time)-O.ASprofile(0); % total amount of medium
-            mass_solute = O.calc_conc(:).*mscalc(:);   % total mass of solute
+            mass_solute = O.calc_conc(:).*massmedium(O);   % total mass of solute
             m3 = moments(O.calc_dist,3);                            % third moment over time
-            mass_crystals = O.rhoc*O.kv*mscalc(:).*m3(:);    % total mass of crystals
+            mass_crystals = O.rhoc*O.kv*massmedium(O).*m3(:);    % total mass of crystals
             
             PDma = 100*((mass_solute + mass_crystals)/(mass_solute(1)+mass_crystals(1))-1);     % mass balance error   
         end % function

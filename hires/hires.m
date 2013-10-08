@@ -6,20 +6,21 @@ c = PD.init_conc;
 T = PD.Tprofile(PD.sol_time(1));
 
 
-TIME = PD.sol_time(1);
-%% Integration
-flagdt=0;
-t=PD.sol_time(1);tcount=1;
 
-fstar = PD.init_dist.F(:);
+%% Preperation
+TIME = PD.sol_time(1);
+flagdt=0;
+t=PD.sol_time(1);
+
 y = PD.init_dist.y(:);
-fstar = [0;0;fstar;0];
+fstar = [0;0;PD.init_dist.F(:);0];
 sfx = length(fstar);
 F = arrayCrop(fstar,[3;sfx-1]);
 Y(1,:) = [F(:)' c];
 Dy = diff(PD.init_dist.boundaries);
+Qcount = 0;
 
-
+%% Tolerances
 mlim = 0; % anteil von partikeln, welcher fuer die simulation vernachlaessigt werden darf --> HAS TO BE 0 WHEN WORKING WITH HEAVYSIDE FUNCTION IN F0
 Stol = 1e-2;
 ctol = 1e-2;
@@ -41,11 +42,10 @@ end
 Dtlast = inf;
 while t<PD.sol_time(end)
     % Current solvent + antisolvent mass
-    m = PD.init_massmedium+(PD.ASprofile(t)-PD.ASprofile(0));
+    m = massmedium(PD,t);
 
     % Current mass fraction antisolvent
     xm = PD.ASprofile(t)/m;
-
 
     cs = PD.solubility(T,xm);
 
@@ -55,9 +55,8 @@ while t<PD.sol_time(end)
     % Current mass flow rate antisolvent (evaluated using simplistic FD)
     Q = (PD.ASprofile(t+1e-6)-PD.ASprofile(t))/1e-6;
 
-
+    % Growth rate
     G = PD.growthrate(S,T,PD.init_dist.boundaries(2:end));
-
 
     % Autotimestepsizer based on CFL condition (eq. 24 in Gunawan 2004)
     if flagdt==0
@@ -70,15 +69,10 @@ while t<PD.sol_time(end)
         [~,I]   =   max(abs(G(GI(1):GI(2)-1))./Dy(GI(1):GI(2)-1));
         Dt       =   abs(Dy(I)/G(I));
 
+        nexttline   =   PD.sol_time(find(PD.sol_time>t,1,'first'));
+        Dttline =   nexttline-t;
 
-        if length(PD.sol_time)>2
-            nexttline   =   PD.sol_time(find(PD.sol_time>t,1,'first'));
-            Dttline =   nexttline-t;
-        else
-            Dttline     =   inf;
-        end
-
-        Dt      =   min([Dtlast*1.5 max([min(Dt) PD.sol_time(end)*1e-5]) PD.sol_time(end)-t Dttline 1/10*(PD.sol_time(end)-PD.sol_time(1))]);   % choose minimum of expressions (not too coarse description for plotting purposes)
+        Dt      =   min([Dtlast*1.5 max([min(Dt) PD.sol_time(end)*1e-5]) Dttline 1/10*(PD.sol_time(end)-PD.sol_time(1))]);   % choose minimum of expressions (not too coarse description for plotting purposes)
         Dtlast = Dt;
         fstar0 = fstar;
     end %flagdt
@@ -92,7 +86,7 @@ while t<PD.sol_time(end)
 
     %% Growth     
     if abs(c-cs)>eps 
-        fstar = hiResGrowth(fstar,G,Dt,Dy,GI);
+        fstar = hiResGrowth(fstar0,G,Dt,Dy,GI);
     else
         fstar = fstar0;
     end
@@ -112,12 +106,11 @@ while t<PD.sol_time(end)
     Deltac = sum((fstar(3:end-1)-fstar0(3:end-1)).*y.^3.*...
         Dy(:)*PD.rhoc.*PD.kv);
     
-    %% Dilution
-    fstar = fstar - Q * fstar/m * Dt; % dilution due to addition of AS
-    Deltac = Deltac + Q*c/m*Dt;
-    
-    
     c_dummy    =    c-Deltac;
+    %% Dilution
+    fstar = fstar *m/(m + Q* Dt); % dilution due to addition of AS
+    c_dummy = c_dummy*m/(m+Q*Dt);       
+   
     T_dummy    =    PD.Tprofile(t);
     cs_dummy   =    PD.solubility(T_dummy);     %Solubility
 
@@ -128,13 +121,15 @@ while t<PD.sol_time(end)
     DeltaS          =   c_dummy./cs_dummy-c./cs;
     crel = abs((c_dummy-c)/c);
     csrel = abs((cs_dummy-cs)/cs);
+    Qrel = Q*Dt/m;
 
     if t<=PD.sol_time(end)
         % Check if result is (superficially) reasonable
 
         if  (c_dummy>0 && sum(-fstar(fstar<0))<sum(fstar(fstar>0))*1e-2 &&...
-                abs(DeltaS)<Stol && ((DeltaS>=0 && (crel<ctol && csrel <ctol)) || (DeltaS<0) && (crel<ctol*10 && csrel <ctol)) || ...
-                flagdt > 50)
+                abs(DeltaS)<Stol && ((DeltaS>=0 && (crel<ctol && csrel <ctol)) || (DeltaS<0) && (crel<ctol*10 && csrel <ctol)) ...
+            && Qrel < Stol...
+            ||    flagdt > 50)
 
             if Dt<1e4*eps
                 fstar(fstar<0)=0; % hackebeil
@@ -144,11 +139,10 @@ while t<PD.sol_time(end)
             T    =  T_dummy;
 
             TIME    =   [TIME t]; %#ok<*AGROW>
-            tcount  =   tcount+1;   
             flagdt  =   0;
 
             F = arrayCrop(fstar,[3;sfx-1])';
-            Y(tcount,:) = [F(:)' c];
+            Y(end+1,:) = [F(:)' c];
 
         else
             % Use a smaller timestep and repeat everything

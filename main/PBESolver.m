@@ -19,7 +19,12 @@ switch PD.sol_method
         % if nucleation is present, bins are addded when the first bin
         % becomes too big
         options = PD.ODEoptions;
-        options = odeset(options,'Events',@(t,x) EventAddBin(t,x,dL));
+        if isempty(PD.ODEoptions)
+            options = odeset(options,'Events',@(t,x) EventAddBin(t,x,dL),'reltol',1e-6);            
+        else
+            options = odeset(options,'Events',@(t,x) EventAddBin(t,x,dL));
+        end
+
         
         SolutionTimes = []; SolutionConc = [];
         s=0;
@@ -27,7 +32,6 @@ switch PD.sol_method
             ts = PD.sol_time(PD.sol_time > tstart & PD.sol_time < tend);
             if tstart ~= PD.sol_time(1)
                 X0 = addBin(X_out(end,:)'); 
-%                 keyboard
             end
             % Solve until the next event where the nucleation bin becomes to big (as defined by dL)
             [T,X_out] = ode15s(solvefun, [tstart ts tend],X0, options);
@@ -48,9 +52,15 @@ switch PD.sol_method
         end %while        
         
     case 'centraldifference'
+        
+        options = PD.ODEoptions;
+        if isempty(PD.ODEoptions)
+            options = odeset(options,'reltol',1e-6);
+        end
+        
         X0 = [PD.init_dist.F, PD.init_conc];
         
-        [SolutionTimes,X_out] = ode15s(solvefun , PD.sol_time , X0 ,PD.ODEoptions);
+        [SolutionTimes,X_out] = ode15s(solvefun , PD.sol_time , X0 ,options);
 
     case 'hires'
         
