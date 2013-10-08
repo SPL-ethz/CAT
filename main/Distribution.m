@@ -173,6 +173,14 @@ classdef Distribution < handle
             
         end % function
         
+        %% Method set.mass
+        
+        function set.mass(O,value)
+            
+            O.F = O.F*value(1)/(moments(O,3)*value(2)*value(3)*value(4));
+                        
+        end % function
+        
         %% Method moments(F,j)
         
         function Fmo = moments(O,j,icalc)
@@ -224,13 +232,38 @@ classdef Distribution < handle
             Fmo = Fmo(:)';
             
         end % function
+
+        %% Method plot
         
-        function set.mass(O,value)
+        function pl_handle = plot(O)
             
-            O.F = O.F*value(1)/(moments(O,3)*value(2)*value(3)*value(4));
-                        
+            nargout
+            
+            % Plot distribution, number- and volume-weighted
+            
+            FFig = figure;
+            set(FFig,'numbertitle','off','name','PSDs (overlapping)')
+            Fax(1) = subplot(1,2,1);
+            Fax(2) = subplot(1,2,2);
+            xlabel(Fax(1),'Mean Char. Length')
+            xlabel(Fax(2),'Mean Char. Length')
+            ylabel(Fax(1),'Number Distribution')
+            ylabel(Fax(2),'Normalized Volume Distribution')
+            
+            box(Fax(1),'on')
+            box(Fax(2),'on')
+            
+            hold(Fax(1),'all')
+            hold(Fax(2),'all')
+            
+            pl_handle = zeros(2*length(O),1);
+            
+            for i = 1:length(O)
+                pl_handle(2*i-1) = plot(O(i).y,O(i).F,'Parent',Fax(1));
+                pl_handle(2*i) = plot(O(i).y,O(i).F.*O(i).y.^3,'Parent',Fax(2));
+            end % for
+            
         end % function
-        
 
     end % methods
     
