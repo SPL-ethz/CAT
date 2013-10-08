@@ -467,47 +467,9 @@ classdef ProblemDefinition < handle
                     || ~isempty(find(strcmp(plotwhat,'detailed_results')))...
                     || ~isempty(find(strcmp(plotwhat,'results'))))
                 %% currently not active
-%                 % Check if Parent axes are already defined
-%                 useaxpos = find(strcmp(varargin,'Parent'));
-% 
-%                 if ~isempty(useaxpos) && ishandle(varargin{useaxpos+1})
-%                     % Define this axes as the one to use
-%                     Fax = varargin{useaxpos+1};
-%                     % Remove this parent command from varargin, is added again
-%                     % later
-%                     varargin(useaxpos+(0:1)) = [];
-%                 else
-%%
-                    FFig = figure(11);
-                    set(gcf,'numbertitle','off','name','PSDs (overlapping)')
-                    Fax(1) = subplot(1,2,1);
-                    Fax(2) = subplot(1,2,2);
-                    xlabel(Fax(1),'Mean Char. Length')
-                    xlabel(Fax(2),'Mean Char. Length')
-                    ylabel(Fax(1),'Number Distribution')
-                    ylabel(Fax(2),'Normalized Volume Distribution')
-%                 end % if
-
-                % Handles for plots
-                PDpl_local = zeros(1,length(O.calc_dist));
-
-                hold(Fax(1),'all')
-                hold(Fax(2),'all')
-
-                % Plot every distribution
-                for i = 1:length(O.calc_dist)
-                    PDpl_local(i) = plot(...
-                        O.calc_dist(i).y,O.calc_dist(i).F,...
-                        'Parent',Fax(1),'DisplayName',['Dist ' num2str(i)],...
-                        varargin{:});
-                    
-                    PDpl_local(length(O.calc_dist)+i) = plot(...
-                        O.calc_dist(i).y,O.calc_dist(i).F.*O.calc_dist(i).y.^3./moments(O.calc_dist(i),3),...
-                        'Parent',Fax(2),'DisplayName',['Dist ' num2str(i)],...
-                        varargin{:});
-                end % for
+                PDpl_local = plot(O.calc_dist);
                 
-                PDpl = [PDpl PDpl_local];
+                PDpl = [PDpl; PDpl_local];
             end % if
             
   
@@ -527,7 +489,7 @@ classdef ProblemDefinition < handle
                 set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
                 
                 % Handles for plots
-                PDpl_local = zeros(1,2);
+                PDpl_local = zeros(2,1);
 
                 subplot(1,2,1)
                 PDpl_local(1) = surf(O.calc_time(:),O.calc_dist(1).y(:),Fmat,varargin{:});
@@ -544,7 +506,7 @@ classdef ProblemDefinition < handle
                 xlabel('Time')
                 zlabel('Normalized Volume Distribution')
 
-                PDpl = [PDpl PDpl_local];
+                PDpl = [PDpl; PDpl_local];
                 
             elseif (~isempty(find(strcmp(plotwhat,'distributions'))) ...
                     || ~isempty(find(strcmp(plotwhat,'dist3D'))) ...
@@ -556,7 +518,7 @@ classdef ProblemDefinition < handle
                 set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
                 
                 % Handles for plots
-                PDpl_local = zeros(1,2);
+                PDpl_local = zeros(2,1);
 
                 subplot(1,2,1)
                 for i = 1:length(O.calc_time)
@@ -583,7 +545,7 @@ classdef ProblemDefinition < handle
                 xlabel('Time')
                 zlabel('Normalized Volume Distribution')
                 set(PDpl_local,'linewidth',1.5,'color','k')
-                PDpl = [PDpl PDpl_local];
+                PDpl = [PDpl; PDpl_local];
                 
             end % if
             
@@ -596,7 +558,7 @@ classdef ProblemDefinition < handle
                 set(gcf,'numbertitle','off','name','PSD cumulative properties')  
 
                 % Handles for plots
-                PDpl_local = zeros(1,3);
+                PDpl_local = zeros(3,1);
                 
                 subplot(3,1,1)
                 PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));                
@@ -611,13 +573,13 @@ classdef ProblemDefinition < handle
                 ylabel('Weight average length [\mum]')
                 xlabel('Time [s]')
                 
-                PDpl = [PDpl PDpl_local];
+                PDpl = [PDpl; PDpl_local];
             elseif (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
                 ~isempty(find(strcmp(plotwhat,'moments'))))
             
                 figure(22)
                 set(gcf,'numbertitle','off','name','Moments Only')  
-                PDpl_local = zeros(1,4);
+                PDpl_local = zeros(4,1);
 
                 subplot(2,2,1)
                 PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));
@@ -661,7 +623,7 @@ classdef ProblemDefinition < handle
                     xlabel('Time [s]')
                     ylabel('Concentration [g/g]')
                     grid on
-                    PDpl = [PDpl PDpl_local];
+                    PDpl = [PDpl; PDpl_local];
 
                     nopvit = nopvit + 1;
                 end % if
@@ -674,7 +636,7 @@ classdef ProblemDefinition < handle
                     xlim([min(O.calc_time) max(O.calc_time)])
                     ylabel('Supersaturation [-]')
                     grid on
-                    PDpl = [PDpl PDpl_local(:)'];
+                    PDpl = [PDpl; PDpl_local(:)];
 
                     nopvit = nopvit + 1;
                 end % if
@@ -686,7 +648,7 @@ classdef ProblemDefinition < handle
                     xlim([min(O.calc_time) max(O.calc_time)])
                     ylabel('Temperature [^\circC]')
                     grid on
-                    PDpl = [PDpl PDpl_local(:)'];
+                    PDpl = [PDpl; PDpl_local(:)];
 
                     nopvit = nopvit + 1;
                 end % if
@@ -700,7 +662,7 @@ classdef ProblemDefinition < handle
                     ylabel('Total mass Solvent + Antisolvent [g]')
                     grid on
 %                     keyboard
-                    PDpl = [PDpl PDpl_local(:)'];
+                    PDpl = [PDpl; PDpl_local(:)];
 
                     nopvit = nopvit + 1;
                 end
@@ -721,7 +683,7 @@ classdef ProblemDefinition < handle
                     ylabel('Concentration [g/g]')
                     grid on
 %                     keyboard
-                    PDpl = [PDpl PDpl_local(:)'];
+                    PDpl = [PDpl; PDpl_local(:)];
                 end
                         
             end % if
@@ -738,7 +700,7 @@ classdef ProblemDefinition < handle
                     xlabel('Time')
                     ylabel('Mass balance [% error]')
                     grid on
-                    PDpl = [PDpl PDpl_local];
+                    PDpl = [PDpl; PDpl_local];
                 end % if
                 
                 
