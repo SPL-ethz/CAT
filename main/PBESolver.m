@@ -24,9 +24,9 @@ switch PD.sol_method
         % becomes too big
         options = PD.ODEoptions;
         if isempty(PD.ODEoptions)
-            options = odeset(options,'Events',@(t,x) EventAddBin(t,x,dL),'reltol',1e-6);            
+            options = odeset(options,'Events',@(t,x) EventBin(t,x,dL),'reltol',1e-6);            
         else
-            options = odeset(options,'Events',@(t,x) EventAddBin(t,x,dL));
+            options = odeset(options,'Events',@(t,x) EventBin(t,x,dL));
         end
 
         
@@ -34,21 +34,28 @@ switch PD.sol_method
         s=0;
         while tstart<tend 
             ts = PD.sol_time(PD.sol_time > tstart & PD.sol_time < tend);
-            if tstart ~= PD.sol_time(1)
-                X0 = addBin(X_out(end,:)'); 
-            end
+            
             % Solve until the next event where the nucleation bin becomes to big (as defined by dL)
             [TIME,X_out] = ode15s(solvefun, [tstart ts tend],X0, options);
             
-            nBins = (size(X_out,2)-2)/3;            
+            X_out(X_out<0) = 0;
+            
+            nBins = (size(X_out,2)-2)/3;
+            
+            if X_out(end,2*nBins+1)>0
+                X0 = addBin(X_out(end,:)'); 
+            elseif X_out(end,nBins+1)<=0
+                X0 = removeBin(X_out(end,:)'); 
+            end
+                                   
             F = X_out(:,1:nBins)./diff(X_out(:,2*nBins+1:3*nBins+1),1,2); F(isnan(F)) = 0;
             
-            SolutionTimes = [SolutionTimes;TIME(:)];
-            SolutionConc = [SolutionConc;X_out(:,end)];
+            SolutionTimes = [SolutionTimes;TIME(:)]; %#ok<AGROW>
+            SolutionConc = [SolutionConc;X_out(:,end)]; %#ok<AGROW>
             for i = 1:length(TIME)
                 SolutionDists(s+i) = Distribution( X_out(i,nBins+1:2*nBins),...
                     F(i,:),...
-                    X_out(i,2*nBins+1:3*nBins+1) );
+                    X_out(i,2*nBins+1:3*nBins+1) ); %#ok<AGROW>
             end
             s = s+length(TIME);
             tstart = TIME(end); 

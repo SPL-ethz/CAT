@@ -2,7 +2,6 @@ function [PD] = ProfileManager(PD)
 
 %% Solve
 PD.calc_dist = Distribution;
-% keyboard
 PD.init_dist.mass = [PD.init_seed PD.kv PD.rhoc PD.init_massmedium];
 sol_time = PD.sol_time;
 if ~isempty(PD.tNodes)
@@ -11,7 +10,6 @@ if ~isempty(PD.tNodes)
         PD.sol_time = [PD.tNodes(i-1) sol_time(sol_time>PD.tNodes(i-1) & sol_time<PD.tNodes(i)) PD.tNodes(i)];  
         
         [a b c] = PBESolver(PD);
-%         keyboard
         PD.calc_time(end+1:end+length(a)) = a;
         PD.calc_dist(end+1:end+length(b)) = b;    
         PD.calc_conc(end+1:end+length(a)) = c; 

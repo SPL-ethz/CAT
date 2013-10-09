@@ -25,11 +25,11 @@ if length(unique(G))==1 % size independent growth
     Gloc = G(1);
     if min(G)>=0
 
-        F(3:end-1) = F(3:end-1)-Dt.*Gloc./Dy(3:end-1).*(F(3:end-1)-F(2:end-2,:,:,:))-Dt.*Gloc./(2*Dy(3:end-1)).*(1-Dt.*Gloc./Dy(3:end-1)).*...
+        F(3:end-1) = F(3:end-1)-Dt.*Gloc./Dy(3:end-1).*(F(3:end-1)-F(2:end-2))-Dt.*Gloc./(2*Dy(3:end-1)).*(1-Dt.*Gloc./Dy(3:end-1)).*...
             ((F(4:end)-F(3:end-1)).*Phi(2:end)-(F(3:end-1)-F(2:end-2,:,:,:)).*Phi(1:end-1));
 
     else
-        F(3:end-1) = F(3:end-1)-Dt*Gloc./Dy.*(F(4:end)-F(3:end-1))-Dt*Gloc./(Dy*2).*(1+Dt*Gloc./Dy).*...
+        F(3:end-1) = F(3:end-1)-Dt*Gloc./Dy(4:end).*(F(4:end)-F(3:end-1))-Dt*Gloc./(2*Dy(4:end)).*(1+Dt*Gloc./Dy(4:end)).*...
             ((F(3:end-1)-F(2:end-2)).*Phi(1:end-1)-(F(4:end)-F(3:end-1)).*Phi(2:end));     
     end
 

@@ -5,13 +5,13 @@ function dXdt = centraldifference(t,X,PD)
 % i.e. the number of ODE's to be solved is ngrid-1+1.
 % In general, this method yields reasonably accurate results with low
 % computational cost.
-% Central differences method are good allrounders but are prone to
+% Central differences methods are good allrounders but are prone to
 % oscillations when dealing with discontinuous distributions. Also, the
 % mass balance error is considerably larger than with the moving pivot
 % method.
 % If you are unhappy with the result consider the following options:
 % - Increase the number of grid points
-% - Decrease reltol {1e-3} and abstol {1e-6} [ODEoptions]
+% - Decrease reltol {1e-6} and abstol {1e-6} [ODEoptions]
 % - Use another method
 
 

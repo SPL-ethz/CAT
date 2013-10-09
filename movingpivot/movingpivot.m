@@ -8,7 +8,7 @@ function [dxdt] = movingpivot(t, x, PD)
 % suited for problems with discontinuous distributions and geometric grids.
 % If you are unhappy with the result consider the following options:
 % - Increase the number of grid points
-% - Decrease reltol {1e-3} and abstol {1e-6} [ODEoptions]
+% - Decrease reltol {1e-6} and abstol {1e-6} [ODEoptions]
 % - Reduce dL (criterion for bin addition) {10} [ODEoptions]
 % - Use another method
 
@@ -50,6 +50,8 @@ end
 
 Gy = PD.growthrate(S,T,y); % growth rate for pivots
 Gboundaries = PD.growthrate(S,T,boundaries); % growth rate for boundaries
+
+Gboundaries(boundaries<=0) = 0;
 
 dNdt = [J; zeros(nBins-1,1)]-N(1:nBins)/m*Q; % change in number (per mass medium): nucleation - dilution
 dcdt = -3*PD.rhoc*PD.kv*sum(y.^2.*Gy.*N)-c/m*Q-J*y(1)^3*PD.kv*PD.rhoc;
