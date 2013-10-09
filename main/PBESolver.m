@@ -10,7 +10,11 @@ solvefun = @(t,X) solvefun(t,X,PD);
 switch PD.sol_method
 
     case 'movingpivot'
-        dL = 5; % critical bin size for event listener
+        if ~isempty(PD.ODEoptions) && ~isempty(find(strcmpi(PD.ODEoptions,'dL'),1))
+            dL = PD.ODEoptions(find(strcmpi(PD.ODEoptions,'dL'),1)+1);
+        else
+            dL = 5; % critical bin size for event listener
+        end
         X0 = [PD.init_dist.F.*diff(PD.init_dist.boundaries) ...
             PD.init_dist.y PD.init_dist.boundaries PD.init_conc];
         tstart = PD.sol_time(1); % local start time
@@ -34,20 +38,20 @@ switch PD.sol_method
                 X0 = addBin(X_out(end,:)'); 
             end
             % Solve until the next event where the nucleation bin becomes to big (as defined by dL)
-            [T,X_out] = ode15s(solvefun, [tstart ts tend],X0, options);
+            [TIME,X_out] = ode15s(solvefun, [tstart ts tend],X0, options);
             
             nBins = (size(X_out,2)-2)/3;            
             F = X_out(:,1:nBins)./diff(X_out(:,2*nBins+1:3*nBins+1),1,2); F(isnan(F)) = 0;
             
-            SolutionTimes = [SolutionTimes;T(:)];
+            SolutionTimes = [SolutionTimes;TIME(:)];
             SolutionConc = [SolutionConc;X_out(:,end)];
-            for i = 1:length(T)
+            for i = 1:length(TIME)
                 SolutionDists(s+i) = Distribution( X_out(i,nBins+1:2*nBins),...
                     F(i,:),...
                     X_out(i,2*nBins+1:3*nBins+1) );
             end
-            s = s+length(T);
-            tstart = T(end); 
+            s = s+length(TIME);
+            tstart = TIME(end); 
             
         end %while        
         
