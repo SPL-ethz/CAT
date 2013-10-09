@@ -38,8 +38,6 @@ classdef ProblemDefinition < handle
         % Shape factor
         kv = 1
         
-        % Solver Options
-        ODEoptions = [];
         
         %% Results
         
@@ -55,8 +53,8 @@ classdef ProblemDefinition < handle
         % Method to use - default to central difference
         sol_method = 'centraldifference'
         
-        % Solver options -  default none
-        sol_options = {};
+        % Solver Options
+        sol_options = [];
         
         % Growth rate function This function should be called as
         % growthrate(S,T,y) where S is the current supersaturation, T is the

@@ -8,8 +8,8 @@ function [dxdt] = movingpivot(t, x, PD)
 % suited for problems with discontinuous distributions and geometric grids.
 % If you are unhappy with the result consider the following options:
 % - Increase the number of grid points
-% - Decrease reltol {1e-6} and abstol {1e-6} [ODEoptions]
-% - Reduce dL (criterion for bin addition) {10} [ODEoptions]
+% - Decrease reltol {1e-6} and abstol {1e-6} [sol_options]
+% - Reduce dL (criterion for bin addition) {10} [sol_options]
 % - Use another method
 
 nBins = (length(x)-2)/3; % number of bins   

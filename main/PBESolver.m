@@ -10,10 +10,10 @@ solvefun = @(t,X) solvefun(t,X,PD);
 switch PD.sol_method
 
     case 'movingpivot'
-        if ~isempty(PD.ODEoptions) && ~isempty(find(strcmpi(PD.ODEoptions,'dL'),1))
-            dL = PD.ODEoptions(find(strcmpi(PD.ODEoptions,'dL'),1)+1);
+        if ~isempty(PD.sol_options) && ~isempty(find(strcmpi(PD.sol_options,'dL'),1))
+            dL = PD.sol_options(find(strcmpi(PD.sol_options,'dL'),1)+1);
         else
-            dL = 5; % critical bin size for event listener
+            dL = 10; % critical bin size for event listener
         end
         X0 = [PD.init_dist.F.*diff(PD.init_dist.boundaries) ...
             PD.init_dist.y PD.init_dist.boundaries PD.init_conc];
@@ -22,8 +22,8 @@ switch PD.sol_method
 
         % if nucleation is present, bins are addded when the first bin
         % becomes too big
-        options = PD.ODEoptions;
-        if isempty(PD.ODEoptions)
+        options = PD.sol_options;
+        if isempty(PD.sol_options)
             options = odeset(options,'Events',@(t,x) EventBin(t,x,dL),'reltol',1e-6);            
         else
             options = odeset(options,'Events',@(t,x) EventBin(t,x,dL));
@@ -64,8 +64,8 @@ switch PD.sol_method
         
     case 'centraldifference'
         
-        options = PD.ODEoptions;
-        if isempty(PD.ODEoptions)
+        options = PD.sol_options;
+        if isempty(PD.sol_options)
             options = odeset(options,'reltol',1e-6);
         end
         

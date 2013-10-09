@@ -12,7 +12,7 @@ a SPLIfA project
 brought to you by:
 
 Martin Iggland, Separation Process Laboratory, miggland@ipe.mavt.ethz.ch
-Dave Ochsenbein, Automatic Control Laboratory, daveo@control.ee.ethz.ch
+Dave Ochsenbein, Automatic Control Laboratory, ochsenbein@control.ee.ethz.ch
 
 The PBE Toolbox is an open-source software designed to solve population balance equations as they typically arise in particulate processes. 
 
@@ -24,10 +24,12 @@ Numerical Methods currently supported
 Features supported by all solvers
 - Nucleation (homogeneous/heterogeneous)
 - Growth (size dependent/independent)
+- Dissolution (only size independent verified)
 - Antisolvent und Temperature profiles in form of anonymous functions or piecewise-linear functions
 - Arbitrary grid sizing
 
-Features that are currently planned
+Features that are currently planned in the future
 - GUI
-- Dissolution
 - Ostwald ripening
+- Lattice-Boltzman method
+- 1D agglomeration

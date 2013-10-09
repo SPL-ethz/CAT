@@ -12,9 +12,9 @@ function [TIME,Y] = hires(PD)
 % accurate.
 % If you are unhappy with the result consider the following options:
 % - Increase the number of grid points
-% - Decrease reltol {1e-2} and abstol {1e-2} [ODEoptions] (particularly when encountering oscillations in S!)
-% - Set mlim to zero (boundary box finder threshold) {eps} [ODEoptions] (Important for discontinuous distributions and when mu0 loss is intolerable!)
-% - Change the flux limiter function via fluxlim {vanLeer} [ODEoptions] (see Phifinder for details)
+% - Decrease reltol {1e-2} and abstol {1e-2} [sol_options] (particularly when encountering oscillations in S!)
+% - Set mlim to zero (boundary box finder threshold) {eps} [sol_options] (Important for discontinuous distributions and when mu0 loss is intolerable!)
+% - Change the flux limiter function via fluxlim {vanLeer} [sol_options] (see Phifinder for details)
 % - Use another method
 
 %% Initial values | Local Variables
@@ -62,18 +62,18 @@ ctol = 1e-2; % tolerance in relative change of c and cs (reltol)
 fluxlim = 'vanleer';
 
 % if user has set tolerances, use them
-if ~isempty(PD.ODEoptions)
-    if ~isempty(find(strcmpi(PD.ODEoptions,'abstol'),1))
-        Stol = PD.ODEoptions{find(strcmpi(PD.ODEoptions,'abstol'),1)+1};
+if ~isempty(PD.sol_options)
+    if ~isempty(find(strcmpi(PD.sol_options,'abstol'),1))
+        Stol = PD.sol_options{find(strcmpi(PD.sol_options,'abstol'),1)+1};
     end
-    if ~isempty(find(strcmpi(PD.ODEoptions,'reltol'),1))
-        ctol = PD.ODEoptions{find(strcmpi(PD.ODEoptions,'reltol'),1)+1};
+    if ~isempty(find(strcmpi(PD.sol_options,'reltol'),1))
+        ctol = PD.sol_options{find(strcmpi(PD.sol_options,'reltol'),1)+1};
     end
-    if ~isempty(find(strcmpi(PD.ODEoptions,'mlim'),1))
-        mlim = PD.ODEoptions{find(strcmpi(PD.ODEoptions,'mlim'),1)+1};
+    if ~isempty(find(strcmpi(PD.sol_options,'mlim'),1))
+        mlim = PD.sol_options{find(strcmpi(PD.sol_options,'mlim'),1)+1};
     end
-    if ~isempty(find(strcmpi(PD.ODEoptions,'fluxlim'),1))
-        fluxlim = PD.ODEoptions{find(strcmpi(PD.ODEoptions,'fluxlim'),1)+1};
+    if ~isempty(find(strcmpi(PD.sol_options,'fluxlim'),1))
+        fluxlim = PD.sol_options{find(strcmpi(PD.sol_options,'fluxlim'),1)+1};
     end
 end
 

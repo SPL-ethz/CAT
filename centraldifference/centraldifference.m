@@ -11,7 +11,7 @@ function dXdt = centraldifference(t,X,PD)
 % method.
 % If you are unhappy with the result consider the following options:
 % - Increase the number of grid points
-% - Decrease reltol {1e-6} and abstol {1e-6} [ODEoptions]
+% - Decrease reltol {1e-6} and abstol {1e-6} [sol_options]
 % - Use another method
 
 
