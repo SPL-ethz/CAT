@@ -1,4 +1,4 @@
-function [TIME,Y] = hires(PD,varargin)
+function [TIME,Y] = hires(PD)
 %% [TIME,Y] = hires(PD) High Resolution method for Nucleation and Growth
 % Solves the PBE according to a High Resolution method (cf. e.g. Gunawan, R.; Fusman, I.; Braatz, R. D. AIChE Journal 2004, 50, 2738–2749).
 % This method does not use a standard ODE solver but rather uses the CFL
@@ -7,15 +7,22 @@ function [TIME,Y] = hires(PD,varargin)
 % while having by far the lowest computational cost. The method is particularly well
 % suited for problems with discontinuous distributions (when compared to
 % central differences) and virtually never exhibits oscillations.
+% Note that, by design, this method has negligible mass balance error,
+% however this does not necessarily mean that all results are 100%
+% accurate.
 % If you are unhappy with the result consider the following options:
 % - Increase the number of grid points
 % - Decrease reltol {1e-2} and abstol {1e-2} [ODEoptions] (particularly when encountering oscillations in S!)
 % - Set mlim to zero (boundary box finder threshold) {eps} [ODEoptions] (Important for discontinuous distributions and when mu0 loss is intolerable!)
 % - Change the flux limiter function via fluxlim {vanLeer} [ODEoptions] (see Phifinder for details)
+% - Use another method
 
 %% Initial values | Local Variables
+% Local time (initial time)
+t = PD.sol_time(1);
+
 % Initial time
-TIME = PD.sol_time(1);
+TIME = t; % is a vector 
 
 % Initial concentration
 c = PD.init_conc;  
@@ -24,7 +31,7 @@ c = PD.init_conc;
 T = PD.Tprofile(TIME);
 
 % Initial solvent + antisolvent mass
-m = PD.init_massmedium;
+m = PD.init_massmedium+PD.ASprofile(TIME)-PD.ASprofile(0);
 
 % Initial mass fraction antisolvent
 xm = PD.ASprofile(TIME)/m;
@@ -41,18 +48,20 @@ Dy = diff(PD.init_dist.boundaries);
 F = PD.init_dist.F; 
 Y(1,:) = [F(:)' c]; % Output matrix
 
-% Local time
-t = PD.sol_time(1);
+
 
 % local density function (is padded with zeros)
 F_dummy = [0;0;F(:);0]; 
  
 
 %% Tolerances and options
+% Default tolerances
 mlim = eps; % anteil von partikeln, welcher fuer die simulation vernachlaessigt werden darf --> HAS TO BE 0 WHEN WORKING WITH HEAVYSIDE FUNCTION IN F0
 Stol = 1e-2; % tolerance in S (abstol)
 ctol = 1e-2; % tolerance in relative change of c and cs (reltol)
+fluxlim = 'vanleer';
 
+% if user has set tolerances, use them
 if ~isempty(PD.ODEoptions)
     if ~isempty(find(strcmpi(PD.ODEoptions,'abstol'),1))
         Stol = PD.ODEoptions{find(strcmpi(PD.ODEoptions,'abstol'),1)+1};
@@ -63,6 +72,9 @@ if ~isempty(PD.ODEoptions)
     if ~isempty(find(strcmpi(PD.ODEoptions,'mlim'),1))
         mlim = PD.ODEoptions{find(strcmpi(PD.ODEoptions,'mlim'),1)+1};
     end
+    if ~isempty(find(strcmpi(PD.ODEoptions,'fluxlim'),1))
+        fluxlim = PD.ODEoptions{find(strcmpi(PD.ODEoptions,'fluxlim'),1)+1};
+    end
 end
 
 %% Integration
@@ -70,12 +82,12 @@ flagdt = 0; % flag if time step was just rejected (skip time step evaluation)
 Dtlast = inf; % last time step
 
 while t<PD.sol_time(end)
-       
-    % Current mass flow rate antisolvent (evaluated using simplistic FD)
-    Q = (PD.ASprofile(t+1e-6)-PD.ASprofile(t))/1e-6;
-
-    % Growth rate
-    G = PD.growthrate(S,T,PD.init_dist.boundaries(2:end)); % in the high resolution method, the growth rate is evaluated AT THE BOUNDARIES of the bins
+       % Growth rate
+    if S>=1
+        G = PD.growthrate(S,T,PD.init_dist.boundaries(2:end)); % in the high resolution method, the growth rate is evaluated AT THE BOUNDARIES of the bins
+    else % dissolution (evaluate at lower boundaries)
+        G = PD.growthrate(S,T,PD.init_dist.boundaries(1:end-1)); 
+    end
 
     % Autotimestepsizer based on CFL condition (eq. 24 in Gunawan 2004)
     if flagdt==0
@@ -93,6 +105,10 @@ while t<PD.sol_time(end)
         Dtlast      =   Dt; % save last time step
         F_dummy0      =   F_dummy; % save current distribution
     end %flagdt
+    
+    % Current mass flow rate antisolvent (evaluated using simplistic FD)
+    Q = (PD.ASprofile(t+Dt)-PD.ASprofile(t))/Dt;
+
 
     t           =   t+Dt; % update time step
 
@@ -103,7 +119,7 @@ while t<PD.sol_time(end)
 
     %% Growth     
     if abs(c-cs)>eps 
-        F_dummy = hiResGrowth(F_dummy0,G,Dt,Dy,GI); % let it grow, let it grow, let it grow
+        F_dummy = hiResGrowth(F_dummy0,G,Dt,Dy,GI,fluxlim); % let it grow, let it grow, let it grow
     else
         F_dummy = F_dummy0;
     end

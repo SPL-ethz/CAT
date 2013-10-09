@@ -2,7 +2,7 @@ function [dxdt] = movingpivot(t, x, PD)
 %% [dxdt] = movingpivot(t, x, PD) Moving Pivot method for Nucleation and Growth
 % Solves the PBE according to the Moving Pivot method (cf. e.g.  Kumar, S.; Ramkrishna, D. Chemical Engineering Science 1997, 52, 4659–4679.)
 % Needs to solve ODE's for number of particles (N), pivot length (y), boundaries (boundaries) and concentration,
-% i.e. the number of ODE's to be solved is 3*ngrid+1 and has an event listener.
+% i.e. the number of ODE's to be solved is 3*ngrid-2+1 and has an event listener.
 % In general, the moving pivot method yields the most accurate results but
 % has the highest computational cost. The method is particularly well
 % suited for problems with discontinuous distributions and geometric grids.
@@ -10,6 +10,7 @@ function [dxdt] = movingpivot(t, x, PD)
 % - Increase the number of grid points
 % - Decrease reltol {1e-3} and abstol {1e-6} [ODEoptions]
 % - Reduce dL (criterion for bin addition) {10} [ODEoptions]
+% - Use another method
 
 nBins = (length(x)-2)/3; % number of bins   
 

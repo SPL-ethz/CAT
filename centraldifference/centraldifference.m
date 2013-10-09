@@ -1,4 +1,19 @@
 function dXdt = centraldifference(t,X,PD)
+%% [dXdt] = centraldifference(t,X,PD) Central Difference Method for Nucleation and Growth
+% Solves the PBE according to a central differences method (cf. Wikipedia).
+% Needs to solve ODE's for number of particles (N), pivot length (y), boundaries (boundaries) and concentration,
+% i.e. the number of ODE's to be solved is ngrid-1+1.
+% In general, this method yields reasonably accurate results with low
+% computational cost.
+% Central differences method are good allrounders but are prone to
+% oscillations when dealing with discontinuous distributions. Also, the
+% mass balance error is considerably larger than with the moving pivot
+% method.
+% If you are unhappy with the result consider the following options:
+% - Increase the number of grid points
+% - Decrease reltol {1e-3} and abstol {1e-6} [ODEoptions]
+% - Use another method
+
 
 % Current solvent + antisolvent mass
 m = PD.init_massmedium+(PD.ASprofile(t)-PD.ASprofile(0));
@@ -8,7 +23,6 @@ xm = PD.ASprofile(t)/m;
 
 % Grid
 y = PD.init_dist.y;
-% keyboard
 Dy = diff(PD.init_dist.boundaries);
 ya = y([2:end end]);
 yb = y([1 1:end-2 end-2]);
@@ -29,6 +43,7 @@ if isnan(Q)
     Q = (PD.ASprofile(t)-PD.ASprofile(t-1e-6))/1e-6;
 end
 
+%% Growth rate evaluation
 G = PD.growthrate(S,T,y(:));
 
 Ga = PD.growthrate(S, T, ya );

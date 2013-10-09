@@ -1,11 +1,11 @@
-function [Phi] = Phifinder(Theta,PhiStr)
-%% Phifinder(Theta,PhiStr)
+function [Phi] = Phifinder(Theta,fluxlim)
+%% Phifinder(Theta,fluxlim)
 % Given a theta, find the corresponding flux limiter. The user can choose
 % between 5 different functions for Phi (cf. Leveque 2002). Default is
 % VanLeer's function for the limiter
 % Theta = Ratio of differences between 3 cells
-% PhiStr = String determining function that should be used
-switch PhiStr
+% fluxlim = String determining function that should be used
+switch fluxlim
     case {'vanleer'}
         Phi     =   (abs(Theta)+Theta)./(1+abs(Theta));
     case{'koren'}
