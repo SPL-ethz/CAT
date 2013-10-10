@@ -2,14 +2,22 @@ function [O] = solve(O)
 
 %% Solve
 O.calc_dist = Distribution;
-O.init_dist.mass = [O.init_seed O.kv O.rhoc O.init_massmedium];
+if ~isempty(O.init_seed)
+    O.init_dist.mass = [O.init_seed O.kv O.rhoc O.init_massmedium];
+end
 sol_time = O.sol_time;
 if ~isempty(O.tNodes)
     for i = 2:length(O.tNodes) % make sure you hit the different nodes of the non-smooth profiles
         
         O.sol_time = [O.tNodes(i-1) sol_time(sol_time>O.tNodes(i-1) & sol_time<O.tNodes(i)) O.tNodes(i)];  
         
-        [a b c] = PBESolver(O);
+        try
+            [a b c] = PBESolver(O);
+        catch ME
+            error('solve:tryconsttemp:PBESolverfail',...
+            'PBESolver failed to integrate your problem.')
+        end
+        
         O.calc_time(end+1:end+length(a)) = a;
         O.calc_dist(end+1:end+length(b)) = b;    
         O.calc_conc(end+1:end+length(a)) = c; 
@@ -25,11 +33,9 @@ if ~isempty(O.tNodes)
 else    
     
     try
-        
         [O.calc_time, O.calc_dist, O.calc_conc] = PBESolver(O);
     catch ME
-        keyboard
-        error('ProfileManager:tryconsttemp:PBESolverfail',...
+        error('solve:tryconsttemp:PBESolverfail',...
             'PBESolver failed to integrate your problem.')
     end
 end
@@ -75,7 +81,8 @@ switch O.sol_method
         tend = O.sol_time(end); % overall end time
 
         % if nucleation is present, bins are addded when the first bin
-        % becomes too big
+        % becomes too big, if dissolution is present, remove bins when
+        % necessary
         options = O.sol_options;
         if isempty(O.sol_options)
             options = odeset(options,'Events',@(t,x) EventBin(t,x,dL),'reltol',1e-6);            

@@ -22,7 +22,7 @@ classdef CAT < handle
         solubility = @(T,xm) 0.5*T.^0;
         
         % Temperature profile
-        Tprofile = @(t) 298*ones(size(t));
+        Tprofile = @(t) 25*ones(size(t));
         
         % (Anti)solvent added mass profile
         ASprofile = @(t) 0*t;
@@ -41,10 +41,10 @@ classdef CAT < handle
         nucleationrate = @(S,T) 0
         
         % Seed mass
-        init_seed = 1;
+        init_seed = [];
         
         % Initial mass of solvent + antisolvent
-        init_massmedium = 1;
+        init_massmedium = [];
         
         % Solution time vector
         sol_time
@@ -245,6 +245,16 @@ classdef CAT < handle
             % the future
             
             if ischar(value)
+                
+                % don't be case sensitive and allow alternative forms
+                if strcmpi(value,'cd') || strcmpi(value,'centraldifference')
+                    value = 'centraldifference';
+                elseif strcmpi(value,'mp') || strcmpi(value,'movingpivot')
+                    value = 'movingpivot';
+                elseif strcmpi(value,'hr') || strcmpi(value,'highresolution') || strcmpi(value,'hires')
+                    value = 'hires';
+                end
+                
                 O.sol_method = value;
             else
                 warning('CAT:SetSol_Method:WrongType',...
@@ -301,7 +311,9 @@ classdef CAT < handle
                     O.Tprofile = value;
                 end
                     
-
+            elseif isscalar(value)
+                O.Tprofile = @(t) value*ones(size(t));
+                
             else
                 warning('CAT:SetTprofile:WrongType',...
                     'The Tprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
@@ -387,9 +399,17 @@ classdef CAT < handle
                         O.growthrate = value;
                     end % if else
                     
+                elseif nargin(value) == 2 && length(value(1.1,1))==1
+                    % assume size independent function
+                    O.growthrate = @(S,T,~) value(S,T);
+                
+                elseif nargin(value) == 2 && length(value(1.1,[1 2]))==2
+                    % assume temperature independent function
+                    O.growthrate = @(S,~,y) value(S,y);
+                    
                 else
                     warning('Distribution:setgrowthrate:Wrongnargin',...
-                        'The growth rate function must have 3 input arguments (supersaturation, temperature, sizes)');
+                        'The growth rate function must have 3 input arguments (supersaturation, temperature, sizes) or 2 input arguments (S,T) or (S,y)');
                 end % if
                 
             else % not a function handle
@@ -405,8 +425,8 @@ classdef CAT < handle
             
             % SET.nucleationrate
             %
-            % Check the nucleationrate rate: should be a function handle, accept 4
-            % arguments: S (supersaturation), T (temperature), F (distribution). The output should be
+            % Check the nucleationrate rate: should be a function handle,
+            % accept max. 3 arguments: S (supersaturation), T (temperature), F (distribution). The output should be
             % a scalar
             
             if isa(value,'function_handle')
@@ -479,7 +499,6 @@ classdef CAT < handle
             
             PDpl = [];
             Tcalc = O.Tprofile(O.calc_time);
-            mscalc = O.init_massmedium+O.ASprofile(O.calc_time)-O.ASprofile(0);
                 
             if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
                     || ~isempty(find(strcmp(plotwhat,'distoverlap'))) ...
@@ -660,31 +679,27 @@ classdef CAT < handle
                     nopvit = nopvit + 1;
                 end % if
                 
-                if ~isempty(O.calc_conc)
-                    subplot(2,2,nopvit);                    
-                    PDpl_local = plot(O.calc_time,Tcalc,'linewidth',1.5);
-                    xlabel('Time [s]')
-                    xlim([min(O.calc_time) max(O.calc_time)])
-                    ylabel('Temperature [^\circC]')
-                    grid on
-                    PDpl = [PDpl; PDpl_local(:)];
+                subplot(2,2,nopvit);                    
+                PDpl_local = plot(O.calc_time,Tcalc,'linewidth',1.5);
+                xlabel('Time [s]')
+                xlim([min(O.calc_time) max(O.calc_time)])
+                ylabel('Temperature [^\circC]')
+                grid on
+                PDpl = [PDpl; PDpl_local(:)];
 
-                    nopvit = nopvit + 1;
-                end % if
+                nopvit = nopvit + 1;
 
-                if ~isempty(mscalc)
 
-                    subplot(2,2,nopvit);                    
-                    PDpl_local = plot(O.calc_time,mscalc,'linewidth',1.5);
-                    xlabel('Time')
-                    xlim([min(O.calc_time) max(O.calc_time)])
-                    ylabel('Total mass Solvent + Antisolvent [g]')
-                    grid on
-%                     keyboard
-                    PDpl = [PDpl; PDpl_local(:)];
+                subplot(2,2,nopvit);                    
+                PDpl_local = plot(O.calc_time,massmedium,'linewidth',1.5);
+                xlabel('Time')
+                xlim([min(O.calc_time) max(O.calc_time)])
+                ylabel('Total mass Solvent + Antisolvent [g]')
+                grid on
+                PDpl = [PDpl; PDpl_local(:)];
 
-                    nopvit = nopvit + 1;
-                end
+                nopvit = nopvit + 1;
+
 
                 if ~isempty(O.calc_conc) && ...
                         (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
