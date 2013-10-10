@@ -1,37 +1,36 @@
 %% Clean up
 
 if ~exist('demo','var')
-%     addALLthepaths
     clear all
     clc
     close all
     
-    PD = ProblemDefinition;
+    cat = CAT;
     
-%     PD.sol_method = 'movingpivot';
-%     PD.sol_method = 'centraldifference';
-    PD.sol_method = 'hires';
+%     cat.sol_method = 'movingpivot';
+%     cat.sol_method = 'centraldifference';
+    cat.sol_method = 'hires';
     nBins = 100;
 end
 
 % Define grid
 gridL = linspace(0,5e2,nBins+1);
 meanL = (gridL(1:end-1)+gridL(2:end))/2;
-PD.init_dist.y = meanL;
-PD.init_dist.boundaries = gridL;
-PD.init_conc = 7e-3;
+cat.init_dist.y = meanL;
+cat.init_dist.boundaries = gridL;
+cat.init_conc = 7e-3;
 
 % Define growth rate
-PD.growthrate = @(S,T,y) (S>1)*4e-1*(S-1)*ones(size(y));
-PD.solubility = @(T) (0.0056*(T-273).^2+0.0436.*(T-273)+3.7646)/1000;
+cat.growthrate = @(S,T,y) (S>1)*4e-1*(S-1)*ones(size(y));
+cat.solubility = @(T) (0.0056*(T-273).^2+0.0436.*(T-273)+3.7646)/1000;
 
 % Define operating conditions
-PD.init_seed = 0.5;
-PD.init_massmedium = 2000; % mass of solvent in the beginning
-PD.sol_time = [0 60*60];
-PD.Tprofile = [0 5*60 10*60 60*60;
+cat.init_seed = 0.5;
+cat.init_massmedium = 2000; % mass of solvent in the beginning
+cat.sol_time = [0 60*60];
+cat.Tprofile = [0 5*60 10*60 60*60;
     290 285 285 280];
-PD.ASprofile = [0 5*60 10*60 60*60;
+cat.ASprofile = [0 5*60 10*60 60*60;
     0 50 200 200];
 
 %define a simple gaussian as initial distribution
@@ -39,18 +38,18 @@ mu = 1e2;
 sigma = 0.3*mu;
 gauss = @(x) exp(-((x-mu).^2/(2*sigma^2)));
 
-PD.init_dist.F = gauss(meanL);
+cat.init_dist.F = gauss(meanL);
 
 
 % Set solver method to moving pivot
-% PD.sol_method = 'movingpivot';
-% PD.sol_method = 'centraldifference';
-% PD.sol_method = 'hires';
-PD = ProfileManager(PD);
+% cat.sol_method = 'movingpivot';
+% cat.sol_method = 'centraldifference';
+% cat.sol_method = 'hires';
+cat = ProfileManager(cat);
 
 
 
 %% Plot results
 if ~exist('demo','var')
-    plot(PD,'detailed_results');
+    plot(cat,'detailed_results');
 end

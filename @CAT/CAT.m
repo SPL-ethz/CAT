@@ -1,6 +1,6 @@
-classdef ProblemDefinition < handle
+classdef CAT < handle
     
-    % ProblemDefinition
+    % CAT
     
     properties ( Access = protected )
         
@@ -76,15 +76,15 @@ classdef ProblemDefinition < handle
     
     methods
         
-        %% Method ProblemDefinition (constructor)
+        %% Method CAT (constructor)
         
-        function O = ProblemDefinition(init_dist,init_conc,sol_time,...
+        function O = CAT(init_dist,init_conc,sol_time,...
                 sol_method,growthrate, nucleationrate)
             
             % PROBLEMDEFINITION
             %
-            % Constructor function for ProblemDefinition class. Called as:
-            %	PD = ProblemDefinition(init_dist,init_conc,sol_time,...
+            % Constructor function for CAT class. Called as:
+            %	PD = CAT(init_dist,init_conc,sol_time,...
             %      sol_method,growthrate)
             %
             % Leave any of the variables empty to not assign them.
@@ -131,7 +131,7 @@ classdef ProblemDefinition < handle
             % class object
             
             if ~strcmp(class(value),'Distribution')
-                warning('ProblemDefinition:SetInit_Dist:WrongType',...
+                warning('CAT:SetInit_Dist:WrongType',...
                     'The init_dist property must be a Distribution object');
             else
                 O.init_dist = value;
@@ -150,7 +150,7 @@ classdef ProblemDefinition < handle
             if isscalar(value) && ~isnan(value) && value>0 && ~isinf(value)
                 O.init_seed = value;
             else
-                warning('ProblemDefinition:SetInit_Seed:WrongType',...
+                warning('CAT:SetInit_Seed:WrongType',...
                     'The init_seed property must be a positive scalar');
             end % if else
             
@@ -171,7 +171,7 @@ classdef ProblemDefinition < handle
             elseif ischar(value) && strcmpi(value,'sat') % solution is saturated in the beginning
                 O.init_conc = O.solubility(O.Tprofile(0));
             else
-                warning('ProblemDefinition:SetInit_Conc:WrongType',...
+                warning('CAT:SetInit_Conc:WrongType',...
                     'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
             end % if else
             
@@ -195,7 +195,7 @@ classdef ProblemDefinition < handle
 
 
             else
-                warning('ProblemDefinition:SetASprofile:WrongType',...
+                warning('CAT:SetASprofile:WrongType',...
                     'The ASprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
                 
             end % if else
@@ -214,7 +214,7 @@ classdef ProblemDefinition < handle
             if length(value) > 1 && isvector(value) && ~any(diff(value)<=0)
                 O.sol_time = value;
             else
-                warning('ProblemDefinition:SetSol_Time:WrongValue',...
+                warning('CAT:SetSol_Time:WrongValue',...
                     'The property sol_time must be a vector of monotonically increasing values');
             end % if else
             
@@ -234,7 +234,7 @@ classdef ProblemDefinition < handle
             if ischar(value)
                 O.sol_method = value;
             else
-                warning('ProblemDefinition:SetSol_Method:WrongType',...
+                warning('CAT:SetSol_Method:WrongType',...
                     'The property sol_method should be a string');
             end % if else
             
@@ -254,7 +254,7 @@ classdef ProblemDefinition < handle
             if iscell(value)
                 O.sol_options = value;
             else
-                warning('ProblemDefinition:SetSol_Options:WrongType',...
+                warning('CAT:SetSol_Options:WrongType',...
                     'The property sol_options should be a cell');
             end % if else
             
@@ -290,7 +290,7 @@ classdef ProblemDefinition < handle
                     
 
             else
-                warning('ProblemDefinition:SetTprofile:WrongType',...
+                warning('CAT:SetTprofile:WrongType',...
                     'The Tprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
                 
             end % if else
@@ -322,7 +322,7 @@ classdef ProblemDefinition < handle
                 O.ASprofile = value;
 
             else
-                warning('ProblemDefinition:SetTprofile:WrongType',...
+                warning('CAT:SetTprofile:WrongType',...
                     'The ASprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
                 
             end % if else
@@ -339,7 +339,7 @@ classdef ProblemDefinition < handle
                 O.tNodes = value;
 
             else
-                warning('ProblemDefinition:SettNodes:WrongType',...
+                warning('CAT:SettNodes:WrongType',...
                     'The tNodes property must be a non-negative vector');
                 
             end % if else

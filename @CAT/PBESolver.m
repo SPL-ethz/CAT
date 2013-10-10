@@ -1,29 +1,29 @@
-function [SolutionTimes SolutionDists SolutionConc] = PBESolver (PD)
+function [SolutionTimes SolutionDists SolutionConc] = PBESolver (O)
 
 % PBESOLVER
 %
 % Solve PBEs, like a boss
 
-solvefun = str2func(PD.sol_method);
-solvefun = @(t,X) solvefun(t,X,PD);
+solvefun = str2func(O.sol_method);
+solvefun = @(t,X) solvefun(t,X,O);
 
-switch PD.sol_method
+switch O.sol_method
 
     case 'movingpivot'
-        if ~isempty(PD.sol_options) && ~isempty(find(strcmpi(PD.sol_options,'dL'),1))
-            dL = PD.sol_options(find(strcmpi(PD.sol_options,'dL'),1)+1);
+        if ~isempty(O.sol_options) && ~isempty(find(strcmpi(O.sol_options,'dL'),1))
+            dL = O.sol_options(find(strcmpi(O.sol_options,'dL'),1)+1);
         else
             dL = 10; % critical bin size for event listener
         end
-        X0 = [PD.init_dist.F.*diff(PD.init_dist.boundaries) ...
-            PD.init_dist.y PD.init_dist.boundaries PD.init_conc];
-        tstart = PD.sol_time(1); % local start time
-        tend = PD.sol_time(end); % overall end time
+        X0 = [O.init_dist.F.*diff(O.init_dist.boundaries) ...
+            O.init_dist.y O.init_dist.boundaries O.init_conc];
+        tstart = O.sol_time(1); % local start time
+        tend = O.sol_time(end); % overall end time
 
         % if nucleation is present, bins are addded when the first bin
         % becomes too big
-        options = PD.sol_options;
-        if isempty(PD.sol_options)
+        options = O.sol_options;
+        if isempty(O.sol_options)
             options = odeset(options,'Events',@(t,x) EventBin(t,x,dL),'reltol',1e-6);            
         else
             options = odeset(options,'Events',@(t,x) EventBin(t,x,dL));
@@ -33,7 +33,7 @@ switch PD.sol_method
         SolutionTimes = []; SolutionConc = [];
         s=0;
         while tstart<tend 
-            ts = PD.sol_time(PD.sol_time > tstart & PD.sol_time < tend);
+            ts = O.sol_time(O.sol_time > tstart & O.sol_time < tend);
             
             % Solve until the next event where the nucleation bin becomes to big (as defined by dL)
             [TIME,X_out] = ode15s(solvefun, [tstart ts tend],X0, options);
@@ -64,26 +64,26 @@ switch PD.sol_method
         
     case 'centraldifference'
         
-        options = PD.sol_options;
-        if isempty(PD.sol_options)
+        options = O.sol_options;
+        if isempty(O.sol_options)
             options = odeset(options,'reltol',1e-6);
         end
         
-        X0 = [PD.init_dist.F, PD.init_conc];
+        X0 = [O.init_dist.F, O.init_conc];
         
-        [SolutionTimes,X_out] = ode15s(solvefun , PD.sol_time , X0 ,options);
+        [SolutionTimes,X_out] = ode15s(solvefun , O.sol_time , X0 ,options);
 
     case 'hires'
         
-        [SolutionTimes,X_out] = hires(PD);
+        [SolutionTimes,X_out] = hires(O);
          
 end %switch
 
-if ~strcmpi(PD.sol_method,'movingpivot')
+if ~strcmpi(O.sol_method,'movingpivot')
     SolutionConc = X_out(:,end);
     SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  %# Pre-Allocation for speed               
     for i = 1:length(SolutionTimes)
-            SolutionDists(i) = Distribution( PD.init_dist.y, X_out(i,1:length(PD.init_dist.y)),PD.init_dist.boundaries );
+            SolutionDists(i) = Distribution( O.init_dist.y, X_out(i,1:length(O.init_dist.y)),O.init_dist.boundaries );
     end % for
 end
 

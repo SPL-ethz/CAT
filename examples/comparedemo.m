@@ -5,8 +5,8 @@ global demo %#ok<NUSED>
 % addALLthepaths
 if nargin == 0
 %     example = 'example_ASProfile'; 
-%    example = 'example_ASandTProfile'; 
-   example = 'example_Dissolution'; 
+   example = 'example_ASandTProfile'; 
+%    example = 'example_Dissolution'; 
 %     example = 'example_ASandTProfileBlock'; % uses a discontinuous initial distribution (nBins muss gleich sein fuer alle!!). Stefan findet: Deine Mudda!
 %    example = 'example_Nucleation'; 
 %     example = 'example_sizeDependentGrowth';    
@@ -16,33 +16,33 @@ end
 
 close all;clc;
 
-PD = ProblemDefinition;
-PD.sol_method = 'movingpivot';
+cat = CAT;
+cat.sol_method = 'movingpivot';
 nBins = nBinsv(1); %#ok<*NASGU>
 tic
 eval(example)
 f = toc;
 fprintf('Solution Time for Moving Pivot Method %4.2f s\n',f)
-PDMP = PD;
-clear PD
-PD = ProblemDefinition;
-PD.sol_method = 'centraldifference';
+PDMP = cat;
+clear cat
+cat = CAT;
+cat.sol_method = 'centraldifference';
 nBins = nBinsv(2);
 tic
 eval(example)
 f= toc;
 fprintf('Solution Time for Central Differences Method %4.2f s\n',f)
-PDCD = PD;
-clear PD
-PD = ProblemDefinition;
-PD.sol_method = 'hires';
+PDCD = cat;
+clear cat
+cat = CAT;
+cat.sol_method = 'hires';
 nBins = nBinsv(3);
 tic
 eval(example)
 f=toc;
 fprintf('Solution Time for High Resolution Method %4.2fs\n',f)
-PDHR = PD;
-clear PD
+PDHR = cat;
+clear cat
 
 figure(1) % final PSD
 subplot(1,2,1) % number weighted
