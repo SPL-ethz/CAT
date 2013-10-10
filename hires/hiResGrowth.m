@@ -1,75 +1,59 @@
-function[y] = hiResGrowth(fstarfull,G,Dt,Dx,GI)
+function[Ffull] = hiResGrowth(Ffull,G,Dt,Dy,GI,fluxlim)
    
+FI = zeros(size(GI));FI(1) = max([GI(1)-3 1]);FI(2) = min([GI(2)+3 length(Ffull)]); % boundary box for (padded) distribution
+Dy = [eps;eps;Dy(:); eps];Dy = Dy(FI(1):FI(2));
 
-FI = zeros(size(GI));
-FI(1) = max([GI(1)-3 1]);
-FI(2) = min([GI(2)+3 length(fstarfull)]);
-Dx = [eps;eps;Dx(:); eps];Dx = Dx(FI(1):FI(2));
+F = Ffull(FI(1):FI(2)); F = F(:);
 
+% Find Theta
+if any(G>=  0) % growth
+    Theta   =   arrayDivision(diff(F,1,1),1,1);
+else % dissolution
+    F(1:2) = repmat(F(3),[2 1]); % outflow boundary condition p 131 ff leveque
+    Theta   =   arrayDivision(diff(F,1,1),1,2);
+    Theta   =   circshift(Theta,[-1 0]);
+end
 
-if any(max(G)>eps)
+Theta(isinf(Theta))     =   0;
+Theta(isnan(Theta))     =   2;
 
-    fstarfull = permute(fstarfull,[circshift(1:1,[0 1-1]) 1+1:3 4]);
+Phi                     =   Phifinder(Theta,fluxlim);    % Flux limiter
+Phi(isnan(Phi))         =   0;
 
-    fstar = fstarfull(FI(1):FI(2),:,:,:);
+% Propagate Distribution 
+if length(unique(G))==1 % size independent growth
+    Gloc = G(1);
+    if min(G)>=0
 
-    % Find Theta
-    if any(G>=  0)
-        deltaf  =   diff(fstar,1,1);
-        Theta   =   arrayDivision(deltaf,1,1);
+        F(3:end-1) = F(3:end-1)-Dt.*Gloc./Dy(3:end-1).*(F(3:end-1)-F(2:end-2))-Dt.*Gloc./(2*Dy(3:end-1)).*(1-Dt.*Gloc./Dy(3:end-1)).*...
+            ((F(4:end)-F(3:end-1)).*Phi(2:end)-(F(3:end-1)-F(2:end-2,:,:,:)).*Phi(1:end-1));
+
     else
-        fstar(1:2) = repmat(fstar(3),[2 1]); % outflow boundary condition p 131 ff leveque
-        deltaf  =   diff(fstar,1,1);
-        Theta   =   arrayDivision(deltaf,1,2);
-        Theta   =   circshift(Theta,[-1 0]);
+        F(3:end-1) = F(3:end-1)-Dt*Gloc./Dy(4:end).*(F(4:end)-F(3:end-1))-Dt*Gloc./(2*Dy(4:end)).*(1+Dt*Gloc./Dy(4:end)).*...
+            ((F(3:end-1)-F(2:end-2)).*Phi(1:end-1)-(F(4:end)-F(3:end-1)).*Phi(2:end));     
     end
 
-    Theta(isinf(Theta))     =   0;
-    Theta(isnan(Theta))     =   2;
+elseif length(unique(G))>1 % size depenent growth
 
-    Phi                     =   Phifinder(Theta,'vanleer');    % Flux limiter
-    Phi(isnan(Phi))         = 0;
+    Gloc = [0;0;G(:); 0];Gloc = Gloc(FI(1):FI(2));Gloc=Gloc(:);
 
-    % Propagate Distribution based on G setup
+    if min(Gloc(:))>=0
+        F(3:end-1)=F(3:end-1)-Dt./Dy(3:end-1).*(Gloc(3:end-1).*F(3:end-1)-Gloc(2:end-2).*F(2:end-2))-...
+                        (Dt./(2*Dy(3:end-1)).*Gloc(3:end-1).*(1-(Dt./Dy(3:end-1).*Gloc(3:end-1))).*(F(4:end)-F(3:end-1)).*Phi(2:end)-...
+                        Dt./(2*Dy(2:end-2)).*Gloc(2:end-2).*(1-Dt./Dy(2:end-2).*Gloc(2:end-2)).*(F(3:end-1)-F(2:end-2)).*Phi(1:end-1));
 
-    if length(unique(G))==1
-        Gloc = G(1);
-        if min(G)>=0
-
-            f_dummy = fstar(3:end-1)-Dt.*Gloc./Dx(3:end-1).*(fstar(3:end-1)-fstar(2:end-2,:,:,:))-Dt.*Gloc./(2*Dx(3:end-1)).*(1-Dt.*Gloc./Dx(3:end-1)).*...
-                ((fstar(4:end,:,:,:)-fstar(3:end-1)).*Phi(2:end,:,:,:)-(fstar(3:end-1)-fstar(2:end-2,:,:,:)).*Phi(1:end-1,:,:,:));
-
-        else
-            f_dummy = fstar(3:end-1)-Dt*Gloc./Dx.*(fstar(4:end,:,:,:)-fstar(3:end-1))-Dt*Gloc./(Dx*2).*(1+Dt*Gloc./Dx).*...
-                ((fstar(3:end-1)-fstar(2:end-2,:,:,:)).*Phi(1:end-1,:,:,:)-(fstar(4:end,:,:,:)-fstar(3:end-1)).*Phi(2:end,:,:,:));     
-        end
-
-    elseif length(unique(G))>1
-
-        Gloc = [0;0;G(:); 0];Gloc = Gloc(FI(1):FI(2));Gloc=Gloc(:);
-
-        if min(Gloc(:))>=0
+    else
+%         try
+        F(3:end-1)=F(3:end-1)-Dt./Dy(4:end).*(Gloc(4:end).*F(4:end)-Gloc(3:end-1).*F(3:end-1))+...          
+                    (Dt./(2*Dy(3:end-1)).*Gloc(3:end-1).*(1+(Dt./Dy(3:end-1).*Gloc(3:end-1))).*(F(4:end)-F(3:end-1)).*Phi(2:end)-...
+                    Dt./(2*Dy(2:end-2)).*Gloc(2:end-2).*(1+Dt./Dy(2:end-2).*Gloc(2:end-2)).*(F(3:end-1)-F(2:end-2)).*Phi(1:end-1));
+%         catch
 %             keyboard
-            f_dummy=fstar(3:end-1)-Dt./Dx(3:end-1).*(Gloc(3:end-1).*fstar(3:end-1)-Gloc(2:end-2).*fstar(2:end-2,:,:,:))-...           % f(t=t+Dt) saved in a dummy variable for convenience
-                            (Dt./(2*Dx(3:end-1)).*Gloc(3:end-1).*(1-(Dt./Dx(3:end-1).*Gloc(3:end-1))).*(fstar(4:end,:,:,:)-fstar(3:end-1)).*Phi(2:end,:,:,:)-...
-                            Dt./(2*Dx(2:end-2)).*Gloc(2:end-2).*(1-Dt./Dx(2:end-2).*Gloc(2:end-2)).*(fstar(3:end-1)-fstar(2:end-2,:,:,:)).*Phi(1:end-1,:,:,:));
-
-        else
-            f_dummy=fstar(3:end-1,:,:)-Dt./Dx.*(Gloc(4:end,:,:).*fstar(4:end,:,:)-Gloc(3:end-1,:,:).*fstar(3:end-1,:,:))+...           % f(t=t+Dt) saved in a dummy variable for convenience
-                        (Dt./(2*PSD.Dx).*Gloc(3:end-1,:,:).*(1+(Dt./Dx.*Gloc(3:end-1,:,:))).*(fstar(4:end,:,:)-fstar(3:end-1,:,:)).*Phi(2:end,:,:)-...
-                        Dt./(2*PSD.Dx).*Gloc(2:end-2,:,:).*(1+Dt./Dx.*Gloc(2:end-2,:,:)).*(fstar(3:end-1,:,:)-fstar(2:end-2,:,:)).*Phi(1:end-1,:,:));
-%                     
-        end
-
+%         end
     end
-
-    fstar(3:end-1,:,:)    =   f_dummy;
-
-    fstarfull(FI(1):FI(2),:,:,:) = fstar;
 
 end
 
 
-
-y = fstarfull;
+Ffull(FI(1):FI(2)) = F;
 

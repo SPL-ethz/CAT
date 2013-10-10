@@ -1,21 +1,30 @@
 %% Clean up
 
 if ~exist('demo','var')
-%     addALLthepaths
     clear all
     clc
     close all
-    
+end
+
+addALLthepaths
+
+%% Set up problem
+
+% Basic object
+if ~exist('PD','var')
     PD = ProblemDefinition;
+        nBins = 50;
     
+    % Set solver method to moving pivot
 %     PD.sol_method = 'movingpivot';
 %     PD.sol_method = 'centraldifference';
     PD.sol_method = 'hires';
-    nBins = 500;
 end
 
 % Define grid
-gridL = linspace(0,5e2,nBins+1);
+% nBins = 100;
+% gridL = linspace(0,5e2,nBins+1);
+gridL = [0 logspace(-1,3,nBins)];
 meanL = (gridL(1:end-1)+gridL(2:end))/2;
 PD.init_dist.y = meanL;
 PD.init_dist.boundaries = gridL;
@@ -28,7 +37,9 @@ PD.solubility = @(T) (0.0056*(T-273).^2+0.0436.*(T-273)+3.7646)/1000;
 % Define operating conditions
 PD.init_seed = 0.5;
 PD.init_massmedium = 2000; % mass of solvent in the beginning
-PD.sol_time = [0 60*60];
+PD.sol_time = [0:60*60];
+PD.Tprofile = [0 5*60 10*60 60*60;
+    290 285 285 280];
 PD.ASprofile = [0 5*60 10*60 60*60;
     0 50 200 200];
 
@@ -40,10 +51,6 @@ gauss = @(x) exp(-((x-mu).^2/(2*sigma^2)));
 PD.init_dist.F = gauss(meanL);
 
 
-% Set solver method to moving pivot
-% PD.sol_method = 'movingpivot';
-% PD.sol_method = 'centraldifference';
-% PD.sol_method = 'hires';
 PD = ProfileManager(PD);
 
 

@@ -38,6 +38,7 @@ classdef ProblemDefinition < handle
         % Shape factor
         kv = 1
         
+        
         %% Results
         
         % Vector of actual times returned by solver
@@ -52,8 +53,8 @@ classdef ProblemDefinition < handle
         % Method to use - default to central difference
         sol_method = 'centraldifference'
         
-        % Solver options -  default none
-        sol_options = {};
+        % Solver Options
+        sol_options = [];
         
         % Growth rate function This function should be called as
         % growthrate(S,T,y) where S is the current supersaturation, T is the
@@ -390,21 +391,13 @@ classdef ProblemDefinition < handle
             % SET.nucleationrate
             %
             % Check the nucleationrate rate: should be a function handle, accept 4
-            % arguments: S (supersaturation), T (temperature),, F (distribution). The output should be
+            % arguments: S (supersaturation), T (temperature), F (distribution). The output should be
             % a scalar
             
             if isa(value,'function_handle')
-                
-                % Check the number of inputs
-%                 if nargin(value) == 3
-                    
-                    O.nucleationrate = value;
-                    
-%                 elseif nargin(value) == 2
-                    
-%                     O.nucleationrate = @(S,T,~) value(S,T);
-%                 end
-                
+    
+                O.nucleationrate = value;
+
             else % not a function handle
                 warning('Distribution:setgrowthrate:Wrongtype',...
                     'The growth rate must be defined as a function');
@@ -412,14 +405,20 @@ classdef ProblemDefinition < handle
             
         end % function
 
-
+        %% Mass solvent + antisolvent at t
+        function mscalc = massmedium(O,t)
+            if ~exist('t','var')
+                t = O.calc_time(:);
+            end
+            mscalc = O.init_massmedium+O.ASprofile(t)-O.ASprofile(0); % total amount of medium  
+        end % function
+        
         %% Method massbal
         
         function PDma = massbal(O)
-            mscalc = O.init_massmedium+O.ASprofile(O.calc_time)-O.ASprofile(0); % total amount of medium
-            mass_solute = O.calc_conc(:).*mscalc(:);   % total mass of solute
+            mass_solute = O.calc_conc(:).*massmedium(O);   % total mass of solute
             m3 = moments(O.calc_dist,3);                            % third moment over time
-            mass_crystals = O.rhoc*O.kv*mscalc(:).*m3(:);    % total mass of crystals
+            mass_crystals = O.rhoc*O.kv*massmedium(O).*m3(:);    % total mass of crystals
             
             PDma = 100*((mass_solute + mass_crystals)/(mass_solute(1)+mass_crystals(1))-1);     % mass balance error   
         end % function

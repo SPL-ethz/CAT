@@ -210,16 +210,11 @@ classdef Distribution < handle
                 for i = icalc
                     if isempty(O(1).boundaries)
                         Dy = diff([0 O(i).y]);
-%                         warning('Distribution:boundaries:noboundaries',...
-%                         'No boundaries were passed. Assumed F = density.');
                     else
                         Dy = diff(O(i).boundaries);
                     end
-                    try
-                        Fmo(icalc==i) = sum(O(i).F(:) .* Dy(:).* O(i).y(:).^j);
-                    catch
-                        keyboard
-                    end
+                    
+                    Fmo(icalc==i) = sum(O(i).F(:) .* Dy(:).* O(i).y(:).^j);
                 end % for
                     
             else
