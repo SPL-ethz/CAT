@@ -124,7 +124,7 @@ classdef Distribution < handle
             
             % SET.F
             %
-            % Check input: vector, function handle, or empty
+            % Check input: vector, function handle, empty
             
             if isa(value,'function_handle')
                 % Value is ok, set                

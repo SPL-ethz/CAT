@@ -16,7 +16,7 @@ classdef CAT < handle
         init_dist = Distribution
         
         % Initial concentration
-        init_conc = 1;
+        init_conc = 'sat'; % saturated
         
         % Solubility
         solubility = @(T,xm) 0.5*T.^0;
@@ -174,6 +174,19 @@ classdef CAT < handle
                 warning('CAT:SetInit_Conc:WrongType',...
                     'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
             end % if else
+            
+        end % function
+        
+        function [cinit] = get.init_conc(O)
+            
+            % GET.INIT_CONC
+            %
+            % Getter method for init conc
+            
+            if strcmpi('sat',O.init_conc) 
+                O.init_conc = O.solubility(O.Tprofile(O.sol_time(1),O.ASprofile(O.sol_time(1))/O.init_massmedium));
+            end
+            cinit = O.init_conc;
             
         end % function
         
@@ -425,7 +438,8 @@ classdef CAT < handle
             PDma = 100*((mass_solute + mass_crystals)/(mass_solute(1)+mass_crystals(1))-1);     % mass balance error   
         end % function
         
-                %% Method plot
+        
+        %% Method plot
         
         function PDpl = plot(O,plotwhat,varargin)
             
@@ -458,10 +472,14 @@ classdef CAT < handle
             %
             % Graphs can currently not be plotted in existing figures !!
             %
-                
-                PDpl = [];
-                Tcalc = O.Tprofile(O.calc_time);
-                mscalc = O.init_massmedium+O.ASprofile(O.calc_time)-O.ASprofile(0);
+            
+            if nargin == 1
+                plotwhat = 'detailed_results';
+            end
+            
+            PDpl = [];
+            Tcalc = O.Tprofile(O.calc_time);
+            mscalc = O.init_massmedium+O.ASprofile(O.calc_time)-O.ASprofile(0);
                 
             if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
                     || ~isempty(find(strcmp(plotwhat,'distoverlap'))) ...
