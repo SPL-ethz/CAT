@@ -2,6 +2,13 @@ classdef ProblemDefinition < handle
     
     % ProblemDefinition
     
+    properties ( Access = protected )
+        
+        % nodes for non-smooth input profiles
+        tNodes = [];
+        
+    end
+    
     properties
         
         % Initial distribution (Distribution object, defines size and
@@ -20,8 +27,18 @@ classdef ProblemDefinition < handle
         % (Anti)solvent added mass profile
         ASprofile = @(t) 0*t;
 
-        % nodes for non-smooth input profiles
-        tNodes = [];
+        % Growth rate function This function should be called as
+        % growthrate(S,T,y) where S is the current supersaturation, T is the
+        % temperature and y is the size. It should return a vector the same
+        % size as y
+        growthrate = @(S,T,y) ones(size(y))
+        
+        % Nucleation rate function
+        % This function should be called as nucleationrate(c,T,m) where S is the current
+        % supersaturation, T is the temperature. Optionally, the user can
+        % specificy that the nucleation rate depends on a moment m of the
+        % passed distribution F
+        nucleationrate = @(S,T) 0
         
         % Seed mass
         init_seed = 1;
@@ -38,6 +55,11 @@ classdef ProblemDefinition < handle
         % Shape factor
         kv = 1
         
+        % Method to use - default to central difference
+        sol_method = 'centraldifference'
+        
+        % Solver Options
+        sol_options = [];
         
         %% Results
         
@@ -49,26 +71,6 @@ classdef ProblemDefinition < handle
         
         % Concentrations over time [g solute / g total solvents]
         calc_conc
-        
-        % Method to use - default to central difference
-        sol_method = 'centraldifference'
-        
-        % Solver Options
-        sol_options = [];
-        
-        % Growth rate function This function should be called as
-        % growthrate(S,T,y) where S is the current supersaturation, T is the
-        % temperature and y is the size. It should return a vector the same
-        % size as y
-        growthrate = @(S,T,y) ones(size(y))
-        
-        % Nucleation rate function
-        % This function should be called as nucleationrate(c,T,m) where S is the current
-        % supersaturation, T is the temperature. Optionally, the user can
-        % specificy that the nucleation rate depends on a moment m of the
-        % passed distribution F
-        nucleationrate = @(S,T) 0
-        
   
     end % properties
     
