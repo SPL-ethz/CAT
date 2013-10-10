@@ -1,12 +1,16 @@
- _____  ______  _______
- |_____] |_____] |______
- |       |_____] |______
-                        
- _______  _____   _____         ______   _____  _     _
-    |    |     | |     | |      |_____] |     |  \___/ 
-    |    |_____| |_____| |_____ |_____] |_____| _/   \_
-                                                       
+      ___           ___                   
+     /\__\         /\  \                  
+    /:/  /        /::\  \         ___     
+   /:/  /        /:/\:\  \       /\__\    
+  /:/  /  ___   /:/ /::\  \     /:/  /    
+ /:/__/  /\__\ /:/_/:/\:\__\   /:/__/     
+ \:\  \ /:/  / \:\/:/  \/__/  /::\  \     
+  \:\  /:/  /   \::/__/      /:/\:\  \    
+   \:\/:/  /     \:\  \      \/__\:\  \   
+    \::/  /       \:\__\          \:\__\  
+     \/__/         \/__/           \/__/  
 
+Crystallization Analysis Toolbox
 a SPLIfA project
 
 brought to you by:
@@ -14,7 +18,7 @@ brought to you by:
 Martin Iggland, Separation Process Laboratory, miggland@ipe.mavt.ethz.ch
 Dave Ochsenbein, Automatic Control Laboratory, ochsenbein@control.ee.ethz.ch
 
-The PBE Toolbox is an open-source software designed to solve population balance equations as they typically arise in particulate processes. 
+CAT is an open-source software designed to solve population balance equations as they typically arise in particulate processes and to analyze the results. 
 
 Numerical Methods currently supported
 - Moving Pivot
@@ -28,7 +32,7 @@ Features supported by all solvers
 - Antisolvent und Temperature profiles in form of anonymous functions or piecewise-linear functions
 - Arbitrary grid sizing
 
-Features that are currently planned in the future
+Features that are currently planned for the future
 - GUI
 - Method of Moments
 - Ostwald ripening

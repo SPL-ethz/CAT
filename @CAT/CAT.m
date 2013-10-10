@@ -130,7 +130,7 @@ classdef CAT < handle
             % Check the initial distribution, it must be a distribution
             % class object
             
-            if ~strcmp(class(value),'Distribution')
+            if ~isa(value,'Distribution')
                 warning('CAT:SetInit_Dist:WrongType',...
                     'The init_dist property must be a Distribution object');
             else
@@ -500,23 +500,23 @@ classdef CAT < handle
             PDpl = [];
             Tcalc = O.Tprofile(O.calc_time);
                 
-            if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
-                    || ~isempty(find(strcmp(plotwhat,'distoverlap'))) ...
-                    || ~isempty(find(strcmp(plotwhat,'detailed_results')))...
-                    || ~isempty(find(strcmp(plotwhat,'results'))))
-                %% currently not active
-                PDpl_local = plot(O.calc_dist);
-                
-                PDpl = [PDpl; PDpl_local];
-            end % if
+%             if (~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
+%                     || ~isempty(find(strcmp(plotwhat,'distoverlap'), 1)) ...
+%                     || ~isempty(find(strcmp(plotwhat,'detailed_results'), 1))...
+%                     || ~isempty(find(strcmp(plotwhat,'results'), 1)))
+%                 %% currently not active
+%                 PDpl_local = plot(O.calc_dist);
+%                 
+%                 PDpl = [PDpl; PDpl_local];
+%             end % if
             
   
             % 3D plot of distributions over time
             % Note this feature is diasbled for moving pivot
-            if (~isempty(find(strcmp(plotwhat,'distributions'))) ...
-                    || ~isempty(find(strcmp(plotwhat,'dist3D'))) ...
-                    || ~isempty(find(strcmp(plotwhat,'results')))...
-                    || ~isempty(find(strcmp(plotwhat,'detailed_results')))...
+            if (~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
+                    || ~isempty(find(strcmp(plotwhat,'dist3D'), 1)) ...
+                    || ~isempty(find(strcmp(plotwhat,'results'), 1))...
+                    || ~isempty(find(strcmp(plotwhat,'detailed_results'), 1))...
                     && ~strcmp(O.sol_method,'movingpivot'))
                 
                 for i = 1:length(O.calc_dist)
@@ -546,10 +546,10 @@ classdef CAT < handle
 
                 PDpl = [PDpl; PDpl_local];
                 
-            elseif (~isempty(find(strcmp(plotwhat,'distributions'))) ...
-                    || ~isempty(find(strcmp(plotwhat,'dist3D'))) ...
-                    || ~isempty(find(strcmp(plotwhat,'results')))...
-                    || ~isempty(find(strcmp(plotwhat,'detailed_results')))...
+            elseif (~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
+                    || ~isempty(find(strcmp(plotwhat,'dist3D'), 1)) ...
+                    || ~isempty(find(strcmp(plotwhat,'results'), 1))...
+                    || ~isempty(find(strcmp(plotwhat,'detailed_results'), 1))...
                     && strcmp(O.sol_method,'movingpivot'))
                 
                 figure(12)
@@ -588,9 +588,9 @@ classdef CAT < handle
             end % if
             
             % Cumulative Properties
-            if (~isempty(find(strcmp(plotwhat,'results'))) || ...
-                ~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
-                ~isempty(find(strcmp(plotwhat,'cumprop'))))
+            if (~isempty(find(strcmp(plotwhat,'results'), 1)) || ...
+                ~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
+                ~isempty(find(strcmp(plotwhat,'cumprop'), 1)))
                 
                 figure(21)
                 set(gcf,'numbertitle','off','name','PSD cumulative properties')  
@@ -612,8 +612,8 @@ classdef CAT < handle
                 xlabel('Time [s]')
                 
                 PDpl = [PDpl; PDpl_local];
-            elseif (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
-                ~isempty(find(strcmp(plotwhat,'moments'))))
+            elseif (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
+                ~isempty(find(strcmp(plotwhat,'moments'), 1)))
             
                 figure(22)
                 set(gcf,'numbertitle','off','name','Moments Only')  
@@ -642,9 +642,9 @@ classdef CAT < handle
             end % if
             
             % Process Variables
-            if (~isempty(find(strcmp(plotwhat,'results'))) || ...
-                ~isempty(find(strcmp(plotwhat,'detailed_results'))) ||...
-                ~isempty(find(strcmp(plotwhat,'process'))))
+            if (~isempty(find(strcmp(plotwhat,'results'), 1)) || ...
+                ~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) ||...
+                ~isempty(find(strcmp(plotwhat,'process'), 1)))
             
                 figure(31)
                 set(gcf,'numbertitle','off','name','Process Variables (I)')
@@ -691,7 +691,7 @@ classdef CAT < handle
 
 
                 subplot(2,2,nopvit);                    
-                PDpl_local = plot(O.calc_time,massmedium,'linewidth',1.5);
+                PDpl_local = plot(O.calc_time,massmedium(O),'linewidth',1.5);
                 xlabel('Time')
                 xlim([min(O.calc_time) max(O.calc_time)])
                 ylabel('Total mass Solvent + Antisolvent [g]')
@@ -702,8 +702,8 @@ classdef CAT < handle
 
 
                 if ~isempty(O.calc_conc) && ...
-                        (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
-                        ~isempty(find(strcmp(plotwhat,'process'))))
+                        (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
+                        ~isempty(find(strcmp(plotwhat,'process'), 1)))
                     PDpl_local = zeros(1,1);
 
                     figure(32)
@@ -722,8 +722,8 @@ classdef CAT < handle
                         
             end % if
             
-            if (~isempty(find(strcmp(plotwhat,'detailed_results'))) || ...
-                ~isempty(find(strcmp(plotwhat,'integration'))))
+            if (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
+                ~isempty(find(strcmp(plotwhat,'integration'), 1)))
                 
                 if ~isempty(O.calc_conc)
                     figure(41)

@@ -78,6 +78,8 @@ classdef Distribution < handle
             
             if nargin > 2 && ~isempty(boundaries)
                 O.boundaries = boundaries;
+            elseif nargin == 2 && ~isempty(boundaries)
+                O.boundaries = [0 (O.y(2:end)+O.y(1:end-1))/2];
             end % if
             
         end % function
@@ -129,7 +131,7 @@ classdef Distribution < handle
             if isa(value,'function_handle')
                 % Value is ok, set                
                     O.pF = value;                
-            elseif isvector(value) || isempty(value)
+            elseif ~iscell(value) && isvector(value) || isempty(value)
                 O.pF = value(:)'; %make it a row vector
             elseif iscell(value) && length(value)==3
                 if strcmpi(value{1},'normal')
