@@ -30,6 +30,7 @@ Features supported by all solvers
 
 Features that are currently planned in the future
 - GUI
+- Method of Moments
 - Ostwald ripening
 - Lattice-Boltzman method
 - 1D agglomeration
