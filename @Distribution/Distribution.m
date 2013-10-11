@@ -78,8 +78,8 @@ classdef Distribution < handle
             
             if nargin > 2 && ~isempty(boundaries)
                 O.boundaries = boundaries;
-            elseif nargin == 2 && ~isempty(boundaries)
-                O.boundaries = [0 (O.y(2:end)+O.y(1:end-1))/2];
+            elseif nargin == 2 || (nargin==3 && isempty(boundaries))
+                O.boundaries = [0 (O.y(2:end)+O.y(1:end-1))/2 3/2*O.y(end)-O.y(end-1)/2];
             end % if
             
         end % function
@@ -236,6 +236,17 @@ classdef Distribution < handle
             
         end % function
 
+        %% dist2str plot
+        
+        function [outstr] = Dist2str(O)
+            if isnumeric(O.pF)
+                Fstr = mat2str(O.pF);
+            elseif isa(O.pF,'function_handle')
+                Fstr = func2str(O.pF);
+            end
+            outstr = strcat('Distribution(',mat2str(O.y),',',Fstr,mat2str(O.boundaries),');');
+        end
+        
         %% Method plot
         
         function pl_handle = plot(O)

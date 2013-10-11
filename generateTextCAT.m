@@ -1,10 +1,12 @@
-function generateProtocat(kitsetup)
+function generateTextCAT(kitsetup)
 
 for i = 1:length(kitsetup)
     if isa(kitsetup{i},'function_handle')
         kitsetup{i} = func2str(kitsetup{i});
     elseif isnumeric(kitsetup{i})
-        kitsetup{i} = num2str(kitsetup{i});
+        kitsetup{i} = mat2str(kitsetup{i});
+    elseif isa(kitsetup{i},'Distribution')
+        kitsetup{i} = Dist2str(kitsetup{i});
     end
 end
 

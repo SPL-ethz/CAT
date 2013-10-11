@@ -19,7 +19,7 @@ classdef CAT < handle
         init_conc = 'sat'; % saturated
         
         % Solubility
-        solubility = @(T,xm) 0.5*T.^0;
+        solubility = [];
         
         % Temperature profile
         Tprofile = @(t) 25*ones(size(t));
@@ -38,7 +38,7 @@ classdef CAT < handle
         % supersaturation, T is the temperature. Optionally, the user can
         % specificy that the nucleation rate depends on a moment m of the
         % passed distribution F
-        nucleationrate = @(S,T) 0
+        nucleationrate = []
         
         % Seed mass
         init_seed = [];
@@ -183,7 +183,8 @@ classdef CAT < handle
             %
             % Getter method for init conc
             
-            if strcmpi('sat',O.init_conc) 
+            
+            if strcmpi('sat',O.init_conc) && ~isempty(O.solubility)
                 O.init_conc = O.solubility(O.Tprofile(O.sol_time(1),O.ASprofile(O.sol_time(1))/O.init_massmedium));
             end
             cinit = O.init_conc;
