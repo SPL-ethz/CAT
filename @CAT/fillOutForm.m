@@ -11,10 +11,10 @@ for i = 1:length(kitsetup)
 end
 
 n = 1;
-while exist(strcat('test',num2str(n)),'file')
+while exist(strcat('CAT_form',num2str(n)),'file')
     n = n+1;
 end
-fidnew = fopen(strcat('test',num2str(n),'.m'),'w+');
+fidnew = fopen(strcat('CAT_form',num2str(n),'.m'),'w+');
 fid = fopen('protocat.m');
 
 
@@ -34,7 +34,7 @@ while ischar(tline)
     elseif ischar(tline)
         tnew = tline;
     else
-        tnew = '\n %% This file was generated for you.';
+        tnew = '\n \n %% This file was generated for you by the fillOutForm function.';
     end
 
     fprintf(fidnew,tnew);

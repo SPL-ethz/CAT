@@ -749,6 +749,7 @@ classdef CAT < handle
         % Compare two CAT objects
         [results,same,different] = compare(CAT1,CAT2,varargin); 
             
+        % Fill out the template form
         fillOutForm(kitsetup)
     end
     

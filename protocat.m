@@ -5,6 +5,29 @@
 kitty = CAT; % define kitty as CAT object
 
 %%--------------------------------------------------------------------------
+%%%% SIMULATION SETTINGS
+%% Solution Time
+%% FIELD:    sol_time
+%% STATUS:   REQUIRED
+%% UNITS:    [s]
+%% CLASS:    VECTOR
+%% INPUTS:   -
+%% EXP.:     [0 60*60], [0:5*60:60]
+%% COMMENT:  When length(sol_time)>2, the result will only be given at the
+%%           times indicated in sol_time.
+kitty.sol_time = XXX;
+
+%% Solution Method
+%% FIELD:    sol_method
+%% STATUS:   OPTIONAL
+%% UNITS:    -
+%% CLASS:    STRING
+%% INPUTS:   -
+%% EXP.:     'hires', 'movingpivot', 'centraldifference'
+%% COMMENT:  Default solution method is centraldifference.
+kitty.sol_method = XXX;
+
+%%--------------------------------------------------------------------------
 %%%% THERMODYNAMICS & KINETICS
 %% Solubility 
 %% FIELD:    solubility
@@ -102,28 +125,7 @@ kitty.Tprofile = XXX;
 %%           that nodes are in the solution time vector (sol_time)! 
 kitty.ASprofile = XXX;
 
-%%--------------------------------------------------------------------------
-%%%% SIMULATION SETTINGS
-%% Solution Time
-%% FIELD:    sol_time
-%% STATUS:   REQUIRED
-%% UNITS:    [s]
-%% CLASS:    VECTOR
-%% INPUTS:   -
-%% EXP.:     [0 60*60], [0:5*60:60]
-%% COMMENT:  When length(sol_time)>2, the result will only be given at the
-%%           times indicated in sol_time.
-kitty.sol_time = XXX;
 
-%% Solution Method
-%% FIELD:    sol_method
-%% STATUS:   OPTIONAL
-%% UNITS:    -
-%% CLASS:    STRING
-%% INPUTS:   -
-%% EXP.:     'hires', 'movingpivot', 'centraldifference'
-%% COMMENT:  Default solution method is centraldifference.
-kitty.sol_method = XXX;
 
 %% SOLVE
 kitty.solve;

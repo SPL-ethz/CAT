@@ -57,6 +57,12 @@ classdef Distribution < handle
         % Private version of F - this is where the data is stored.
         pF = [];
         
+        % Mean and Standard deviation of the distribution (if it is defined
+        % in such a way).
+        mu = [];
+        
+        sigma = [];
+        
     end % properties
     
     methods
@@ -136,8 +142,12 @@ classdef Distribution < handle
             elseif iscell(value) && length(value)==3
                 if strcmpi(value{1},'normal')
                    O.pF = @(x) 1/(value{3}*sqrt(2*pi))*exp(-((x-value{2}).^2/(2*value{3}^2))); 
+                   O.mu = value{2};
+                   O.sigma = value{3};
                 elseif strcmpi(value{1},'lognormal')
                    O.pF = @(x) 1/(x*value{3}*sqrt(2*pi))*exp(-((log(x)-value{2}).^2/(2*value{3}^2))); 
+                   O.mu = value{2};
+                   O.sigma = value{3};
                 end
             else
                 % Value is not OK - display warning
@@ -243,8 +253,12 @@ classdef Distribution < handle
                 Fstr = mat2str(O.pF);
             elseif isa(O.pF,'function_handle')
                 Fstr = func2str(O.pF);
+                if ~isempty(O.sigma)
+                    Fstr = strrep(Fstr,'value{2}',num2str(O.mu));
+                    Fstr = strrep(Fstr,'value{3}',num2str(O.sigma));
+                end
             end
-            outstr = strcat('Distribution(',mat2str(O.y),',',Fstr,mat2str(O.boundaries),');');
+            outstr = strcat('Distribution(',mat2str(O.y),',... \n',Fstr,',... \n',mat2str(O.boundaries),')');
         end
         
         %% Method plot

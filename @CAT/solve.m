@@ -14,6 +14,7 @@ if ~isempty(O.tNodes)
         try
             [a b c] = PBESolver(O);
         catch ME
+            keyboard
             error('solve:tryconsttemp:PBESolverfail',...
             'PBESolver failed to integrate your problem.')
         end
