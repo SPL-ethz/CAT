@@ -750,7 +750,7 @@ classdef CAT < handle
         [results,same,different] = compare(CAT1,CAT2,varargin); 
             
         % Fill out the template form
-        fillOutForm(kitsetup)
+        fillOutForm(setupCat);
     end
     
 end % classdef
