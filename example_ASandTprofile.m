@@ -1,6 +1,7 @@
 %% PROTOCAT %%
 
-% This is an empty template for setting up and running CAT problems
+% This is a filled out template for setting up and running CAT problems
+% with Antisolvent and T profile
 
 kitty = CAT; % define kitty as CAT object
 
