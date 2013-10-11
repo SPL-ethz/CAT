@@ -1,4 +1,4 @@
-function generateTextCAT(kitsetup)
+function fillOutForm(kitsetup)
 
 for i = 1:length(kitsetup)
     if isa(kitsetup{i},'function_handle')
@@ -43,11 +43,3 @@ end
 
 fclose(fid);
 fclose(fidnew);
-
-% fprintf(strcat('%%%% PROTOCAT %%%% \n \n %% This is an empty template for setting up and running CAT problems \n\n kitty = CAT; %% define kitty as CAT object',...
-%     '\n \n %%-------------------------------------------------------------------------- \n ',...
-%     '%%%% THERMODYNAMICS & KINETICS \n %% Solubility \n %% FIELD:    solubility \n %% STATUS:   REQUIRED',...
-%     '%% UNITS:    [g/g] \n %% CLASS:    FUNCTION_HANDLE \n %% INPUTS:   1. Temperature [°C],  2.(optional) Mass fraction antisolvent [-] \n',...
-%     '%% EXP.:     @(T,xm) 1e-4*(1-xm)+(0.0056*(T).^2+0.0436.*(T)+3.7646)/1000 \n %% COMMENT:  - \n',...
-%     'kitty.solubility = %s'),kitsetup{1});
-

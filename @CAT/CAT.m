@@ -744,5 +744,12 @@ classdef CAT < handle
         end % function
         
     end % methods
+    %% Static Methods
+    methods (Static)
+        % Compare two CAT objects
+        [results,same,different] = compare(CAT1,CAT2,varargin); 
+            
+        fillOutForm(kitsetup)
+    end
     
 end % classdef

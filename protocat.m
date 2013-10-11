@@ -1,6 +1,6 @@
 %%%% PROTOCAT %%%%
 
-%% This is an empty template for setting up and running CAT problems
+%% This is the prototype template that is filled out by fillOutForm
 
 kitty = CAT; % define kitty as CAT object
 
