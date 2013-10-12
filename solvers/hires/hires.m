@@ -126,7 +126,9 @@ while t<PD.sol_time(end)
     
     %% Nucleation
     if  c>cs % nucleation can never occur for S<=1
-        if nargin(PD.nucleationrate) == 3 % case where nucleation depends on a moment
+        if isempty(PD.nucleationrate)
+            J = 0;
+        elseif nargin(PD.nucleationrate) == 3 % case where nucleation depends on a moment
             dist = Distribution(y,F_dummy(3:end-1));
             J = PD.nucleationrate(S,T,dist);
         else % nucleation depends only on S and T

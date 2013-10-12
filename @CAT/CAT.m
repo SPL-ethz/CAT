@@ -433,10 +433,13 @@ classdef CAT < handle
             if isa(value,'function_handle')
     
                 O.nucleationrate = value;
+                
+            elseif isempty(value)
+                ;
 
             else % not a function handle
-                warning('Distribution:setgrowthrate:Wrongtype',...
-                    'The growth rate must be defined as a function');
+                warning('Distribution:setnucleationrate:Wrongtype',...
+                    'The nucleationrate rate must be defined as a function');
             end %if
             
         end % function

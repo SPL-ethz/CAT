@@ -41,7 +41,9 @@ y = x(nBins+1:2*nBins); %pivot sizes
 boundaries = x(2*nBins+1:3*nBins+1); %boundaries
 Dy = diff(boundaries);Dy = Dy(:);
 
-if nargin(PD.nucleationrate)==3
+if isempty(PD.nucleationrate)
+    J = 0;
+elseif nargin(PD.nucleationrate)==3
     dist = Distribution(y,N./Dy,boundaries);
     J = PD.nucleationrate(S,T,dist);
 else
