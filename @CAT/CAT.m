@@ -1,6 +1,14 @@
 classdef CAT < handle
+    %% Class CAT
+    % The Crystallization Analysis Toolbox (CAT) class defines numerical
+    % settings, initial and operating conditions to set up problems
+    % encountered in crystallization science. It furthermore allows to
+    % solve this kind of problems using a variety of different solvers.
+    % Construct a CAT object and set properties as you see fit. The
+    % currently recommended pathway is to fill out protocat and save it as
+    % new file.
     
-    % CAT
+    % Dave Ochsenbein, 15.10.2013
     
     properties ( Access = protected )
         
@@ -81,7 +89,7 @@ classdef CAT < handle
         function O = CAT(init_dist,init_conc,sol_time,...
                 sol_method,growthrate, nucleationrate)
             
-            % PROBLEMDEFINITION
+            % CAT
             %
             % Constructor function for CAT class. Called as:
             %	PD = CAT(init_dist,init_conc,sol_time,...

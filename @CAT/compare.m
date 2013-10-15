@@ -1,4 +1,14 @@
-function [results,same,different] = compareCATs(CAT1,CAT2,varargin)
+function [results,same,different] = compare(CAT1,CAT2)
+%% [results,same,different] = CAT.compare(CAT1,CAT2)
+% compare is a (static) method of the CAT class. It compares two CAT
+% objects and indicates similarities and differences between the two
+% objects.
+% If no output is assigned, compare prints an analysis of the comparison in
+% the command window. If outputs are assigned, compare returns a logical
+% vector 'results' whose elements are true for identical properties and
+% false otherwise (order is the same as in properties(CAT)), a cell array
+% 'same' containing the names of properties that are identical, a cell
+% array 'different' containing the names of properties that are different.
 
 p = properties(CAT1);
 fprintf('Property-->Result \n-------------------\n')

@@ -1,4 +1,9 @@
 function fillOutForm(setupCat)
+%% CAT.fillOutForm(setupCat)
+% fillOutForm is a (static) method of the CAT class. Given the cell  array
+% setupCat it fills out the protocat template. 
+% Note that setupCat must have exactly length == 11 and an input order as
+% indicated in protocat.
 
 for i = 1:length(setupCat)
     if isa(setupCat{i},'function_handle')

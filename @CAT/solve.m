@@ -1,4 +1,12 @@
 function [O] = solve(O)
+%% CAT.solve
+% solve is a method of the CAT class. It integrates the problem according to
+% the settings of the CAT object and fills in the calc-properties of the
+% same object. The method does not accept any additional inputs, all options 
+% should therefore be set via the property fields of the object.
+% Solve is structured into two nested parts: An upper layer that handles
+% discontinuities in the supplied AS or T profiles and a lower layer (PBEsolver)
+% that handles the individual solvers.
 
 %% Solve
 O.calc_dist = Distribution;
@@ -63,7 +71,7 @@ function [SolutionTimes SolutionDists SolutionConc] = PBESolver (O)
 
 % PBESOLVER
 %
-% Solve PBEs, like a boss
+% Handles individual solvers and returns (local) results
 
 solvefun = str2func(O.sol_method);
 solvefun = @(t,X) solvefun(t,X,O);
@@ -141,6 +149,7 @@ switch O.sol_method
          
 end %switch
 
+% For CD and HR transform result-arrays into appropriate output structure
 if ~strcmpi(O.sol_method,'movingpivot')
     SolutionConc = X_out(:,end);
     SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  %# Pre-Allocation for speed               

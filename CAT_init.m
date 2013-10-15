@@ -10,4 +10,4 @@ addpath(strcat(startstr,'/solvers/hires'))
 addpath(strcat(startstr,'/solvers/movingpivot'))
 addpath(strcat(startstr,'/solvers/centraldifference'))
 
-disp('Done')
+disp('Done.')

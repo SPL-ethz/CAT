@@ -1,8 +1,11 @@
 classdef Distribution < handle
-    
-    % Class Distribution
+    %% Class Distribution
+    % Note that F is assumed to be a density function and therefore
+    % boundaries of the bins are necessary to correctly calculate the
+    % moments. If boundaries are not assigned, it will be assumed that
+    % boundary(1) = 0 and that the remaining pivot sizes (y) lie in the 
+    % arithmetic mean of the remaining boundary points.
     %
-    % Used for defining distributions.
     %
     % The size vector needs to be defined. The distribution can be defined
     % as either a function handle or as a vector. The class checks the
@@ -11,6 +14,8 @@ classdef Distribution < handle
     % The class can be called as follows:
     %
     %   dist = Distribution(y,@(x)normalpdf(x,1,0.1));
+    %   or
+    %   dist = Distribution(y,{'normal',1,0.1});
     %
     % to create a distribution based on the normal distribution, or the
     % properties y and F can be set separately:
@@ -25,6 +30,11 @@ classdef Distribution < handle
     %   dist(1) = Distribution(linspace(0,2),@(x)normpdf(x,1,0.1));
     %   dist(2) = Distribution(linspace(0,3),@(x)normpdf(x,2,0.5));
     %
+    % Moments of Distribution objects can be calculated using the moments
+    % method. See the corresponding entry.
+    %
+    % Distribution currently contains two additional non-setter/getter methods: 
+    % plot and Dist2str. See the respective entries for details.
     
     %% Properties
     
@@ -246,8 +256,10 @@ classdef Distribution < handle
             
         end % function
 
-        %% dist2str plot
-        
+        %% Dist2str 
+        % Returns the distribution as a string (useful for a comparison of
+        % distributions, which in general can be vectors or function
+        % handles).
         function [outstr] = Dist2str(O)
             if isnumeric(O.pF)
                 Fstr = mat2str(O.pF);
