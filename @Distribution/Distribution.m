@@ -111,7 +111,10 @@ classdef Distribution < handle
 
             if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
                 O.y = value(:)';
+                
             else
+                value = sort(value(:));
+                O.y = value(:)';
                 warning('Distribution:SetY:WrongValue',...
                     'The property y must be a vector of positive values, in increasing order (duplicates allowed)');
             end % if
@@ -130,6 +133,8 @@ classdef Distribution < handle
             if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
                 O.boundaries = value(:)';
             else
+                value = sort(value(:));
+                O.boundaries = value(:)';
                 warning('Distribution:SetBoundaries:WrongValue',...
                     'The property boundaries must be a vector of positive values, in increasing order (duplicates allowed)');
             end % if
@@ -277,12 +282,10 @@ classdef Distribution < handle
         
         function pl_handle = plot(O)
             
-            nargout
-            
             % Plot distribution, number- and volume-weighted
             
             FFig = figure;
-            set(FFig,'numbertitle','off','name','PSDs (overlapping)')
+            set(FFig,'numbertitle','off','name','PSDs (overlapping)');
             Fax(1) = subplot(1,2,1);
             Fax(2) = subplot(1,2,2);
             xlabel(Fax(1),'Mean Char. Length')
@@ -290,8 +293,8 @@ classdef Distribution < handle
             ylabel(Fax(1),'Number Distribution')
             ylabel(Fax(2),'Normalized Volume Distribution')
             
-            box(Fax(1),'on')
-            box(Fax(2),'on')
+            box(Fax(1),'on');
+            box(Fax(2),'on');
             
             hold(Fax(1),'all')
             hold(Fax(2),'all')

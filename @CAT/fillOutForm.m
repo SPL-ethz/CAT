@@ -12,14 +12,16 @@ for i = 1:length(setupCat)
         setupCat{i} = mat2str(setupCat{i});
     elseif isa(setupCat{i},'Distribution')
         setupCat{i} = Dist2str(setupCat{i});
+    elseif isstr(setupCat{i})
+        setupCat{i} = strcat('''',setupCat{i},'''');
     end
 end
 
 n = 1;
-while exist(strcat('CAT_form',num2str(n)),'file')
+while exist(strcat('kitten_form',num2str(n)),'file')
     n = n+1;
 end
-fidnew = fopen(strcat('CAT_form',num2str(n),'.m'),'w+');
+fidnew = fopen(strcat('kitten_form',num2str(n),'.m'),'w+');
 fid = fopen('protocat.m');
 
 

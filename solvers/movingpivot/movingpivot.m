@@ -44,8 +44,14 @@ Dy = diff(boundaries);Dy = Dy(:);
 if isempty(PD.nucleationrate)
     J = 0;
 elseif nargin(PD.nucleationrate)==3
+    try
     dist = Distribution(y,N./Dy,boundaries);
     J = PD.nucleationrate(S,T,dist);
+    catch
+        
+        keyboard
+    end
+    
 else
     J = PD.nucleationrate(S,T);
 end

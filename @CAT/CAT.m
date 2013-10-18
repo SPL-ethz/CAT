@@ -265,9 +265,13 @@ classdef CAT < handle
                 end
                 
                 O.sol_method = value;
+            elseif isempty(value)
+                warning('CAT:SetSol_Method:isempty',...
+                    'The property sol_method was set to the default value (centraldifference)');
+                O.sol_method = 'centraldifference';
             else
                 warning('CAT:SetSol_Method:WrongType',...
-                    'The property sol_method should be a string');
+                    'The property sol_method should be a string or empty (chooses default)');
             end % if else
             
         end % function
@@ -300,7 +304,7 @@ classdef CAT < handle
             % positive, finite elements. The first row indicates the times
             % of the nodes whereas the second row indicates Temp's
 
-            if ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
+            if ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
                
                 if value(1,end)<O.sol_time(end)
                     value = [value [0;0]];
@@ -323,6 +327,8 @@ classdef CAT < handle
             elseif isscalar(value)
                 O.Tprofile = @(t) value*ones(size(t));
                 
+            elseif isempty(value)
+                ;
             else
                 warning('CAT:SetTprofile:WrongType',...
                     'The Tprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
@@ -340,7 +346,7 @@ classdef CAT < handle
             % Check the time profile (for added AS profiles). It must be
             % a strictly increasing(!), positive vector
 %             keyboard
-            if ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
+            if ~isempty(value) &&  ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
                
                 if value(1,end)<O.sol_time(end)
                     value = [value [0;0]];
@@ -354,7 +360,9 @@ classdef CAT < handle
 
             elseif isa(value,'function_handle') && nargin(value)==1
                 O.ASprofile = value;
-
+                
+            elseif isempty(value)
+                ;
             else
                 warning('CAT:SetTprofile:WrongType',...
                     'The ASprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');

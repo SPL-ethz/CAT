@@ -7,7 +7,6 @@ function [O] = solve(O)
 % Solve is structured into two nested parts: An upper layer that handles
 % discontinuities in the supplied AS or T profiles and a lower layer (PBEsolver)
 % that handles the individual solvers.
-
 %% Solve
 O.calc_dist = Distribution;
 if ~isempty(O.init_seed)

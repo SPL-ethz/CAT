@@ -1,5 +1,5 @@
-function [TIME,Y] = hires(PD)
-%% [TIME,Y] = hires(PD) High Resolution method for Nucleation and Growth
+function [TIME,Y] = hires(kit)
+%% [TIME,Y] = hires(kit) High Resolution method for Nucleation and Growth
 % Solves the PBE according to a High Resolution method (cf. e.g. Gunawan, R.; Fusman, I.; Braatz, R. D. AIChE Journal 2004, 50, 2738–2749).
 % This method does not use a standard ODE solver but rather uses the CFL
 % condition + some heuristics to determine the time step size. 
@@ -19,33 +19,33 @@ function [TIME,Y] = hires(PD)
 
 %% Initial values | Local Variables
 % Local time (initial time)
-t = PD.sol_time(1);
+t = kit.sol_time(1);
 
 % Initial time
 TIME = t; % is a vector 
 
 % Initial concentration
-c = PD.init_conc;  
+c = kit.init_conc;  
 
 % Initial temperature
-T = PD.Tprofile(TIME);
+T = kit.Tprofile(TIME);
 
 % Initial solvent + antisolvent mass
-m = PD.init_massmedium+PD.ASprofile(TIME)-PD.ASprofile(0);
+m = kit.init_massmedium+kit.ASprofile(TIME)-kit.ASprofile(0);
 
 % Initial mass fraction antisolvent
-xm = PD.ASprofile(TIME)/m;
+xm = kit.ASprofile(TIME)/m;
 
 % Initial supersaturation
-cs = PD.solubility(T,xm);
+cs = kit.solubility(T,xm);
 
 % Initial supersaturation
 S = c/cs;
 
 % Distribution and Grid
-y = PD.init_dist.y(:);
-Dy = diff(PD.init_dist.boundaries);
-F = PD.init_dist.F; 
+y = kit.init_dist.y(:);
+Dy = diff(kit.init_dist.boundaries);
+F = kit.init_dist.F; 
 Y(1,:) = [F(:)' c]; % Output matrix
 
 
@@ -62,18 +62,18 @@ ctol = 1e-2; % tolerance in relative change of c and cs (reltol)
 fluxlim = 'vanleer';
 
 % if user has set tolerances, use them
-if ~isempty(PD.sol_options)
-    if ~isempty(find(strcmpi(PD.sol_options,'abstol'),1))
-        Stol = PD.sol_options{find(strcmpi(PD.sol_options,'abstol'),1)+1};
+if ~isempty(kit.sol_options)
+    if ~isempty(find(strcmpi(kit.sol_options,'abstol'),1))
+        Stol = kit.sol_options{find(strcmpi(kit.sol_options,'abstol'),1)+1};
     end
-    if ~isempty(find(strcmpi(PD.sol_options,'reltol'),1))
-        ctol = PD.sol_options{find(strcmpi(PD.sol_options,'reltol'),1)+1};
+    if ~isempty(find(strcmpi(kit.sol_options,'reltol'),1))
+        ctol = kit.sol_options{find(strcmpi(kit.sol_options,'reltol'),1)+1};
     end
-    if ~isempty(find(strcmpi(PD.sol_options,'mlim'),1))
-        mlim = PD.sol_options{find(strcmpi(PD.sol_options,'mlim'),1)+1};
+    if ~isempty(find(strcmpi(kit.sol_options,'mlim'),1))
+        mlim = kit.sol_options{find(strcmpi(kit.sol_options,'mlim'),1)+1};
     end
-    if ~isempty(find(strcmpi(PD.sol_options,'fluxlim'),1))
-        fluxlim = PD.sol_options{find(strcmpi(PD.sol_options,'fluxlim'),1)+1};
+    if ~isempty(find(strcmpi(kit.sol_options,'fluxlim'),1))
+        fluxlim = kit.sol_options{find(strcmpi(kit.sol_options,'fluxlim'),1)+1};
     end
 end
 
@@ -81,12 +81,12 @@ end
 flagdt = 0; % flag if time step was just rejected (skip time step evaluation)
 Dtlast = inf; % last time step
 
-while t<PD.sol_time(end)
+while t<kit.sol_time(end)
        % Growth rate
     if S>=1
-        G = PD.growthrate(S,T,PD.init_dist.boundaries(2:end)); % in the high resolution method, the growth rate is evaluated AT THE BOUNDARIES of the bins
+        G = kit.growthrate(S,T,kit.init_dist.boundaries(2:end)); % in the high resolution method, the growth rate is evaluated AT THE BOUNDARIES of the bins
     else % dissolution (evaluate at lower boundaries)
-        G = PD.growthrate(S,T,PD.init_dist.boundaries(1:end-1)); 
+        G = kit.growthrate(S,T,kit.init_dist.boundaries(1:end-1)); 
     end
 
     % Autotimestepsizer based on CFL condition (eq. 24 in Gunawan 2004)
@@ -95,26 +95,26 @@ while t<PD.sol_time(end)
         [~,I]       =   max(abs(G(GI(1):GI(2)-1))./Dy(GI(1):GI(2)-1)); % CFL condition
         Dt          =   abs(Dy(I)/G(I));
 
-        nexttline   =   PD.sol_time(find(PD.sol_time>t,1,'first')); %make sure you hit time points in sol_time vector
+        nexttline   =   kit.sol_time(find(kit.sol_time>t,1,'first')); %make sure you hit time points in sol_time vector
         Dttline     =   nexttline-t;
 
         Dt          =   min([Dtlast*1.5 ... % not more than 3/2 times last time step (acceleration limit)
-            max([Dt (PD.sol_time(end)-PD.sol_time(1))*1e-5]) ... % respect CFL, but maximum 1e5 time steps
+            max([Dt (kit.sol_time(end)-kit.sol_time(1))*1e-5]) ... % respect CFL, but maximum 1e5 time steps
             Dttline ... % make sure you hit that point
-            1/10*(PD.sol_time(end)-PD.sol_time(1))]);  % minimum 10 time steps  
+            1/10*(kit.sol_time(end)-kit.sol_time(1))]);  % minimum 10 time steps  
         Dtlast      =   Dt; % save last time step
         F_dummy0      =   F_dummy; % save current distribution
     end %flagdt
     
     % Current mass flow rate antisolvent (evaluated using simplistic FD)
-    Q = (PD.ASprofile(t+Dt)-PD.ASprofile(t))/Dt;
+    Q = (kit.ASprofile(t+Dt)-kit.ASprofile(t))/Dt;
 
 
     t           =   t+Dt; % update time step
 
     % mini failsafe
-    if PD.sol_time(end)-t     <   1e-12
-        t   =   PD.sol_time(end);
+    if kit.sol_time(end)-t     <   1e-12
+        t   =   kit.sol_time(end);
     end
 
     %% Growth     
@@ -126,20 +126,20 @@ while t<PD.sol_time(end)
     
     %% Nucleation
     if  c>cs % nucleation can never occur for S<=1
-        if isempty(PD.nucleationrate)
+        if isempty(kit.nucleationrate)
             J = 0;
-        elseif nargin(PD.nucleationrate) == 3 % case where nucleation depends on a moment
+        elseif nargin(kit.nucleationrate) == 3 % case where nucleation depends on a moment
             dist = Distribution(y,F_dummy(3:end-1));
-            J = PD.nucleationrate(S,T,dist);
+            J = kit.nucleationrate(S,T,dist);
         else % nucleation depends only on S and T
-            J = PD.nucleationrate(S,T);
+            J = kit.nucleationrate(S,T);
         end
         F_dummy(3)  = F_dummy(3) + J/Dy(1)*Dt; 
     end
 
     %% Calculation of concentration loss due to nucleation and growth
     Deltac = sum((F_dummy(3:end-1)-F_dummy0(3:end-1)).*y.^3.*...
-        Dy(:)*PD.rhoc.*PD.kv);
+        Dy(:)*kit.rhoc.*kit.kv);
     
     c_dummy    =    c-Deltac;
     
@@ -147,9 +147,9 @@ while t<PD.sol_time(end)
     F_dummy = F_dummy *m/(m + Q* Dt); % dilution due to addition of AS
     c_dummy = c_dummy*m/(m+Q*Dt);       
    
-    T_dummy    =    PD.Tprofile(t); % next temperature
-    xm_dummy   =    PD.ASprofile(t)/m; % next mass fraction antisolvent
-    cs_dummy   =    PD.solubility(T_dummy,xm_dummy);     %Solubility
+    T_dummy    =    kit.Tprofile(t); % next temperature
+    xm_dummy   =    kit.ASprofile(t)/m; % next mass fraction antisolvent
+    cs_dummy   =    kit.solubility(T_dummy,xm_dummy);     %Solubility
     
     %% Calculate relative and absolute changes    
     DeltaS      =   c_dummy./cs_dummy-c./cs;
@@ -172,7 +172,7 @@ while t<PD.sol_time(end)
         cs      =   cs_dummy;
         T       =   T_dummy;
         S       =   c_dummy/cs_dummy;
-        m       =   PD.init_massmedium+PD.ASprofile(t)-PD.ASprofile(0);
+        m       =   kit.init_massmedium+kit.ASprofile(t)-kit.ASprofile(0);
 
         flagdt  =   0; % reset flag
 
