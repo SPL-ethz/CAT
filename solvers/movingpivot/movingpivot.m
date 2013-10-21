@@ -41,19 +41,11 @@ y = x(nBins+1:2*nBins); %pivot sizes
 boundaries = x(2*nBins+1:3*nBins+1); %boundaries
 Dy = diff(boundaries);Dy = Dy(:);
 
-if isempty(PD.nucleationrate)
-    J = 0;
-elseif nargin(PD.nucleationrate)==3
-    try
+if nargin(PD.nucleationrate)>3
     dist = Distribution(y,N./Dy,boundaries);
-    J = PD.nucleationrate(S,T,dist);
-    catch
-        
-        keyboard
-    end
-    
+    J = PD.nucleationrate(S,T,t,dist);
 else
-    J = PD.nucleationrate(S,T);
+    J = PD.nucleationrate(S,T,t);
 end
 
 Gy = PD.growthrate(S,T,y); % growth rate for pivots

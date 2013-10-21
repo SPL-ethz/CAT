@@ -56,7 +56,7 @@ F_dummy = [0;0;F(:);0];
 
 %% Tolerances and options
 % Default tolerances
-mlim = eps; % anteil von partikeln, welcher fuer die simulation vernachlaessigt werden darf --> HAS TO BE 0 WHEN WORKING WITH HEAVYSIDE FUNCTION IN F0
+mlim = 0; % anteil von partikeln, welcher fuer die simulation vernachlaessigt werden darf --> HAS TO BE 0 WHEN WORKING WITH HEAVYSIDE FUNCTION IN F0
 Stol = 1e-2; % tolerance in S (abstol)
 ctol = 1e-2; % tolerance in relative change of c and cs (reltol)
 fluxlim = 'vanleer';
@@ -126,13 +126,11 @@ while t<kit.sol_time(end)
     
     %% Nucleation
     if  c>cs % nucleation can never occur for S<=1
-        if isempty(kit.nucleationrate)
-            J = 0;
-        elseif nargin(kit.nucleationrate) == 3 % case where nucleation depends on a moment
+        if nargin(kit.nucleationrate) > 3 % case where nucleation depends on a moment
             dist = Distribution(y,F_dummy(3:end-1));
-            J = kit.nucleationrate(S,T,dist);
+            J = kit.nucleationrate(S,T,t-Dt,dist);
         else % nucleation depends only on S and T
-            J = kit.nucleationrate(S,T);
+            J = kit.nucleationrate(S,T,t-Dt);
         end
         F_dummy(3)  = F_dummy(3) + J/Dy(1)*Dt; 
     end
@@ -158,9 +156,9 @@ while t<kit.sol_time(end)
     Qrel        =   Q*Dt/m;
 
     % Check if result is (superficially) reasonable
-    if  (c_dummy>0 && sum(-F_dummy(F_dummy<0))<sum(F_dummy(F_dummy>0))*1e-2 &&...
-            abs(DeltaS)<Stol && ((DeltaS>=0 && (crel<ctol && csrel <ctol)) || (DeltaS<0) && (crel<ctol*10 && csrel <ctol)) ...
-        && Qrel < Stol...
+    if  (c_dummy>0 && sum(-F_dummy(F_dummy<0))<=sum(F_dummy(F_dummy>0))*1e-2 &&...
+            sum(F_dummy)==0 || (abs(DeltaS)<Stol && ((DeltaS>=0 && (crel<ctol && csrel <ctol)) || (DeltaS<0) && (crel<ctol*10 && csrel <ctol)) ...
+        && Qrel < Stol)...
         ||    flagdt >= 20)
 
         if flagdt >= 20

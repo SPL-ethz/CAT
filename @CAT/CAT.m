@@ -46,7 +46,7 @@ classdef CAT < handle
         % supersaturation, T is the temperature. Optionally, the user can
         % specificy that the nucleation rate depends on a moment m of the
         % passed distribution F
-        nucleationrate = []
+        nucleationrate = 0;
         
         % Seed mass
         init_seed = [];
@@ -155,11 +155,11 @@ classdef CAT < handle
             %
             % Set mass of seeds
             
-            if isscalar(value) && ~isnan(value) && value>0 && ~isinf(value)
+            if isscalar(value) && ~isnan(value) && value>=0 && ~isinf(value)
                 O.init_seed = value;
             else
                 warning('CAT:SetInit_Seed:WrongType',...
-                    'The init_seed property must be a positive scalar');
+                    'The init_seed property must be a non-negative scalar');
             end % if else
             
         end % function
@@ -173,11 +173,9 @@ classdef CAT < handle
             % Check the initial concentration, it must be a positive,
             % finite scalar (can be zero)
             
-            if isscalar(value) && value >= 0 && isfinite(value)
+            if (isscalar(value) && value >= 0 && isfinite(value)) || strcmpi(value,'sat')
                 O.init_conc = value;
                 
-            elseif ischar(value) && strcmpi(value,'sat') % solution is saturated in the beginning
-                O.init_conc = O.solubility(O.Tprofile(0));
             else
                 warning('CAT:SetInit_Conc:WrongType',...
                     'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
@@ -193,7 +191,7 @@ classdef CAT < handle
             
             
             if strcmpi('sat',O.init_conc) && ~isempty(O.solubility)
-                O.init_conc = O.solubility(O.Tprofile(O.sol_time(1),O.ASprofile(O.sol_time(1))/O.init_massmedium));
+                O.init_conc = O.solubility(O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium);
             end
             cinit = O.init_conc;
             
@@ -447,8 +445,11 @@ classdef CAT < handle
             % a scalar
             
             if isa(value,'function_handle')
-    
-                O.nucleationrate = value;
+                if nargin(value) == 2
+                    O.nucleationrate = @(S,T,~) value(S,T)
+                else
+                    O.nucleationrate = value;
+                end
                 
             elseif isempty(value)
                 ;

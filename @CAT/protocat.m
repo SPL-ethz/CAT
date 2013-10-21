@@ -55,7 +55,7 @@ kitty.growthrate = XXX;
 %% STATUS:   OPTIONAL
 %% UNITS:    [#/(g s)]
 %% CLASS:    FUNCTION_HANDLE
-%% INPUTS:   1. Supersaturation [-], 2. Temperature [°C], 3. (optional) Distribution
+%% INPUTS:   1. Supersaturation [-], 2. Temperature [°C], 3. (optional) Time [s], 4. (optional) Distribution
 %% EXP.:     @(S,T,F) exp(-100/log(S)/T)*moments(F,3)/moments(PD.init_dist,3)
 %% COMMENT:  -
 kitty.nucleationrate = XXX;

@@ -53,17 +53,16 @@ Gb = PD.growthrate(S, T, yb );
 Fb = F( [1 1:end-2 end-2] );
 
 % nucleation
-if ~isempty(PD.nucleationrate) && nargin(PD.nucleationrate)==3
+if nargin(PD.nucleationrate)>3
     dist = Distribution(y,F,PD.init_dist.boundaries);
-    J = PD.nucleationrate(S,T,dist);
-    % nucleation
-    Fb(1) = J/G(1);
-elseif ~isempty(PD.nucleationrate)
-    J = PD.nucleationrate(S,T);
+    J = PD.nucleationrate(S,T,t,dist);
     % nucleation
     Fb(1) = J/G(1);
 else
-    J = 0;
+    J = PD.nucleationrate(S,T,t);
+    % nucleation
+    Fb(1) = J/G(1);
+
 end
 
 
