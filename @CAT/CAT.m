@@ -519,17 +519,7 @@ classdef CAT < handle
             
             PDpl = [];
             Tcalc = O.Tprofile(O.calc_time);
-                
-%             if (~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
-%                     || ~isempty(find(strcmp(plotwhat,'distoverlap'), 1)) ...
-%                     || ~isempty(find(strcmp(plotwhat,'detailed_results'), 1))...
-%                     || ~isempty(find(strcmp(plotwhat,'results'), 1)))
-%                 %% currently not active
-%                 PDpl_local = plot(O.calc_dist);
-%                 
-%                 PDpl = [PDpl; PDpl_local];
-%             end % if
-            
+
   
             % 3D plot of distributions over time
             % Note this feature is diasbled for moving pivot
