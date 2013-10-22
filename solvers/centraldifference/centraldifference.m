@@ -62,7 +62,6 @@ else
     J = PD.nucleationrate(S,T,t);
     % nucleation
     Fb(1) = J/G(1);
-
 end
 
 

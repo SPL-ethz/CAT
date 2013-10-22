@@ -28,7 +28,27 @@ kitty.sol_time = XXX;
 kitty.sol_method = XXX;
 
 %%--------------------------------------------------------------------------
-%%%% THERMODYNAMICS & KINETICS
+%%%% CRYSTAL PROPERTIS, THERMODYNAMICS & KINETICS
+%% Crystal Density 
+%% FIELD:    rhoc
+%% STATUS:   REQUIRED
+%% UNITS:    [g/micron^3]
+%% CLASS:    SCALAR
+%% INPUTS:   -
+%% EXP.:     1e-12
+%% COMMENT:  Default is 1e-12
+kitty.rhoc = XXX;
+
+%% Shape Factor 
+%% FIELD:    kv
+%% STATUS:   REQUIRED
+%% UNITS:    [-]
+%% CLASS:    SCALAR
+%% INPUTS:   -
+%% EXP.:     pi/6, 1
+%% COMMENT:  Default is 1
+
+kitty.kv = XXX;
 %% Solubility 
 %% FIELD:    solubility
 %% STATUS:   REQUIRED

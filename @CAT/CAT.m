@@ -46,7 +46,7 @@ classdef CAT < handle
         % supersaturation, T is the temperature. Optionally, the user can
         % specificy that the nucleation rate depends on a moment m of the
         % passed distribution F
-        nucleationrate = 0;
+        nucleationrate = @(S,T,t) 0;
         
         % Seed mass
         init_seed = [];
@@ -130,6 +130,46 @@ classdef CAT < handle
         end % function
         
         %% Method set.init_dist
+        
+        function set.rhoc(O,value)
+            
+            % SET.rhoc
+            %
+            % Check the crystal density. It must be a scalar
+            
+            if isempty(value)
+                ;
+            elseif~isscalar(value)
+                warning('CAT:Setrhoct:WrongType',...
+                    'The rhoc property must be a scalar.');
+            else
+                O.rhoc = value;
+                
+                if log10(value)>-9 || log10(value)<-15
+                    warning('CAT:Setrhoct:suspiciousRhoc',...
+                    'Your rhoc has an unreaslistic order of magnitude. Note that [rhoc] = [g/micron^3]');
+                end
+            end % if else
+            
+            
+        end % function
+        
+        function set.kv(O,value)
+            
+            % SET.kv
+            %
+            % Check the shape factor. It must be a scalar
+            
+            if isempty(value)
+                ;
+            elseif~isscalar(value)
+                warning('CAT:Setkv:WrongType',...
+                    'The rhoc property must be a scalar.');
+            else
+                O.kv = value;
+            end % if else
+            
+        end % function
         
         function set.init_dist(O,value)
             
@@ -518,17 +558,20 @@ classdef CAT < handle
                 plotwhat = 'detailed_results';
             end
             
+            serLen = length(O); % series length
+            lineProps = {'b-','r-','k-','g-d','m-s','c-o'}; % line properties for series
+            
             PDpl = [];
-            Tcalc = O.Tprofile(O.calc_time);
 
   
             % 3D plot of distributions over time
             % Note this feature is diasbled for moving pivot
-            if (~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
+            if serLen==1 && (~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
                     || ~isempty(find(strcmp(plotwhat,'dist3D'), 1)) ...
                     || ~isempty(find(strcmp(plotwhat,'results'), 1))...
                     || ~isempty(find(strcmp(plotwhat,'detailed_results'), 1))...
                     && ~strcmp(O.sol_method,'movingpivot'))
+                    
                 
                 for i = 1:length(O.calc_dist)
                     Fmat(:,i) = O.calc_dist(i).F;
@@ -557,11 +600,12 @@ classdef CAT < handle
 
                 PDpl = [PDpl; PDpl_local];
                 
-            elseif (~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
+            elseif serLen==1 &&(~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
                     || ~isempty(find(strcmp(plotwhat,'dist3D'), 1)) ...
                     || ~isempty(find(strcmp(plotwhat,'results'), 1))...
                     || ~isempty(find(strcmp(plotwhat,'detailed_results'), 1))...
-                    && strcmp(O.sol_method,'movingpivot'))
+                    && strcmp(O.sol_method,'movingpivot'...
+                    && serLen==1))
                 
                 figure(12)
                 set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
@@ -598,157 +642,181 @@ classdef CAT < handle
                 
             end % if
             
-            % Cumulative Properties
-            if (~isempty(find(strcmp(plotwhat,'results'), 1)) || ...
-                ~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
-                ~isempty(find(strcmp(plotwhat,'cumprop'), 1)))
-                
-                figure(21)
-                set(gcf,'numbertitle','off','name','PSD cumulative properties')  
+            for ii = 1:serLen
+                % Cumulative Properties
+                if (~isempty(find(strcmp(plotwhat,'results'), 1)) || ...
+                    ~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
+                    ~isempty(find(strcmp(plotwhat,'cumprop'), 1)))
+
+                    figure(21)
+                    set(gcf,'numbertitle','off','name','PSD cumulative properties')  
+
+                    % Handles for plots
+                    PDpl_local = zeros(3,1);
+
+                    subplot(3,1,1)
+                    hold on
+                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,0),lineProps{ii});                
+                    ylabel('0^{th} moment [#/g]')
+                    hold off
+                    
+                    subplot(3,1,2)
+                    hold on
+                    PDpl_local(2) = plot(O(ii).calc_time,moments(O(ii).calc_dist,3),lineProps{ii});
+                    ylabel('3^{rd} moment [\mum^3/g]')
+                    hold off
+                    
+                    subplot(3,1,3)
+                    hold on
+                    PDpl_local(3) = plot(O(ii).calc_time,moments(O(ii).calc_dist,4)./moments(O(ii).calc_dist,3),lineProps{ii});
+                    ylabel('Weight average length [\mum]')
+                    xlabel('Time [s]')
+                    hold off
+                    PDpl = [PDpl; PDpl_local];
+                elseif (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
+                    ~isempty(find(strcmp(plotwhat,'moments'), 1)))
+
+                    figure(22)
+                    set(gcf,'numbertitle','off','name','Moments Only')  
+                    PDpl_local = zeros(4,1);
+
+                    subplot(2,2,1)
+                    hold on
+                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,0),lineProps{ii});
+                    ylabel('0^{th} moment')
+                    xlabel('Time')
+                    grid on
+                    hold off
+                    
+                    subplot(2,2,2)
+                    hold on
+                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,1),lineProps{ii});
+                    ylabel('1^{st} moment')
+                    xlabel('Time')
+                    grid on
+                    hold off
+                    
+                    subplot(2,2,3)
+                    hold on
+                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,2),lineProps{ii});
+                    ylabel('2^{nd} moment')
+                    xlabel('Time')
+                    grid on
+                    hold off
+                    
+                    subplot(2,2,4)
+                    hold on
+                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,3),lineProps{ii});
+                    ylabel('3^{th} moment')
+                    xlabel('Time')
+                    grid on
+                    hold off
+                end % if
+
+                % Process Variables
+                if (~isempty(find(strcmp(plotwhat,'results'), 1)) || ...
+                    ~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) ||...
+                    ~isempty(find(strcmp(plotwhat,'process'), 1)))
+
+                    figure(31)
+                    set(gcf,'numbertitle','off','name','Process Variables (I)')
 
                 % Handles for plots
-                PDpl_local = zeros(3,1);
-                
-                subplot(3,1,1)
-                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));                
-                ylabel('0^{th} moment [#/g]')
-                
-                subplot(3,1,2)
-                PDpl_local(2) = plot(O.calc_time,moments(O.calc_dist,3));
-                ylabel('3^{rd} moment [\mum^3/g]')
-                
-                subplot(3,1,3)
-                PDpl_local(3) = plot(O.calc_time,moments(O.calc_dist,4)./moments(O.calc_dist,3));
-                ylabel('Weight average length [\mum]')
-                xlabel('Time [s]')
-                
-                PDpl = [PDpl; PDpl_local];
-            elseif (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
-                ~isempty(find(strcmp(plotwhat,'moments'), 1)))
-            
-                figure(22)
-                set(gcf,'numbertitle','off','name','Moments Only')  
-                PDpl_local = zeros(4,1);
-
-                subplot(2,2,1)
-                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,0));
-                ylabel('0^{th} moment')
-                xlabel('Time')
-
-                subplot(2,2,2)
-                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,1));
-                ylabel('1^{st} moment')
-                xlabel('Time')
-
-                subplot(2,2,3)
-                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,2));
-                ylabel('2^{nd} moment')
-                xlabel('Time')
-
-                subplot(2,2,4)
-                PDpl_local(1) = plot(O.calc_time,moments(O.calc_dist,3));
-                ylabel('3^{th} moment')
-                xlabel('Time')
-                
-            end % if
-            
-            % Process Variables
-            if (~isempty(find(strcmp(plotwhat,'results'), 1)) || ...
-                ~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) ||...
-                ~isempty(find(strcmp(plotwhat,'process'), 1)))
-            
-                figure(31)
-                set(gcf,'numbertitle','off','name','Process Variables (I)')
-            
-            % Handles for plots
-                PDpl_local = zeros(1,1);
-
-                nopvit = 1;
-                if ~isempty(O.calc_conc)
-
-                    subplot(2,2,nopvit);                    
-                    PDpl_local = plot(O.calc_time,O.calc_conc,'linewidth',1.5);
-                    xlim([min(O.calc_time) max(O.calc_time)])
-                    xlabel('Time [s]')
-                    ylabel('Concentration [g/g]')
-                    grid on
-                    PDpl = [PDpl; PDpl_local];
-
-                    nopvit = nopvit + 1;
-                end % if
-                
-                if ~isempty(O.calc_conc)
-                    subplot(2,2,nopvit);              
-%                     keyboard
-                    PDpl_local = plot(O.calc_time(:),O.calc_conc(:)./O.solubility(O.Tprofile(O.calc_time(:))),'linewidth',1.5);
-                    xlabel('Time [s]')
-                    xlim([min(O.calc_time) max(O.calc_time)])
-                    ylabel('Supersaturation [-]')
-                    grid on
-                    PDpl = [PDpl; PDpl_local(:)];
-
-                    nopvit = nopvit + 1;
-                end % if
-                
-                subplot(2,2,nopvit);                    
-                PDpl_local = plot(O.calc_time,Tcalc,'linewidth',1.5);
-                xlabel('Time [s]')
-                xlim([min(O.calc_time) max(O.calc_time)])
-                ylabel('Temperature [^\circC]')
-                grid on
-                PDpl = [PDpl; PDpl_local(:)];
-
-                nopvit = nopvit + 1;
-
-
-                subplot(2,2,nopvit);                    
-                PDpl_local = plot(O.calc_time,massmedium(O),'linewidth',1.5);
-                xlabel('Time')
-                xlim([min(O.calc_time) max(O.calc_time)])
-                ylabel('Total mass Solvent + Antisolvent [g]')
-                grid on
-                PDpl = [PDpl; PDpl_local(:)];
-
-                nopvit = nopvit + 1;
-
-
-                if ~isempty(O.calc_conc) && ...
-                        (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
-                        ~isempty(find(strcmp(plotwhat,'process'), 1)))
                     PDpl_local = zeros(1,1);
 
-                    figure(32)
-                    set(gcf,'numbertitle','off','name','Process Variables (II)')
-                    Tvec = linspace(min(Tcalc)-5,max(Tcalc)+5);
-                    plot(Tvec,O.solubility(Tvec),'--','linewidth',1.5)
-                    legend('Solubility','location','southeast')
+                    nopvit = 1;
+                    if ~isempty(O(ii).calc_conc)
+
+                        subplot(2,2,nopvit)
+                        hold on
+                        PDpl_local = plot(O(ii).calc_time,O(ii).calc_conc,lineProps{ii},'linewidth',1.5);
+                        xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
+                        xlabel('Time [s]')
+                        ylabel('Concentration [g/g]')
+                        grid on
+                        PDpl = [PDpl; PDpl_local];
+
+                        nopvit = nopvit + 1;
+                        hold off
+                    end % if
+
+                    if ~isempty(O(ii).calc_conc)
+                        subplot(2,2,nopvit);              
+                        hold on
+                        PDpl_local = plot(O(ii).calc_time(:),O(ii).calc_conc(:)./O(ii).solubility(O(ii).Tprofile(O(ii).calc_time(:))),lineProps{ii},'linewidth',1.5);
+                        xlabel('Time [s]')
+                        xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
+                        ylabel('Supersaturation [-]')
+                        grid on
+                        PDpl = [PDpl; PDpl_local(:)];
+                        hold off
+                        nopvit = nopvit + 1;
+                    end % if
+
+                    subplot(2,2,nopvit)
                     hold on
-                    PDpl_local = plot(Tcalc,O.calc_conc,'r-','linewidth',1.5);
-                    xlabel('Temperature')
-                    ylabel('Concentration [g/g]')
+                    PDpl_local = plot(O(ii).calc_time,O(ii).Tprofile(O(ii).calc_time),lineProps{ii},'linewidth',1.5);
+                    xlabel('Time [s]')
+                    xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
+                    ylabel('Temperature [^\circC]')
                     grid on
-%                     keyboard
                     PDpl = [PDpl; PDpl_local(:)];
-                end
-                        
-            end % if
-            
-            if (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
-                ~isempty(find(strcmp(plotwhat,'integration'), 1)))
-                
-                if ~isempty(O.calc_conc)
-                    figure(41)
-                    set(gcf,'numbertitle','off','name',...
-                        'Details from Integration')
-                    PDpl_local = zeros(1,1);
-                    PDpl_local = plot(O.calc_time,massbal(O));
+                    hold off
+                    nopvit = nopvit + 1;
+
+
+                    subplot(2,2,nopvit);               
+                    hold on
+                    PDpl_local = plot(O(ii).calc_time,massmedium(O(ii)),lineProps{ii},'linewidth',1.5);
                     xlabel('Time')
-                    ylabel('Mass balance [% error]')
+                    xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
+                    ylabel('Total mass Solvent + Antisolvent [g]')
                     grid on
-                    PDpl = [PDpl; PDpl_local];
+                    PDpl = [PDpl; PDpl_local(:)];
+
+                    nopvit = nopvit + 1;
+                    hold off
+
+                    if ~isempty(O(ii).calc_conc) && ...
+                            (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
+                            ~isempty(find(strcmp(plotwhat,'process'), 1)))
+                        PDpl_local = zeros(1,1);
+
+                        figure(32)
+                        hold on
+                        set(gcf,'numbertitle','off','name','Process Variables (II)')
+                        Tvec = linspace(min(O(ii).Tprofile(O(ii).calc_time))-5,max(O(ii).Tprofile(O(ii).calc_time))+5);
+                        plot(Tvec,O(ii).solubility(Tvec),'r--','linewidth',1.5)
+                        legend('Solubility','location','southeast')
+                        PDpl_local = plot(O(ii).Tprofile(O(ii).calc_time),O(ii).calc_conc,lineProps{ii},'linewidth',1.5);
+                        xlabel('Temperature')
+                        ylabel('Concentration [g/g]')
+                        grid on
+                        PDpl = [PDpl; PDpl_local(:)];
+                        hold off
+                    end
+
                 end % if
-                
-                
+
+                if (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
+                    ~isempty(find(strcmp(plotwhat,'integration'), 1)))
+
+                    if ~isempty(O(ii).calc_conc)
+                        figure(41)
+                        hold on
+                        set(gcf,'numbertitle','off','name',...
+                            'Details from Integration')
+                        PDpl_local = zeros(1,1);
+                        PDpl_local = semilogy(O(ii).calc_time,massbal(O(ii)));
+                        xlabel('Time')
+                        ylabel('Mass balance [% error]')
+                        grid on
+                        PDpl = [PDpl; PDpl_local];
+                        hold off
+                    end % if
+
+
+                end
             end
             
         end % function
