@@ -127,6 +127,19 @@ classdef CAT < handle
                 O.nucleationrate = nucleationrate;
             end % if 
             
+            % Initialise paths
+            disp('Initializing...')
+            
+            startstr = pwd;
+%             addpath(startstr)
+            addpath(strcat(startstr,filesep,'general'))
+            addpath(strcat(startstr,filesep,'solvers'))
+            addpath(strcat(startstr,filesep,'solvers',filesep,'hires'))
+            addpath(strcat(startstr,filesep,'solvers',filesep,'movingpivot'))
+            addpath(strcat(startstr,filesep,'solvers',filesep,'centraldifference'))
+            
+            disp('Done.')
+            
         end % function
         
         %% Method set.init_dist
