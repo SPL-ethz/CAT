@@ -44,7 +44,7 @@ else
         [O.calc_time, O.calc_dist, O.calc_conc] = PBESolver(O);
     catch ME
         error('solve:tryconsttemp:PBESolverfail',...
-            'PBESolver failed to integrate your problem.')
+            'PBESolver failed to integrate your problem. Message: %s',ME.message)
     end
 end
 
