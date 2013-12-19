@@ -470,7 +470,14 @@ classdef CAT < hgsetget
             % arguments: S (scalar), T (temperature), and y (vector). The output should be
             % the same size as y
             
-            if isa(value,'function_handle')
+            % If the growth rate is not given as a function, make best
+            % choice to convert it into one
+            
+            if isnumeric(value)
+                O.growthrate = str2func(['@(S,T,y)' num2str(value) '*ones(size(y))']);
+            elseif ischar(value)
+                O.growthrate = str2func(['@(S,T,y)' value]);
+            elseif isa(value,'function_handle')
                 
                 % Check the number of inputs
                 if nargin(value) == 3
@@ -483,10 +490,9 @@ classdef CAT < hgsetget
                         % Size of output wrong
                         warning('Distribution:setgrowthrate:Wrongsize',...
                             'The growth rate function returns a vector which is not the same size as the input vector');
-                    else
-                        % The growth rate function is OK, set it
-                        O.growthrate = value;
-                    end % if else
+                    end
+                    % Set the growthrate anyway
+                    O.growthrate = value;
                     
                 elseif nargin(value) == 2 && length(value(1.1,1))==1
                     % assume size independent function
