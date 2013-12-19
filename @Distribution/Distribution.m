@@ -245,13 +245,19 @@ classdef Distribution < handle
                 Fmo = zeros(size(icalc));
                 
                 for i = icalc
-                    if isempty(O(1).boundaries)
-                        Dy = diff([0 O(i).y]);
-                    else
-                        Dy = diff(O(i).boundaries);
-                    end
                     
-                    Fmo(icalc==i) = sum(O(i).F(:) .* Dy(:).* O(i).y(:).^j);
+                    if ~isempty(O(i).F)
+                        
+                        if isempty(O(1).boundaries)
+                            Dy = diff([0 O(i).y]);
+                        else
+                            Dy = diff(O(i).boundaries);
+                        end
+                        
+                        Fmo(icalc==i) = sum(O(i).F(:) .* Dy(:).* O(i).y(:).^j);
+                        
+                    end % if
+                    
                 end % for
                     
             else
@@ -265,8 +271,34 @@ classdef Distribution < handle
             
         end % function
         
-       
-
+        %% Method disp
+        
+        function disp(O)
+            
+            % Display the distribution in a string representation
+            fprintf([data2str(O) 10]);
+            
+        end % function
+        
+        %% Method num2str
+        
+        function string = data2str(O)
+            
+            % Returns a string representation of the distribution
+            if isa(O.pF,'function_handle')
+                type = 'Fnc';
+                string = sprintf('%s; d_10 = %.2g, m_3 = %.2g',...
+                type,O.moments(1)/O.moments(0),O.moments(3) );
+            elseif isvector(O.pF)
+                type = 'Vec';
+                string = sprintf('%s; d_10 = %.2g, m_3 = %.2g',...
+                type,O.moments(1)/O.moments(0),O.moments(3) );
+            else
+                string = 'Empty';
+            end % if else
+            
+        end % function data2str
+        
         %% Method Dist2str 
         % Returns the distribution as a string (useful for a comparison of
         % distributions, which in general can be vectors or function
