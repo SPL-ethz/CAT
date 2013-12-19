@@ -1,4 +1,4 @@
-classdef CATTube% < CAT
+classdef CATTube < CAT
     
     % GUI for CAT
     %
@@ -20,7 +20,7 @@ classdef CATTube% < CAT
         function O = CATTube(varargin)
             
             % Call CAT constructor
-%             O = O@CAT( varargin{:} );
+            O = O@CAT( varargin{:} );
             
             % Start constructing GUI
             
