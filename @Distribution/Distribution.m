@@ -318,14 +318,17 @@ classdef Distribution < handle
         
         %% Method plot
         
-        function pl_handle = plot(O)
+        function pl_handle = plot(O,Parent)
             
             % Plot distribution, number- and volume-weighted
             
-            FFig = figure;
-            set(FFig,'numbertitle','off','name','PSDs (overlapping)');
-            Fax(1) = subplot(1,2,1);
-            Fax(2) = subplot(1,2,2);
+            if nargin < 2 || isempty(Parent) || ~ishandle(Parent)
+                Parent = figure;
+                set(Parent,'numbertitle','off','name','PSDs (overlapping)');
+            end % if
+            
+            Fax(1) = subplot(1,2,1,'Parent',Parent);
+            Fax(2) = subplot(1,2,2,'Parent',Parent);
             xlabel(Fax(1),'Mean Char. Length')
             xlabel(Fax(2),'Mean Char. Length')
             ylabel(Fax(1),'Number Distribution')
