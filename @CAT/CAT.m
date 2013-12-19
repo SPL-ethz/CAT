@@ -1,4 +1,4 @@
-classdef CAT < handle
+classdef CAT < hgsetget
     %% Class CAT
     % The Crystallization Analysis Toolbox (CAT) class defines numerical
     % settings, initial and operating conditions to set up problems
@@ -27,6 +27,7 @@ classdef CAT < handle
         init_conc = 'sat'; % saturated
         
         % Solubility
+        % @(T,xm)
         solubility = [];
         
         % Temperature profile
