@@ -143,7 +143,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.init_dist
+        %% Method set.rhoc
         
         function set.rhoc(O,value)
             
@@ -168,6 +168,8 @@ classdef CAT < hgsetget
             
         end % function
         
+        %% Method set kv
+        
         function set.kv(O,value)
             
             % SET.kv
@@ -184,6 +186,8 @@ classdef CAT < hgsetget
             end % if else
             
         end % function
+        
+        %% Method set init_dist
         
         function set.init_dist(O,value)
             
@@ -218,7 +222,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.init_conc
+        %% Method set/get init_conc
         
         function set.init_conc(O,value)
             
