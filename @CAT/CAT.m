@@ -321,16 +321,22 @@ classdef CAT < hgsetget
             
             if ischar(value)
                 
-                % don't be case sensitive and allow alternative forms
-                if strcmpi(value,'cd') || strcmpi(value,'centraldifference')
-                    value = 'centraldifference';
-                elseif strcmpi(value,'mp') || strcmpi(value,'movingpivot')
-                    value = 'movingpivot';
-                elseif strcmpi(value,'hr') || strcmpi(value,'highresolution') || strcmpi(value,'hires')
-                    value = 'hires';
-                end
+                % Remove spaces from name first
+                value = strrep(value,' ','');
                 
-                O.sol_method = value;
+                % don't be case sensitive and allow alternative forms
+                switch lower(value)
+                    case {'cd','centraldifference'}
+                        O.sol_method = 'centraldifference';
+                    case {'mp','movingpivot'}
+                        O.sol_method = 'movingpivot';
+                    case {'hr','hires','highresolution'}
+                        O.sol_method = 'hires';
+                    otherwise
+                        error('CAT:SetSol_Method:unknown',...
+                            'Unknown solution method');
+                end % switch
+                
             elseif isempty(value)
                 warning('CAT:SetSol_Method:isempty',...
                     'The property sol_method was set to the default value (centraldifference)');
