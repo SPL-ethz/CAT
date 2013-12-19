@@ -263,19 +263,29 @@ classdef CAT < hgsetget
             %
             %  Setter method for solubility Must be a function handle with
             %  1 or 2 inputs
-            if isa(value,'function_handle') && nargin(value)==1
-
-                O.solubility = @(T,xm) value(T); % we assume the only input argument is Temperature
+            
+            % Check for number - convert to constant function
+            if isnumeric(value)
+                O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
+            elseif ischar(value)
+                % Check for string - attempt to convert to function first
+                O.solubility = str2func(['@(T,xm)' value]);
+            elseif isa(value,'function_handle')
                 
-            elseif isa(value,'function_handle') && nargin(value)==2
-
-                O.solubility = value;
-
-
+                if nargin(value) < 2
+                    % This is too few, the function needs to accept two
+                    % inputs (even if the second isn't used)
+                    O.solubility = str2func(['@(T,xm)' anonfunc2str(value)]);
+                else
+                    % If the function is defined with more inputs, there is
+                    % no problem as long as the other values are not
+                    % needed. This will give an error later
+                    O.solubility = value;
+                end % if elseif
+                
             else
-                warning('CAT:SetASprofile:WrongType',...
-                    'The ASprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
-                
+                warning('CAT:SetSolubility:WrongType',...
+                    'The solubility property must be a positive, finite matrix (may be zero) or a function handle with one input');
             end % if else
             
         end % function
