@@ -280,7 +280,7 @@ classdef Distribution < handle
             
         end % function
         
-        %% Method num2str
+        %% Method data2str
         
         function string = data2str(O)
             
