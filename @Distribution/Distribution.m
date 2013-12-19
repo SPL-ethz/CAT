@@ -344,6 +344,10 @@ classdef Distribution < handle
                 pl_handle(2*i) = plot(O(i).y,O(i).F.*O(i).y.^3,'Parent',Fax(2));
             end % for
             
+            if nargout < 1
+                clear pl_handle
+            end % if
+            
         end % function
 
     end % methods
