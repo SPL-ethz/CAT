@@ -254,6 +254,76 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         
     end % function cancelDgui
 
+%% Function getDgui_current
+
+    function [x,f] = getDgui_current(type)
+        
+        % Return currently defined x vector and f values or function, if
+        % defined.
+        %
+        % [x,f] = getDgui_current('func')
+        % returns f as a function, if defined (default)
+        %
+        % [x,f] = getDgui_current('values')
+        % returns f as values evaluated at x
+        
+        if nargin < 1 || isempty(type)
+            type = 'func';
+        end % if
+        
+        % Get currently defined x value
+        % Use min:spacing:max, assume that number of gridpoints has been
+        % calculated correctly
+        xmin = str2double( get(Dgui.grid.min,'String') );
+        xmax = str2double( get(Dgui.grid.max,'String') );
+        xnumpoints = str2double( get( Dgui.grid.numpoints,'String') );
+        
+        if strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Log10' )
+            x = logspace(xmin,xmax,xnumpoints);
+        else
+            x = linspace(xmin,xmax,xnumpoints);
+        end % if
+        
+        % Get currently defined distribution function
+        
+        % Check for defiend function
+        fncstr = get(Dgui.density.function,'String');
+        if ~isempty(fncstr)
+            f = str2func([get(Dgui.density.function_text2,'String') fncstr]);
+            
+            % If values wanted, translate to values
+            if strcmpi(type,'values')
+                try
+                    f = f(x);
+                catch ME
+                    warndlg(...
+                        sprintf('Distribution function could not be evaluated. Error: %s',ME.message),...
+                        'Error evaluating given function','modal');
+                end % try-catch
+            end % if
+            
+        else
+            
+            % Get values field
+            vals = get(Dgui.density.values,'String');
+            
+            try
+                f = eval([ '[' vals ']' ]);
+                if length(f) ~= length(x)
+                    warndlg('Vector of values must have the right number of entries',...
+                    'Error using given values','modal');
+                    f = zeros(size(x));
+                end % if
+            catch ME
+                warndlg(...
+                    sprintf('Distribution values could not be applied. Error: %s',ME.message),...
+                    'Error using given values','modal');
+            end % try-catch
+            
+        end % if else
+        
+    end % function
+
 %% function plotDist
 
     function plotDist(O,~)
