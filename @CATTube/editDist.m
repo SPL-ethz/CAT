@@ -28,7 +28,8 @@ Dgui.grid.spacingtype = uibuttongroup('Parent',Dgui.grid.panel,...
     'Title','',...
     'Units','pixels',...
     'BorderType','none',...
-    'Position',[10 10 100 40]);
+    'Position',[10 10 100 40],...
+    'SelectionChangeFcn',@(hObject,Eventdata)togglegridtype(hObject,Eventdata));
 
 % Radio button 'linear'
 Dgui.grid.spacingtype_lin = uicontrol(Dgui.grid.spacingtype,...
@@ -252,5 +253,21 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         clear Dgui
         
     end % function cancelDgui
+
+%% function togglegridtype
+
+    function togglegridtype(hObject,Eventdata)
+        
+        % Change text infront of bracket
+        
+        if strcmp( get(Eventdata.NewValue,'String') , 'Linear')
+            set(Dgui.grid.bracket_left,'String','[')
+            set(Dgui.grid.bracket_right,'String',']')
+        else
+            set(Dgui.grid.bracket_left,'String','10^(')
+            set(Dgui.grid.bracket_right,'String',')')
+        end % if else
+        
+    end % function
 
 end % function editDist
