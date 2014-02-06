@@ -236,6 +236,10 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
     'Position',[330 10 100 30]...
     );
 
+%% % - Subfunctions
+
+%% function cancelDgui
+
     function cancelDgui(O,~)
         
         % Close the editing GUI without doing anything
