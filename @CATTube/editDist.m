@@ -206,7 +206,7 @@ Dgui.preview.update = uicontrol(Dgui.preview.panel,...
     'Style','pushbutton',...
     'String','Update',...
     'Value',0,...
-    'Callback','',...
+    'Callback',@plotDist,...
     'Position',[405 185 50 20]...
     );
 
@@ -253,6 +253,31 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         clear Dgui
         
     end % function cancelDgui
+
+%% function plotDist
+
+    function plotDist(O,~)
+        
+        % Check for the plot axis, create if it does not exist
+        if ~isfield(Dgui.preview,'axes') || ~ishandle(Dgui.preview.axes)
+            Dgui.preview.axes = axes('Parent',Dgui.preview.panel,...
+                'Position',[0.13 0.19 0.75 0.73]);
+            xlabel(Dgui.preview.axes,'x')
+            ylabel(Dgui.preview.axes,'f(x)')
+            box(Dgui.preview.axes,'on')
+        else
+            % If axes exists, clear any previous plots
+            if isfield(Dgui.preview,'lines') && ishandle(Dgui.preview.lines)
+                delete(Dgui.preview.lines)
+            end % if
+        end % if
+        
+        % Create new plot
+        [x,f] = getDgui_current('values');
+        
+        Dgui.preview.lines = line(x,f);
+        
+    end % function plotDist
 
 %% function togglegridtype
 
