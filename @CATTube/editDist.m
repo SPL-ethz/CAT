@@ -64,6 +64,7 @@ Dgui.grid.min = uicontrol(Dgui.grid.panel,...
     'String','0',...
     'TooltipString','Starting point of calculation grid',...
     'Units','pixels',...
+    'Callback',@(hObject,Eventdata)changegrid(hObject,Eventdata,'min'),...
     'Position',[140 10 70 30],...
     'BackgroundColor','w');
 
@@ -94,6 +95,7 @@ Dgui.grid.max = uicontrol(Dgui.grid.panel,...
     'String','2',...
     'TooltipString','End point of calculation grid',...
     'Units','pixels',...
+    'Callback',@(hObject,Eventdata)changegrid(hObject,Eventdata,'max'),...
     'Position',[290 10 70 30],...
     'BackgroundColor','w');
 
@@ -118,6 +120,7 @@ Dgui.grid.numpoints = uicontrol(Dgui.grid.panel,...
     'String','21',...
     'TooltipString','Number of grid points',...
     'Units','pixels',...
+    'Callback',@(hObject,Eventdata)changegrid(hObject,Eventdata,'numpoints'),...
     'Position',[380 10 70 30],...
     'BackgroundColor','w');
 
@@ -253,6 +256,45 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         clear Dgui
         
     end % function cancelDgui
+
+%% Function changegrid
+
+    function changegrid(hObject,~,field)
+        
+        % Update spacing or gridpoints field when min, spacing, max or
+        % gridpoints field changed
+        
+        newval = str2double(get(hObject,'String'));
+        
+        switch field
+            
+            case 'min'
+                % New minimum point
+                
+                gmax = str2double(get(Dgui.grid.max,'String'));
+                gnumpoints = str2double(get(Dgui.grid.numpoints,'String'));
+                gmin = newval;
+                
+            case 'max'
+                % New maximum point
+                
+                gmin = str2double(get(Dgui.grid.min,'String'));
+                gnumpoints = str2double(get(Dgui.grid.numpoints,'String'));
+                gmax = newval;
+                
+            case 'numpoints'
+                % New number of points
+                
+                gmin = str2double(get(Dgui.grid.min,'String'));
+                gmax = str2double(get(Dgui.grid.max,'String'));
+                gnumpoints = newval;
+                
+        end % switch
+        
+        newspacing = (gmax - gmin) / (gnumpoints-1);
+        set(Dgui.grid.spacing,'String',num2str(newspacing));
+        
+    end % function changespacing
 
 %% Function getDgui_current
 
