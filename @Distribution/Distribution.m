@@ -42,7 +42,7 @@ classdef Distribution < handle
         
         % Initial pivot vector
         % Define as vector
-        y = linspace(0,1,20);
+        y = linspace(0,1,11);
         
         % Initial vector of boundaries
         % Define as vector
@@ -206,6 +206,21 @@ classdef Distribution < handle
             
         end % function
         
+        %% Method getFunction
+        
+        function fnc = getFunction(O)
+            
+            % Return the actual function - not just the values. If no
+            % function is defined, return empty
+            
+            if isa(O.pF,'function_handle')
+                fnc = O.pF;
+            else
+                fnc = [];
+            end % if
+            
+        end % function
+        
         %% Method set.mass
         
         function set.mass(O,value)
@@ -245,13 +260,19 @@ classdef Distribution < handle
                 Fmo = zeros(size(icalc));
                 
                 for i = icalc
-                    if isempty(O(1).boundaries)
-                        Dy = diff([0 O(i).y]);
-                    else
-                        Dy = diff(O(i).boundaries);
-                    end
                     
-                    Fmo(icalc==i) = sum(O(i).F(:) .* Dy(:).* O(i).y(:).^j);
+                    if ~isempty(O(i).F)
+                        
+                        if isempty(O(1).boundaries)
+                            Dy = diff([0 O(i).y]);
+                        else
+                            Dy = diff(O(i).boundaries);
+                        end
+                        
+                        Fmo(icalc==i) = sum(O(i).F(:) .* Dy(:).* O(i).y(:).^j);
+                        
+                    end % if
+                    
                 end % for
                     
             else
@@ -265,8 +286,34 @@ classdef Distribution < handle
             
         end % function
         
-       
-
+        %% Method disp
+        
+        function disp(O)
+            
+            % Display the distribution in a string representation
+            fprintf([data2str(O) 10]);
+            
+        end % function
+        
+        %% Method data2str
+        
+        function string = data2str(O)
+            
+            % Returns a string representation of the distribution
+            if isa(O.pF,'function_handle')
+                type = 'Fnc';
+                string = sprintf('%s; d_10 = %.2g, m_3 = %.2g',...
+                type,O.moments(1)/O.moments(0),O.moments(3) );
+            elseif isvector(O.pF)
+                type = 'Vec';
+                string = sprintf('%s; d_10 = %.2g, m_3 = %.2g',...
+                type,O.moments(1)/O.moments(0),O.moments(3) );
+            else
+                string = 'Empty';
+            end % if else
+            
+        end % function data2str
+        
         %% Method Dist2str 
         % Returns the distribution as a string (useful for a comparison of
         % distributions, which in general can be vectors or function
@@ -281,22 +328,24 @@ classdef Distribution < handle
                     Fstr = strrep(Fstr,'value{3}',num2str(O.sigma));
                 end
             end
-            outstr = strcat('Distribution(',mat2str(O.y),',... \n',Fstr,',... \n',mat2str(O.boundaries),')');
+            outstr = strcat('Distribution(',data2str(O.y),',',Fstr,',',data2str(O.boundaries),')');
         end
         
         %% Method plot
         
-        function pl_handle = plot(O)
+        function pl_handle = plot(O,Parent)
             
             % Plot distribution, number- and volume-weighted
+            if nargin < 2 || isempty(Parent) || ~ishandle(Parent)
+                Parent = figure;
+                set(Parent,'numbertitle','off','name','PSDs (overlapping)');
+            end % if
             
-            FFig = figure;
-            set(FFig,'numbertitle','off','name','PSDs (overlapping)');
-            Fax(1) = subplot(1,2,1);grid on;
-            Fax(2) = subplot(1,2,2);grid on;
-            xlabel(Fax(1),'Char. Length')
-            xlabel(Fax(2),'Char. Length')
-            ylabel(Fax(1),'Normalized Number Distribution')
+            Fax(1) = subplot(1,2,1,'Parent',Parent);
+            Fax(2) = subplot(1,2,2,'Parent',Parent);
+            xlabel(Fax(1),'Mean Char. Length')
+            xlabel(Fax(2),'Mean Char. Length')
+            ylabel(Fax(1),'Number Distribution')
             ylabel(Fax(2),'Normalized Volume Distribution')
             
             box(Fax(1),'on');
@@ -312,7 +361,9 @@ classdef Distribution < handle
                 pl_handle(2*i) = plot(O(i).y,O(i).F.*O(i).y.^3./moments(O(i),3),'Parent',Fax(2));
             end % for
             
-            
+            if nargout < 1
+                clear pl_handle
+            end % if
             
         end % function
 

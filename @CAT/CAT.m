@@ -1,4 +1,4 @@
-classdef CAT < handle
+classdef CAT < hgsetget
     %% Class CAT
     % The Crystallization Analysis Toolbox (CAT) class defines numerical
     % settings, initial and operating conditions to set up problems
@@ -27,6 +27,7 @@ classdef CAT < handle
         init_conc = 'sat'; % saturated
         
         % Solubility
+        % @(T,xm)
         solubility = [];
         
         % Temperature profile
@@ -142,7 +143,7 @@ classdef CAT < handle
             
         end % function
         
-        %% Method set.init_dist
+        %% Method set.rhoc
         
         function set.rhoc(O,value)
             
@@ -167,6 +168,8 @@ classdef CAT < handle
             
         end % function
         
+        %% Method set kv
+        
         function set.kv(O,value)
             
             % SET.kv
@@ -183,6 +186,8 @@ classdef CAT < handle
             end % if else
             
         end % function
+        
+        %% Method set init_dist
         
         function set.init_dist(O,value)
             
@@ -217,7 +222,7 @@ classdef CAT < handle
             
         end % function
         
-        %% Method set.init_conc
+        %% Method set/get init_conc
         
         function set.init_conc(O,value)
             
@@ -258,19 +263,29 @@ classdef CAT < handle
             %
             %  Setter method for solubility Must be a function handle with
             %  1 or 2 inputs
-            if isa(value,'function_handle') && nargin(value)==1
-
-                O.solubility = @(T,xm) value(T); % we assume the only input argument is Temperature
+            
+            % Check for number - convert to constant function
+            if isnumeric(value) && length(value) == 1
+                O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
+            elseif ischar(value)
+                % Check for string - attempt to convert to function first
+                O.solubility = str2func(['@(T,xm)' value]);
+            elseif isa(value,'function_handle')
                 
-            elseif isa(value,'function_handle') && nargin(value)==2
-
-                O.solubility = value;
-
-
+                if nargin(value) < 2
+                    % This is too few, the function needs to accept two
+                    % inputs (even if the second isn't used)
+                    O.solubility = str2func(['@(T,xm)' anonfunc2str(value)]);
+                else
+                    % If the function is defined with more inputs, there is
+                    % no problem as long as the other values are not
+                    % needed. This will give an error later
+                    O.solubility = value;
+                end % if elseif
+                
             else
-                warning('CAT:SetASprofile:WrongType',...
-                    'The ASprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
-                
+                warning('CAT:SetSolubility:WrongType',...
+                    'The solubility property must be a positive, finite value (may be zero) or a function handle with one or two inputs');
             end % if else
             
         end % function
@@ -306,16 +321,22 @@ classdef CAT < handle
             
             if ischar(value)
                 
-                % don't be case sensitive and allow alternative forms
-                if strcmpi(value,'cd') || strcmpi(value,'centraldifference')
-                    value = 'centraldifference';
-                elseif strcmpi(value,'mp') || strcmpi(value,'movingpivot')
-                    value = 'movingpivot';
-                elseif strcmpi(value,'hr') || strcmpi(value,'highresolution') || strcmpi(value,'hires')
-                    value = 'hires';
-                end
+                % Remove spaces from name first
+                value = strrep(value,' ','');
                 
-                O.sol_method = value;
+                % don't be case sensitive and allow alternative forms
+                switch lower(value)
+                    case {'cd','centraldifference'}
+                        O.sol_method = 'centraldifference';
+                    case {'mp','movingpivot'}
+                        O.sol_method = 'movingpivot';
+                    case {'hr','hires','highresolution'}
+                        O.sol_method = 'hires';
+                    otherwise
+                        error('CAT:SetSol_Method:unknown',...
+                            'Unknown solution method');
+                end % switch
+                
             elseif isempty(value)
                 warning('CAT:SetSol_Method:isempty',...
                     'The property sol_method was set to the default value (centraldifference)');
@@ -449,7 +470,14 @@ classdef CAT < handle
             % arguments: S (scalar), T (temperature), and y (vector). The output should be
             % the same size as y
             
-            if isa(value,'function_handle')
+            % If the growth rate is not given as a function, make best
+            % choice to convert it into one
+            
+            if isnumeric(value) && length(value) == 1
+                O.growthrate = str2func(['@(S,T,y)' num2str(value) '*ones(size(y))']);
+            elseif ischar(value)
+                O.growthrate = str2func(['@(S,T,y)' value]);
+            elseif isa(value,'function_handle')
                 
                 % Check the number of inputs
                 if nargin(value) == 3
@@ -462,10 +490,9 @@ classdef CAT < handle
                         % Size of output wrong
                         warning('Distribution:setgrowthrate:Wrongsize',...
                             'The growth rate function returns a vector which is not the same size as the input vector');
-                    else
-                        % The growth rate function is OK, set it
-                        O.growthrate = value;
-                    end % if else
+                    end
+                    % Set the growthrate anyway
+                    O.growthrate = value;
                     
                 elseif nargin(value) == 2 && length(value(1.1,1))==1
                     % assume size independent function
@@ -482,12 +509,12 @@ classdef CAT < handle
                 
             else % not a function handle
                 warning('Distribution:setgrowthrate:Wrongtype',...
-                    'The growth rate must be defined as a function');
+                    'The growth rate must be a positive, finite value (may be zero) or a function handle with two or three inputs');
             end %if
             
         end % function
 
-        %% Method set.growthrate
+        %% Method set.nucleationrate
         
         function set.nucleationrate(O,value)
             
@@ -497,9 +524,15 @@ classdef CAT < handle
             % accept max. 3 arguments: S (supersaturation), T (temperature), F (distribution). The output should be
             % a scalar
             
-            if isa(value,'function_handle')
-                if nargin(value) == 2
-                    O.nucleationrate = @(S,T,~) value(S,T)
+            if isnumeric(value) && length(value) == 1
+                O.nucleationrate = str2func(['@(S,T,F)' num2str(value) '*ones(size(S))']);
+            elseif ischar(value)
+                O.nucleationrate = str2func(['@(S,T,F)' value]);
+            elseif isa(value,'function_handle')
+                if nargin(value) == 1
+                    O.nucleationrate = str2func(['@(S,~,~)' anonfunc2str(value)]);
+                elseif nargin(value) == 2
+                    O.nucleationrate = str2func(['@(S,T,~)' anonfunc2str(value)]);
                 else
                     O.nucleationrate = value;
                 end
@@ -509,7 +542,7 @@ classdef CAT < handle
 
             else % not a function handle
                 warning('Distribution:setnucleationrate:Wrongtype',...
-                    'The nucleationrate rate must be defined as a function');
+                    'The nucleation rate must be a positive, finite value (may be zero) or a function handle with one to three inputs');
             end %if
             
         end % function
