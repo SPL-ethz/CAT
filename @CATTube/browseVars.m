@@ -1,11 +1,20 @@
 %% Method browseVars
 
-function browseVars(O,~,~,classvarname,displayfield)
+function browseVars(O,~,~,classvarname,displayfield,classfilter)
 
 % BrowseVars is a callback function called when a browse button is pressed
 % next to a variable input box. It lists the variables in the workspace and
 % allows the choice of one
 % Assign the chosen variable to the variable in the class
+
+if nargin < 6 || isempty(classfilter)
+    classfilter = {};
+else
+    % Check if classfilter is char or cell - convert to cell
+    if ischar(classfilter)
+        classfilter = {classfilter};
+    end % if
+end % if else
 
 % Create a new window for the list
 glb.fighandle = figure(...
@@ -59,6 +68,17 @@ glb.import = uicontrol(glb.fighandle,...
         V = evalin('base','whos');
         % Remove all variables which are CATTube objects
         V = V(~strcmp([{V.class}'],'CATTube')); %#ok<NBRAK>
+        
+        % If filters defined, keep only those class types listed
+        if ~isempty(classfilter)
+            Vselection = false(size(V));
+            for i = 1:length(classfilter)
+                Vselection = Vselection | strcmp([{V.class}'],classfilter{i});
+            end % for
+        else
+            Vselection = true(size(V));
+        end % if
+        V = V(Vselection);
         
     end % function getVarList
 
