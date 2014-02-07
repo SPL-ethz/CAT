@@ -206,6 +206,21 @@ classdef Distribution < handle
             
         end % function
         
+        %% Method getFunction
+        
+        function fnc = getFunction(O)
+            
+            % Return the actual function - not just the values. If no
+            % function is defined, return empty
+            
+            if isa(O.pF,'function_handle')
+                fnc = O.pF;
+            else
+                fnc = [];
+            end % if
+            
+        end % function
+        
         %% Method set.mass
         
         function set.mass(O,value)
