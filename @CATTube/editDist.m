@@ -422,7 +422,11 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         if strcmp(Dgui.density.activefield,'function')
             
             fncstr = get(Dgui.density.function,'String');
-            f = str2func([get(Dgui.density.function_text2,'String') fncstr]);
+            if ~isempty(fncstr)
+                f = str2func([get(Dgui.density.function_text2,'String') fncstr]);
+            else
+                f = [];
+            end % if else
             
             % If values wanted, translate to values
             if strcmpi(type,'values')
