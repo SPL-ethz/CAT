@@ -264,7 +264,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
     'Style','pushbutton',...
     'String','OK',...
     'Value',0,...
-    'Callback','',...
+    'Callback',@returnVals,...
     'Position',[70 10 100 30]...
     );
 
@@ -290,7 +290,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
 
 %% Function cancelDgui
 
-    function cancelDgui(O,~)
+    function cancelDgui(~,~)
         
         % Close the editing GUI without doing anything
         close(Dgui.fighandle)
@@ -467,7 +467,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
 
 %% Function plotDist
 
-    function plotDist(O,~)
+    function plotDist(~,~)
         
         % Check for the plot axis, create if it does not exist
         if ~isfield(Dgui.preview,'axes') || ~ishandle(Dgui.preview.axes)
@@ -490,9 +490,30 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         
     end % function plotDist
 
+%% Function returnVals
+
+    function returnVals(~,~)
+        
+        % Set values to distribution, close GUI
+        
+        % Get currently defined values
+        [x,f] = getDgui_current;
+        % Set these values
+        O.init_dist = Distribution(x,f);
+        
+        % Update the field for the current variable
+        set(O.gui.init.init_dist,'String',data2str(O.init_dist));
+        
+        % Close the GUI
+        close(Dgui.fighandle)
+        
+        clear Dgui
+        
+    end % function
+
 %% Function resetVals
 
-    function resetVals(O,~)
+    function resetVals(~,~)
         
         % Reset fields to the values which were valid when the window was
         % opened
