@@ -265,7 +265,7 @@ classdef CAT < hgsetget
             %  1 or 2 inputs
             
             % Check for number - convert to constant function
-            if isnumeric(value)
+            if isnumeric(value) && length(value) == 1
                 O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
             elseif ischar(value)
                 % Check for string - attempt to convert to function first
@@ -285,7 +285,7 @@ classdef CAT < hgsetget
                 
             else
                 warning('CAT:SetSolubility:WrongType',...
-                    'The solubility property must be a positive, finite matrix (may be zero) or a function handle with one input');
+                    'The solubility property must be a positive, finite value (may be zero) or a function handle with one or two inputs');
             end % if else
             
         end % function
@@ -473,7 +473,7 @@ classdef CAT < hgsetget
             % If the growth rate is not given as a function, make best
             % choice to convert it into one
             
-            if isnumeric(value)
+            if isnumeric(value) && length(value) == 1
                 O.growthrate = str2func(['@(S,T,y)' num2str(value) '*ones(size(y))']);
             elseif ischar(value)
                 O.growthrate = str2func(['@(S,T,y)' value]);
@@ -509,12 +509,12 @@ classdef CAT < hgsetget
                 
             else % not a function handle
                 warning('Distribution:setgrowthrate:Wrongtype',...
-                    'The growth rate must be defined as a function');
+                    'The growth rate must be a positive, finite value (may be zero) or a function handle with two or three inputs');
             end %if
             
         end % function
 
-        %% Method set.growthrate
+        %% Method set.nucleationrate
         
         function set.nucleationrate(O,value)
             
@@ -524,9 +524,15 @@ classdef CAT < hgsetget
             % accept max. 3 arguments: S (supersaturation), T (temperature), F (distribution). The output should be
             % a scalar
             
-            if isa(value,'function_handle')
-                if nargin(value) == 2
-                    O.nucleationrate = @(S,T,~) value(S,T)
+            if isnumeric(value) && length(value) == 1
+                O.nucleationrate = str2func(['@(S,T,F)' num2str(value) '*ones(size(S))']);
+            elseif ischar(value)
+                O.nucleationrate = str2func(['@(S,T,F)' value]);
+            elseif isa(value,'function_handle')
+                if nargin(value) == 1
+                    O.nucleationrate = str2func(['@(S,~,~)' anonfunc2str(value)]);
+                elseif nargin(value) == 2
+                    O.nucleationrate = str2func(['@(S,T,~)' anonfunc2str(value)]);
                 else
                     O.nucleationrate = value;
                 end
@@ -536,7 +542,7 @@ classdef CAT < hgsetget
 
             else % not a function handle
                 warning('Distribution:setnucleationrate:Wrongtype',...
-                    'The nucleationrate rate must be defined as a function');
+                    'The nucleation rate must be a positive, finite value (may be zero) or a function handle with one to three inputs');
             end %if
             
         end % function
