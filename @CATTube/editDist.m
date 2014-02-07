@@ -29,7 +29,7 @@ Dgui.grid.spacingtype = uibuttongroup('Parent',Dgui.grid.panel,...
     'Units','pixels',...
     'BorderType','none',...
     'Position',[10 10 100 40],...
-    'SelectionChangeFcn',@(hObject,Eventdata)togglegridtype(hObject,Eventdata));
+    'SelectionChangeFcn',@(hObject,Eventdata)changegridtype(hObject,Eventdata));
 
 % Radio button 'linear'
 Dgui.grid.spacingtype_lin = uicontrol(Dgui.grid.spacingtype,...
@@ -249,7 +249,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
 
 %% % - Subfunctions
 
-%% function cancelDgui
+%% Function cancelDgui
 
     function cancelDgui(O,~)
         
@@ -315,6 +315,22 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         set(Dgui.grid.spacing,'String',num2str(newspacing));
         
     end % function changespacing
+
+%% Function changegridtype
+
+    function changegridtype(hObject,Eventdata)
+        
+        % Change text infront of bracket
+        
+        if strcmp( get(Eventdata.NewValue,'String') , 'Linear')
+            set(Dgui.grid.bracket_left,'String','[')
+            set(Dgui.grid.bracket_right,'String',']')
+        else
+            set(Dgui.grid.bracket_left,'String','10^(')
+            set(Dgui.grid.bracket_right,'String',')')
+        end % if else
+        
+    end % function
 
 %% Function getDgui_current
 
@@ -387,7 +403,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         
     end % function
 
-%% function plotDist
+%% Function plotDist
 
     function plotDist(O,~)
         
@@ -412,20 +428,9 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         
     end % function plotDist
 
-%% function togglegridtype
 
-    function togglegridtype(hObject,Eventdata)
         
-        % Change text infront of bracket
         
-        if strcmp( get(Eventdata.NewValue,'String') , 'Linear')
-            set(Dgui.grid.bracket_left,'String','[')
-            set(Dgui.grid.bracket_right,'String',']')
-        else
-            set(Dgui.grid.bracket_left,'String','10^(')
-            set(Dgui.grid.bracket_right,'String',')')
-        end % if else
         
-    end % function
 
 end % function editDist
