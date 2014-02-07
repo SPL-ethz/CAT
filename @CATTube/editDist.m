@@ -364,10 +364,33 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         if strcmp( get(Eventdata.NewValue,'String') , 'Linear')
             set(Dgui.grid.bracket_left,'String','[')
             set(Dgui.grid.bracket_right,'String',']')
+            
+            % Recalculate min, max, spacing
+            gmin = 10^str2double(get(Dgui.grid.min,'String'));
+            if ~isfinite(gmin)
+                gmin = 0;
+            end % if
+            gmax = 10^str2double(get(Dgui.grid.max,'String'));
+            gnumpoints = str2double(get(Dgui.grid.numpoints,'String'));
+            gspacing = (gmax - gmin) / (gnumpoints-1);
         else
             set(Dgui.grid.bracket_left,'String','10^(')
             set(Dgui.grid.bracket_right,'String',')')
+            
+            % Recalculate min, max, spacing
+            gmin = log10(str2double(get(Dgui.grid.min,'String')));
+            if isinf(gmin)
+                gmin = [];
+            end % if
+            gmax = log10(str2double(get(Dgui.grid.max,'String')));
+            gnumpoints = str2double(get(Dgui.grid.numpoints,'String'));
+            gspacing = (gmax - gmin) / (gnumpoints-1);
         end % if else
+        
+        % Set new values
+        set(Dgui.grid.min,'String',num2str(gmin));
+        set(Dgui.grid.spacing,'String',num2str(gspacing));
+        set(Dgui.grid.max,'String',num2str(gmax));
         
     end % function
 
