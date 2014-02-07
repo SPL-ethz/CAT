@@ -1,6 +1,6 @@
 %% Method editDist
 
-function editDist(O,~,~,classvarname,displayfield)
+function editDist(O,~,~)
 
 % Open new GUI window which lets user define the distribution
 % by choosing a grid and
