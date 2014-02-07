@@ -328,7 +328,7 @@ classdef Distribution < handle
                     Fstr = strrep(Fstr,'value{3}',num2str(O.sigma));
                 end
             end
-            outstr = strcat('Distribution(',mat2str(O.y),',... \n',Fstr,',... \n',mat2str(O.boundaries),')');
+            outstr = strcat('Distribution(',data2str(O.y),',',Fstr,',',data2str(O.boundaries),')');
         end
         
         %% Method plot
