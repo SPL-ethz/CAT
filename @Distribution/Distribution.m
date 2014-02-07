@@ -42,7 +42,7 @@ classdef Distribution < handle
         
         % Initial pivot vector
         % Define as vector
-        y = linspace(0,1,20);
+        y = linspace(0,1,11);
         
         % Initial vector of boundaries
         % Define as vector
