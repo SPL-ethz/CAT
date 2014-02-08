@@ -439,6 +439,141 @@ classdef CATTube < CAT
             
         end % function
         
+        %% Method init_dist_onset
+        
+        function init_dist_onset(O)
+            
+            % Update the init_dist field
+            set(O.gui.init.init_dist,'String',data2str(O.init_dist));
+            
+        end % function
+        
+        %% Method init_seed_onset
+        
+        function init_seed_onset(O)
+            
+            % Update the init_seed field
+            set(O.gui.init.init_seed,'String',data2str(O.init_seed));
+            
+        end % function
+        
+        %% Method init_massmedium_onset
+        
+        function init_massmedium_onset(O)
+            
+            % Update the init_massmedium field
+            set(O.gui.init.init_massmedium,'String',data2str(O.init_massmedium));
+            
+        end % function
+        
+        %% Method init_conc_onset
+        
+        function init_conc_onset(O)
+            
+            % Update the init_conc field
+            set(O.gui.init.init_conc,'String',data2str(O.init_conc));
+            
+        end % function
+        
+        %% Method Tprofile_onset
+        
+        function Tprofile_onset(O)
+            
+            % Update the Tprofile field
+            set(O.gui.proc.Tprofile,'String',data2str(O.Tprofile));
+            
+        end % function
+        
+        %% Method ASprofile_onset
+        
+        function ASprofile_onset(O)
+            
+            % Update the ASprofile field
+            set(O.gui.proc.ASprofile,'String',data2str(O.ASprofile));
+            
+        end % function
+        
+        %% Method solubility_onset
+        
+        function solubility_onset(O)
+            
+            % Update the solubility field
+            set(O.gui.td.solubility,'String',data2str(O.solubility));
+            
+        end % function
+        
+        %% Method rhoc_onset
+        
+        function rhoc_onset(O)
+            
+            % Update the rhoc field
+            set(O.gui.td.rhoc,'String',data2str(O.rhoc));
+            
+        end % function
+        
+        %% Method kv_onset
+        
+        function kv_onset(O)
+            
+            % Update the kv field
+            set(O.gui.td.kv,'String',data2str(O.kv));
+            
+        end % function
+        
+        %% Method growthrate_onset
+        
+        function growthrate_onset(O)
+            
+            % Update the growthrate field
+            set(O.gui.kin.growthrate,'String',data2str(O.growthrate));
+            
+        end % function
+        
+        %% Method growthrate_onset
+        
+        function nucleationrate_onset(O)
+            
+            % Update the nucleationrate field
+            set(O.gui.kin.nucleationrate,'String',data2str(O.nucleationrate));
+            
+        end % function
+        
+        %% Method sol_time_onset
+        
+        function sol_time_onset(O)
+            
+            % Update the sol_time field
+            set(O.gui.solv.sol_time,'String',data2str(O.sol_time));
+            
+        end % function
+        
+        %% Method sol_method_onset
+        
+        function sol_method_onset(O)
+            
+            % Update the sol_method field
+            switch O.sol_method
+                case 'centraldifference'
+                    value = 1;
+                case 'movingpivot'
+                    value = 2;
+                case 'hires'
+                    value = 3;
+            end % switch
+            
+            set(O.gui.solv.sol_method,'Value',value);
+            
+        end % function
+        
+        %% Method sol_options_onset
+        
+        function sol_options_onset(O)
+            
+            % Update the sol_options field
+            set(O.gui.solv.sol_options,'String',data2str(O.sol_optionscle));
+            
+        end % function
+        
     end % methods
     
     methods (Static)

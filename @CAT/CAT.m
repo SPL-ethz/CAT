@@ -203,6 +203,16 @@ classdef CAT < hgsetget
                 O.init_dist = value;
             end % if else
             
+            % Extra function - overwritable in subclasses
+            O.init_dist_onset;
+            
+        end % function
+        
+        function init_dist_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
         end % function
         
         %% Method set.init_seed
@@ -220,7 +230,18 @@ classdef CAT < hgsetget
                     'The init_seed property must be a non-negative scalar');
             end % if else
             
+            % Extra function - overwritable in subclasses
+            O.init_seed_onset;
+            
         end % function
+        
+        function init_seed_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
+        end % function
+            
         
         %% Method set/get init_conc
         
@@ -239,6 +260,16 @@ classdef CAT < hgsetget
                     'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
             end % if else
             
+            % Extra function - overwritable in subclasses
+            O.init_conc_onset;
+            
+        end % function
+        
+        function init_conc_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
         end % function
         
         function [cinit] = get.init_conc(O)
@@ -252,6 +283,29 @@ classdef CAT < hgsetget
                 O.init_conc = O.solubility(O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium);
             end
             cinit = O.init_conc;
+            
+        end % function
+        
+        %% Method set.init_massmedium
+        
+        function set.init_massmedium(O,value)
+            
+            if (isscalar(value) && value >= 0 && isfinite(value))
+                O.init_massmedium = value;
+            else
+                warning('CAT:SetInit_Massmedium:WrongType',...
+                    'The init_conc property must be a positive, finite scalar (may be zero)');
+            end % if else
+            
+            % Extra function - overwritable in subclasses
+            O.init_massmedium_onset;
+            
+        end % function
+        
+        function init_massmedium_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
             
         end % function
         
@@ -288,6 +342,16 @@ classdef CAT < hgsetget
                     'The solubility property must be a positive, finite value (may be zero) or a function handle with one or two inputs');
             end % if else
             
+            % Extra function - overwritable in subclasses
+            O.solubility_onset;
+            
+        end % function
+        
+        function solubility_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
         end % function
         
         %% Method set.sol_time
@@ -305,6 +369,16 @@ classdef CAT < hgsetget
                 warning('CAT:SetSol_Time:WrongValue',...
                     'The property sol_time must be a vector of monotonically increasing values');
             end % if else
+            
+        % Extra function - overwritable in subclasses
+            O.sol_time_onset;
+            
+        end % function
+        
+        function sol_time_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
             
         end % function
         
@@ -346,6 +420,16 @@ classdef CAT < hgsetget
                     'The property sol_method should be a string or empty (chooses default)');
             end % if else
             
+        % Extra function - overwritable in subclasses
+            O.sol_method_onset;
+            
+        end % function
+        
+        function sol_method_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
         end % function
         
         %% Method set.sol_options
@@ -366,7 +450,19 @@ classdef CAT < hgsetget
                     'The property sol_options should be a cell');
             end % if else
             
+        % Extra function - overwritable in subclasses
+            O.sol_eoptions_onset;
+            
         end % function
+        
+        function sol_options_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
+        end % function
+        
+        %% Method set.Tprofile
         
         function set.Tprofile(O,value)
             
@@ -407,9 +503,19 @@ classdef CAT < hgsetget
                 
             end % if else
             
+            % Extra function - overwritable in subclasses
+            O.Tprofile_onset;
             
         end % function
         
+        function Tprofile_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
+        end % function
+        
+        %% Method set.ASprofile
         
         function set.ASprofile(O,value)
             
@@ -441,8 +547,21 @@ classdef CAT < hgsetget
                 
             end % if else
             
+            % Extra function - overwritable in subclasses
+            O.ASprofile_onset;
+            
         end % function
-
+        
+        function ASprofile_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
+        end % function
+        
+        
+        %% Method set.tNodes
+        
         function set.tNodes(O,value)
             
             % SET.tNodes
@@ -512,6 +631,16 @@ classdef CAT < hgsetget
                     'The growth rate must be a positive, finite value (may be zero) or a function handle with two or three inputs');
             end %if
             
+            % Extra function - overwritable in subclasses
+            O.growthrate_onset;
+            
+        end % function
+        
+        function growthrate_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
         end % function
 
         %% Method set.nucleationrate
@@ -544,6 +673,16 @@ classdef CAT < hgsetget
                 warning('Distribution:setnucleationrate:Wrongtype',...
                     'The nucleation rate must be a positive, finite value (may be zero) or a function handle with one to three inputs');
             end %if
+            
+        % Extra function - overwritable in subclasses
+            O.nucleationrate_onset;
+            
+        end % function
+        
+        function nucleationrate_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
             
         end % function
 
