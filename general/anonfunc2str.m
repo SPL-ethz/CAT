@@ -16,13 +16,13 @@ function [str,argsin] = anonfunc2str(func)
 str = func2str(func);
 
 % Use regexp to get rid of @(...) part at beginning
-S = regexp(str,'^(@\(.*\))(.*)','tokens');
+S = regexp(str,'^(@\([\w,]*?\))(.*)','tokens');
 
 if ~isempty(S{1})
-
-str = S{1}{2};
-argsin = S{1}{1};
-
+    
+    str = S{1}{2};
+    argsin = S{1}{1};
+    
 else
     error('anonfunc2str:extract:nomatch',...
         'The function could not be translated. Is it an anonymous function?');
