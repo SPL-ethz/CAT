@@ -21,51 +21,51 @@ classdef CAT < hgsetget
         
         % Initial distribution (Distribution object, defines size and
         % distribution
-        init_dist = Distribution(linspace(1,500,200),{'normal',100,20})
+        init_dist
         
         % Initial concentration
-        init_conc = 1; % saturated
+        init_conc % saturated
         
         % Solubility
         % @(T,xm)
-        solubility = @(T,xm) 1;
+        solubility
         
         % Temperature profile
-        Tprofile = @(t) 25*ones(size(t));
+        Tprofile
         
         % (Anti)solvent added mass profile
-        ASprofile = @(t) 0*t;
+        ASprofile
 
         % Growth rate function This function should be called as
         % growthrate(S,T,y) where S is the current supersaturation, T is the
         % temperature and y is the size. It should return a vector the same
         % size as y
-        growthrate = @(S,T,y) ones(size(y))
+        growthrate
         
         % Nucleation rate function
         % This function should be called as nucleationrate(c,T,m) where S is the current
         % supersaturation, T is the temperature. Optionally, the user can
         % specificy that the nucleation rate depends on a moment m of the
         % passed distribution F
-        nucleationrate = @(S,T,m) 0;
+        nucleationrate
         
         % Seed mass
-        init_seed = 1;
+        init_seed
         
         % Initial mass of solvent + antisolvent
-        init_massmedium = 1000;
+        init_massmedium
         
         % Solution time vector
-        sol_time = [0 100];
+        sol_time
         
         % Crystal density
-        rhoc = 1e-12
+        rhoc
         
         % Shape factor
-        kv = 1
+        kv
         
         % Method to use - default to central difference
-        sol_method = 'centraldifference'
+        sol_method
         
         % Solver Options
         sol_options = [];
@@ -87,8 +87,7 @@ classdef CAT < hgsetget
         
         %% Method CAT (constructor)
         
-        function O = CAT(init_dist,init_conc,sol_time,...
-                sol_method,growthrate, nucleationrate)
+        function O = CAT(varargin)
             
             % CAT
             %
@@ -104,29 +103,13 @@ classdef CAT < hgsetget
             
             % Set values, if they are given
             
-            if nargin > 0 && ~isempty(init_dist)
-                O.init_dist = init_dist;
-            end % if
-            
-            if nargin > 1 && ~isempty(init_conc)
-                O.init_conc = init_conc;
-            end % if
-            
-            if nargin > 2 && ~isempty(sol_time)
-                O.sol_time = sol_time;
-            end % if
-            
-            if nargin > 3 && ~isempty(sol_method)
-                O.sol_method = sol_method;
-            end % if
-            
-            if nargin > 4 && ~isempty(growthrate)
-                O.growthrate = growthrate;
-            end % if
-            
-            if nargin > 5 && ~isempty(nucleationrate)
-                O.nucleationrate = nucleationrate;
-            end % if 
+            if  nargin == 0 || (nargin>0 && ~isempty(find(strcmp(varargin,'empty'))))
+                
+            elseif  (nargin>0 && ~isempty(find(strcmp(varargin,'default'))))
+                
+                O.setDefaults;
+                
+            end
             
             % Initialise paths
             disp('Initializing...')
@@ -142,6 +125,22 @@ classdef CAT < hgsetget
             disp('Done.')
             
         end % function
+        
+        function setDefaults(O)
+            O.init_dist = Distribution(linspace(1,500,200),{'normal',100,20});
+            O.init_conc = 1; % saturated
+            O.solubility = @(T,xm) 1;
+            O.Tprofile = @(t) 25*ones(size(t));
+            O.ASprofile = @(t) 0*t;
+            O.growthrate = @(S,T,y) ones(size(y));
+            O.nucleationrate = @(S,T,m) 0;
+            O.init_seed = 1;
+            O.init_massmedium = 1000;
+            O.sol_time = [0 100];
+            O.rhoc = 1e-12;
+            O.kv = 1;
+            O.sol_method = 'centraldifference'; 
+        end
         
         %% Method set.rhoc
         
@@ -453,7 +452,7 @@ classdef CAT < hgsetget
             end % if else
             
         % Extra function - overwritable in subclasses
-            O.sol_eoptions_onset;
+            O.sol_options_onset;
             
         end % function
         
