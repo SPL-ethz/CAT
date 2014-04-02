@@ -21,14 +21,14 @@ classdef CAT < hgsetget
         
         % Initial distribution (Distribution object, defines size and
         % distribution
-        init_dist = Distribution
+        init_dist = Distribution(linspace(1,500,200),{'normal',100,20})
         
         % Initial concentration
-        init_conc = 'sat'; % saturated
+        init_conc = 1; % saturated
         
         % Solubility
         % @(T,xm)
-        solubility = [];
+        solubility = @(T,xm) 1;
         
         % Temperature profile
         Tprofile = @(t) 25*ones(size(t));
@@ -47,18 +47,18 @@ classdef CAT < hgsetget
         % supersaturation, T is the temperature. Optionally, the user can
         % specificy that the nucleation rate depends on a moment m of the
         % passed distribution F
-        nucleationrate = @(S,T,t) 0;
+        nucleationrate = @(S,T,m) 0;
         
         % Seed mass
-        init_seed = [];
+        init_seed = 1;
         
         % Initial mass of solvent + antisolvent
-        init_massmedium = [];
+        init_massmedium = 1000;
         
         % Solution time vector
-        sol_time
+        sol_time = [0 100];
         
-        % Crystal density [g/micron^3]
+        % Crystal density
         rhoc = 1e-12
         
         % Shape factor
@@ -158,11 +158,7 @@ classdef CAT < hgsetget
                     'The rhoc property must be a scalar.');
             else
                 O.rhoc = value;
-                
-                if log10(value)>-9 || log10(value)<-15
-                    warning('CAT:Setrhoct:suspiciousRhoc',...
-                    'Your rhoc has an unreaslistic order of magnitude. Note that [rhoc] = [g/micron^3]');
-                end
+
             end % if else
             
             
@@ -322,8 +318,12 @@ classdef CAT < hgsetget
             if isnumeric(value) && length(value) == 1
                 O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
             elseif ischar(value)
-                % Check for string - attempt to convert to function first
-                O.solubility = str2func(['@(T,xm)' value]);
+                % Check for string 
+                if isempty(findstr(value,'@(T,xm)')) && isempty(findstr(value,'@(T)')) && isempty(findstr(value,'@(xm)'))
+                    O.solubility = str2func(['@(T,xm)' value '*ones(size(T))']);
+                else
+                    O.solubility = str2func([value '*ones(size(T))']);
+                end
             elseif isa(value,'function_handle')
                 
                 if nargin(value) < 2
@@ -365,6 +365,8 @@ classdef CAT < hgsetget
             
             if length(value) > 1 && isvector(value) && ~any(diff(value)<=0)
                 O.sol_time = value;
+            elseif isscalar(value)
+                O.sol_time = [0 value];
             else
                 warning('CAT:SetSol_Time:WrongValue',...
                     'The property sol_time must be a vector of monotonically increasing values');

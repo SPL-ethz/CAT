@@ -33,7 +33,6 @@ Features supported by all solvers
 - Arbitrary grid sizing
 
 Features that are currently planned for the future
-- GUI
 - Ostwald ripening
 - Lattice-Boltzman method
 - 1D agglomeration
