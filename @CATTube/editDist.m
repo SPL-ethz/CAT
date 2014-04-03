@@ -5,6 +5,11 @@ function editDist(O,~,~)
 % Open new GUI window which lets user define the distribution
 % by choosing a grid and
 
+% Make sure there is a distribution to edit, otherwise, create a new one
+if ~isa(O.init_dist,'Distribution')
+    O.init_dist = Distribution;
+end
+
 % Calculate settings for currently defined distribution
 if allvaleq( diff( log10(O.init_dist.y) ) )
     % Log spacing

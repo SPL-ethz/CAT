@@ -112,7 +112,9 @@ classdef CAT < hgsetget
             end
             
             % Initialise paths
-            disp('Initializing...')
+            if ~isempty(find(strcmp('hush',varargin)))
+                disp('Initializing...')
+            end
             
             startstr = pwd;
 %             addpath(startstr)
@@ -122,7 +124,9 @@ classdef CAT < hgsetget
             addpath(strcat(startstr,filesep,'solvers',filesep,'movingpivot'))
             addpath(strcat(startstr,filesep,'solvers',filesep,'centraldifference'))
             
-            disp('Done.')
+            if ~isempty(find(strcmp('hush',varargin)))
+                disp('Done.')
+            end
             
         end % function
         
@@ -136,10 +140,10 @@ classdef CAT < hgsetget
             O.nucleationrate = @(S,T,m) 0;
             O.init_seed = 1;
             O.init_massmedium = 1000;
-            O.sol_time = [0 100];
             O.rhoc = 1e-12;
             O.kv = 1;
             O.sol_method = 'centraldifference'; 
+            O.sol_time = [0 100];
         end
         
         %% Method set.rhoc
@@ -150,16 +154,21 @@ classdef CAT < hgsetget
             %
             % Check the crystal density. It must be a scalar
             
-            if isempty(value)
-                ;
-            elseif~isscalar(value)
-                warning('CAT:Setrhoct:WrongType',...
-                    'The rhoc property must be a scalar.');
-            else
+            if O.diagnose('rhoc',value)
+            
                 O.rhoc = value;
 
+                
             end % if else
             
+            O.rhoc_onset;
+            
+        end % function
+        
+        function rhoc_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
             
         end % function
         
@@ -171,14 +180,21 @@ classdef CAT < hgsetget
             %
             % Check the shape factor. It must be a scalar
             
-            if isempty(value)
-                ;
-            elseif~isscalar(value)
-                warning('CAT:Setkv:WrongType',...
-                    'The rhoc property must be a scalar.');
-            else
+            if O.diagnose('kv',value)
+            
                 O.kv = value;
+                
             end % if else
+            
+            O.kv_onset;
+            
+        end % function
+        
+        function kv_onset(O)
+            
+            % Do nothing - no function in this class, merely something to
+            % be overwritten by subclass
+            
             
         end % function
         
@@ -191,12 +207,13 @@ classdef CAT < hgsetget
             % Check the initial distribution, it must be a distribution
             % class object
             
-            if ~isa(value,'Distribution')
-                warning('CAT:SetInit_Dist:WrongType',...
-                    'The init_dist property must be a Distribution object');
-            else
+            if O.diagnose('init_dist',value)
+            
                 O.init_dist = value;
+
+                
             end % if else
+            
             
             % Extra function - overwritable in subclasses
             O.init_dist_onset;
@@ -218,15 +235,14 @@ classdef CAT < hgsetget
             %
             % Set mass of seeds
             
-            if isscalar(value) && ~isnan(value) && value>=0 && ~isinf(value)
+            if O.diagnose('init_seed',value)
                 O.init_seed = value;
-            else
-                warning('CAT:SetInit_Seed:WrongType',...
-                    'The init_seed property must be a non-negative scalar');
-            end % if else
+            
+                
+            end
             
             % Extra function - overwritable in subclasses
-            O.init_seed_onset;
+                O.init_seed_onset;
             
         end % function
         
@@ -246,14 +262,10 @@ classdef CAT < hgsetget
             %
             % Check the initial concentration, it must be a positive,
             % finite scalar (can be zero)
-            
-            if (isscalar(value) && value >= 0 && isfinite(value)) || strcmpi(value,'sat')
+            if O.diagnose('init_conc',value)
                 O.init_conc = value;
                 
-            else
-                warning('CAT:SetInit_Conc:WrongType',...
-                    'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
-            end % if else
+            end
             
             % Extra function - overwritable in subclasses
             O.init_conc_onset;
@@ -285,15 +297,15 @@ classdef CAT < hgsetget
         
         function set.init_massmedium(O,value)
             
-            if (isscalar(value) && value >= 0 && isfinite(value))
+            if O.diagnose('init_massmedium',value)
+                
                 O.init_massmedium = value;
-            else
-                warning('CAT:SetInit_Massmedium:WrongType',...
-                    'The init_conc property must be a positive, finite scalar (may be zero)');
-            end % if else
+
+                
+            end
             
             % Extra function - overwritable in subclasses
-            O.init_massmedium_onset;
+                O.init_massmedium_onset;
             
         end % function
         
@@ -313,36 +325,41 @@ classdef CAT < hgsetget
             %  Setter method for solubility Must be a function handle with
             %  1 or 2 inputs
             
+            try
+                value = str2num(value);
+            end
+            
             % Check for number - convert to constant function
-            if isnumeric(value) && length(value) == 1
-                O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
-            elseif ischar(value)
-                % Check for string 
-                if isempty(findstr(value,'@(T,xm)')) && isempty(findstr(value,'@(T)')) && isempty(findstr(value,'@(xm)'))
-                    O.solubility = str2func(['@(T,xm)' value '*ones(size(T))']);
-                else
-                    O.solubility = str2func([value '*ones(size(T))']);
-                end
-            elseif isa(value,'function_handle')
+            if O.diagnose('solubility',value)
+                if isnumeric(value) && length(value) == 1
+                    O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
+                elseif ischar(value)
+                    % Check for string 
+                    if isempty(strfind(value,'@'))
+                        O.solubility = str2func(['@(T,xm)' value '*ones(size(T))']);
+                    else
+                        O.solubility = str2func([value '*ones(size(T))']);
+                    end
+                elseif isa(value,'function_handle')
+
+                    if nargin(value) < 2
+                        % This is too few, the function needs to accept two
+                        % inputs (even if the second isn't used)
+                        O.solubility = str2func(['@(T,xm)' anonfunc2str(value)]);
+                    else
+                        % If the function is defined with more inputs, there is
+                        % no problem as long as the other values are not
+                        % needed. This will give an error later
+                        O.solubility = value;
+                    end % if elseif
+
+                end % if else
+
                 
-                if nargin(value) < 2
-                    % This is too few, the function needs to accept two
-                    % inputs (even if the second isn't used)
-                    O.solubility = str2func(['@(T,xm)' anonfunc2str(value)]);
-                else
-                    % If the function is defined with more inputs, there is
-                    % no problem as long as the other values are not
-                    % needed. This will give an error later
-                    O.solubility = value;
-                end % if elseif
-                
-            else
-                warning('CAT:SetSolubility:WrongType',...
-                    'The solubility property must be a positive, finite value (may be zero) or a function handle with one or two inputs');
-            end % if else
+            end
             
             % Extra function - overwritable in subclasses
-            O.solubility_onset;
+                O.solubility_onset;
             
         end % function
         
@@ -362,18 +379,19 @@ classdef CAT < hgsetget
             % Check the solution time vector. This should be a vector of
             % monotonically increasing values
             
-            if length(value) > 1 && isvector(value) && ~any(diff(value)<=0)
-                O.sol_time = value;
-            elseif isscalar(value)
-                O.sol_time = [0 value];
-            else
-                warning('CAT:SetSol_Time:WrongValue',...
-                    'The property sol_time must be a vector of monotonically increasing values');
-            end % if else
+            if O.diagnose('sol_time',value)
             
-        % Extra function - overwritable in subclasses
-            O.sol_time_onset;
+                if length(value) > 1 
+                    O.sol_time = value;
+                elseif isscalar(value)
+                    O.sol_time = [0 value];
+                end % if else
+                
+            end
             
+            
+            % Extra function - overwritable in subclasses
+                O.sol_time_onset;
         end % function
         
         function sol_time_onset(O)
@@ -394,35 +412,37 @@ classdef CAT < hgsetget
             % Probable more checks should be carried out at this point in
             % the future
             
-            if ischar(value)
-                
-                % Remove spaces from name first
-                value = strrep(value,' ','');
-                
-                % don't be case sensitive and allow alternative forms
-                switch lower(value)
-                    case {'cd','centraldifference'}
-                        O.sol_method = 'centraldifference';
-                    case {'mp','movingpivot'}
-                        O.sol_method = 'movingpivot';
-                    case {'hr','hires','highresolution'}
-                        O.sol_method = 'hires';
-                    otherwise
-                        error('CAT:SetSol_Method:unknown',...
-                            'Unknown solution method');
-                end % switch
-                
-            elseif isempty(value)
-                warning('CAT:SetSol_Method:isempty',...
-                    'The property sol_method was set to the default value (centraldifference)');
-                O.sol_method = 'centraldifference';
-            else
-                warning('CAT:SetSol_Method:WrongType',...
-                    'The property sol_method should be a string or empty (chooses default)');
-            end % if else
+            if O.diagnose('sol_method',value)
+                if ischar(value)
+
+                    % Remove spaces from name first
+                    value = strrep(value,' ','');
+
+                    % don't be case sensitive and allow alternative forms
+                    switch lower(value)
+                        case {'cd','centraldifference'}
+                            O.sol_method = 'centraldifference';
+                        case {'mp','movingpivot'}
+                            O.sol_method = 'movingpivot';
+                        case {'hr','hires','highresolution'}
+                            O.sol_method = 'hires';
+                        otherwise
+                            error('CAT:SetSol_Method:unknown',...
+                                'Unknown solution method');
+                    end % switch
+
+                elseif isempty(value)
+                    warning('CAT:SetSol_Method:isempty',...
+                        'The property sol_method was set to the default value (centraldifference)');
+                    O.sol_method = 'centraldifference';
+
+                end % if else
             
-        % Extra function - overwritable in subclasses
-            O.sol_method_onset;
+            
+            end
+            
+            % Extra function - overwritable in subclasses
+                O.sol_method_onset;
             
         end % function
         
@@ -444,15 +464,14 @@ classdef CAT < hgsetget
             % Probable more checks should be carried out at this point in
             % the future
             
-            if iscell(value)
+            if O.diagnose('sol_options',value)
                 O.sol_options = value;
-            else
-                warning('CAT:SetSol_Options:WrongType',...
-                    'The property sol_options should be a cell');
-            end % if else
+
+             
+            end
             
-        % Extra function - overwritable in subclasses
-            O.sol_options_onset;
+            % Extra function - overwritable in subclasses
+                O.sol_options_onset;
             
         end % function
         
@@ -473,39 +492,44 @@ classdef CAT < hgsetget
             % positive, finite elements. The first row indicates the times
             % of the nodes whereas the second row indicates Temp's
 
-            if ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
-               
-                if value(1,end)<O.sol_time(end)
-                    value = [value [0;0]];
-                    value(1,end) = O.sol_time(end);
-                    value(2,end) = value(2,end-1);
-                end
-%                 O.Tprofile = @(t) interp1(value(1,:),value(2,:),t); %
-                O.Tprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
-                O.tNodes = unique([O.tNodes value(1,:)]);
+            try
+                value = str2num(value);
+            end
+            
+            if O.diagnose('Tprofile',value)
+                if ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
+
+                    if value(1,end)<O.sol_time(end)
+                        value = [value [0;0]];
+                        value(1,end) = O.sol_time(end);
+                        value(2,end) = value(2,end-1);
+                    end
+    %                 O.Tprofile = @(t) interp1(value(1,:),value(2,:),t); %
+                    O.Tprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
+                    O.tNodes = unique([O.tNodes value(1,:)]);
 
 
-            elseif isa(value,'function_handle') && nargin(value)==1
-                
-                if length(value([0 10]))==1
-                    O.Tprofile = @(t) value(t)*ones(size(t)); % output should be a vector of same size as input
-                else
+                elseif isa(value,'function_handle') && nargin(value)==1
+
+                    if length(value([0 10]))==1
+                        O.Tprofile = @(t) value(t)*ones(size(t)); % output should be a vector of same size as input
+                    else
+                        O.Tprofile = value;
+                    end
+
+                elseif isnumeric(value) && isscalar(value)
+                    O.Tprofile =  str2func(strcat('@(t)', data2str(value),'*ones(size(t))'));
+
+                elseif isempty(value)
                     O.Tprofile = value;
-                end
-                    
-            elseif isscalar(value)
-                O.Tprofile = @(t) value*ones(size(t));
+
+                end % if else
+
                 
-            elseif isempty(value)
-                ;
-            else
-                warning('CAT:SetTprofile:WrongType',...
-                    'The Tprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
-                
-            end % if else
+            end
             
             % Extra function - overwritable in subclasses
-            O.Tprofile_onset;
+                O.Tprofile_onset;
             
         end % function
         
@@ -524,32 +548,43 @@ classdef CAT < hgsetget
             %
             % Check the time profile (for added AS profiles). It must be
             % a strictly increasing(!), positive vector
-%             keyboard
-            if ~isempty(value) &&  ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
-               
-                if value(1,end)<O.sol_time(end)
-                    value = [value [0;0]];
-                    value(1,end) = O.sol_time(end);
-                    value(2,end) = value(2,end-1);
-                end
-%                 O.ASprofile = @(t) interp1(value(1,:),value(2,:),t); %
-                O.ASprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
-                O.tNodes = unique([O.tNodes value(1,:)]);
+            
+            try
+                value = str2num(value);
+            end
+            
+            if O.diagnose('ASprofile',value)
+                if ~isempty(value) &&  ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
+
+                    if value(1,end)<O.sol_time(end)
+                        value = [value [0;0]];
+                        value(1,end) = O.sol_time(end);
+                        value(2,end) = value(2,end-1);
+                    end
+    %                 O.ASprofile = @(t) interp1(value(1,:),value(2,:),t); %
+                    O.ASprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
+                    O.tNodes = unique([O.tNodes value(1,:)]);
 
 
-            elseif isa(value,'function_handle') && nargin(value)==1
-                O.ASprofile = value;
+                elseif isa(value,'function_handle') && nargin(value)==1
+                    O.ASprofile = value;
+                    
+                elseif isnumeric(value) && isscalar(value)
+                    O.ASprofile =  str2func(strcat('@(t)', data2str(value),'*ones(size(t))'));
+
+                elseif isempty(value)
+                    O.ASprofile = value;
+                else
+                    warning('CAT:SetTprofile:WrongType',...
+                        'The ASprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
+
+                end % if else
+
                 
-            elseif isempty(value)
-                ;
-            else
-                warning('CAT:SetTprofile:WrongType',...
-                    'The ASprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
-                
-            end % if else
+            end
             
             % Extra function - overwritable in subclasses
-            O.ASprofile_onset;
+                O.ASprofile_onset;
             
         end % function
         
@@ -591,49 +626,58 @@ classdef CAT < hgsetget
             % the same size as y
             
             % If the growth rate is not given as a function, make best
-            % choice to convert it into one
+            % choice to convert it into 
             
-            if isnumeric(value) && length(value) == 1
-                O.growthrate = str2func(['@(S,T,y)' num2str(value) '*ones(size(y))']);
-            elseif ischar(value)
-                O.growthrate = str2func(['@(S,T,y)' value]);
-            elseif isa(value,'function_handle')
-                
-                % Check the number of inputs
-                if nargin(value) == 3
-                    
-                    % Check the output using 2 example values
-                    out = value(1.1,1,linspace(0.1,1,10));
-                    
-                    % Check size
-                    if any( size(out) ~= [1 10] )
-                        % Size of output wrong
-                        warning('Distribution:setgrowthrate:Wrongsize',...
-                            'The growth rate function returns a vector which is not the same size as the input vector');
+            try
+                value = str2num(value);
+            end
+            
+            if O.diagnose('growthrate',value)
+                if isnumeric(value) && length(value) == 1
+                    O.growthrate = str2func(['@(S,T,y)' num2str(value) '*ones(size(y))']);
+                elseif ischar(value)
+                    if isempty(strfind(value,'@'))
+                        O.growthrate = str2func(['@(S,T,y)' value]);
+                    else
+                        O.growthrate = str2func(value);
                     end
-                    % Set the growthrate anyway
-                    O.growthrate = value;
-                    
-                elseif nargin(value) == 2 && length(value(1.1,1))==1
-                    % assume size independent function
-                    O.growthrate = @(S,T,~) value(S,T);
+                elseif isa(value,'function_handle')
+
+                    % Check the number of inputs
+                    if nargin(value) == 3
+
+                        % Check the output using 2 example values
+                        out = value(1.1,1,linspace(0.1,1,10));
+
+                        % Check size
+                        if any( size(out) ~= [1 10] )
+                            % Size of output wrong
+                            warning('Distribution:setgrowthrate:Wrongsize',...
+                                'The growth rate function returns a vector which is not the same size as the input vector');
+                        end
+                        % Set the growthrate anyway
+                        O.growthrate = value;
+
+                    elseif nargin(value) == 2 && length(value(1.1,1))==1
+                        % assume size independent function
+                        O.growthrate = @(S,T,~) value(S,T);
+
+                    elseif nargin(value) == 2 && length(value(1.1,[1 2]))==2
+                        % assume temperature independent function
+                        O.growthrate = @(S,~,y) value(S,y);
+
+                    else
+                        warning('Distribution:setgrowthrate:Wrongnargin',...
+                            'The growth rate function must have 3 input arguments (supersaturation, temperature, sizes) or 2 input arguments (S,T) or (S,y)');
+                    end % if
+
+                end %if
+
                 
-                elseif nargin(value) == 2 && length(value(1.1,[1 2]))==2
-                    % assume temperature independent function
-                    O.growthrate = @(S,~,y) value(S,y);
-                    
-                else
-                    warning('Distribution:setgrowthrate:Wrongnargin',...
-                        'The growth rate function must have 3 input arguments (supersaturation, temperature, sizes) or 2 input arguments (S,T) or (S,y)');
-                end % if
-                
-            else % not a function handle
-                warning('Distribution:setgrowthrate:Wrongtype',...
-                    'The growth rate must be a positive, finite value (may be zero) or a function handle with two or three inputs');
-            end %if
+            end
             
             % Extra function - overwritable in subclasses
-            O.growthrate_onset;
+                O.growthrate_onset;
             
         end % function
         
@@ -653,30 +697,35 @@ classdef CAT < hgsetget
             % Check the nucleationrate rate: should be a function handle,
             % accept max. 3 arguments: S (supersaturation), T (temperature), F (distribution). The output should be
             % a scalar
-            
-            if isnumeric(value) && length(value) == 1
-                O.nucleationrate = str2func(['@(S,T,F)' num2str(value) '*ones(size(S))']);
-            elseif ischar(value)
-                O.nucleationrate = str2func(['@(S,T,F)' value]);
-            elseif isa(value,'function_handle')
-                if nargin(value) == 1
-                    O.nucleationrate = str2func(['@(S,~,~)' anonfunc2str(value)]);
-                elseif nargin(value) == 2
-                    O.nucleationrate = str2func(['@(S,T,~)' anonfunc2str(value)]);
-                else
-                    O.nucleationrate = value;
-                end
-                
-            elseif isempty(value)
-                ;
+            if O.diagnose('nucleationrate',value)
+                if isnumeric(value) && length(value) == 1
+                    O.nucleationrate = str2func(['@(S,T,F)' num2str(value) '*ones(size(S))']);
+                elseif ischar(value)
+                    if isempty(strfind(value,'@')) % check whether string is already in complete an. function form
+                        O.nucleationrate = str2func(['@(S,T,F)' value]);
+                    else
+                        O.nucleationrate = str2func(value);
+                    end
 
-            else % not a function handle
-                warning('Distribution:setnucleationrate:Wrongtype',...
-                    'The nucleation rate must be a positive, finite value (may be zero) or a function handle with one to three inputs');
-            end %if
+                elseif isa(value,'function_handle')
+                    if nargin(value) == 1
+                        O.nucleationrate = str2func(['@(S,~,~)' anonfunc2str(value)]);
+                    elseif nargin(value) == 2
+                        O.nucleationrate = str2func(['@(S,T,~)' anonfunc2str(value)]);
+                    else
+                        O.nucleationrate = value;
+                    end
+
+                elseif isempty(value)
+                    ;
+
+                end %if
+
             
-        % Extra function - overwritable in subclasses
-            O.nucleationrate_onset;
+            end
+            
+            % Extra function - overwritable in subclasses
+                O.nucleationrate_onset;
             
         end % function
         
@@ -726,6 +775,249 @@ classdef CAT < hgsetget
             save(namestr,'-struct','superCAT')
             disp(strcat({'Saved file to '},namestr))
             clear superCAT n
+        end % function
+        
+        %% Mehod diagnose
+        % This function diagnoses whether the set values for individual
+        % fields are valid and whether the CAT instance itself is runnable.
+        function [validInput,solvable] = diagnose(O,fieldnames,values,varargin)
+            
+            if ~isempty(fieldnames) && ~iscell(fieldnames)
+                fieldnames = {fieldnames};
+            end
+            
+            if nargin == 1
+                fieldnames = properties(O);
+                
+                values = [];
+            end
+            Iquery = length(fieldnames);
+            
+            if nargin>3 && ~isempty(find(strcmp(varargin,'solvable')))
+                fieldnames = [fieldnames {'init_dist','init_conc','solubility','init_seed','init_massmedium','growthrate','rhoc','kv','ASprofile','Tprofile','sol_time'}];    
+            end
+                       
+            if ~isempty(values) && ~iscell(values)
+                values = {values};
+            end
+            validInput = ones(length(fieldnames),1);
+            for i = 1:length(fieldnames)
+                
+                fieldname = fieldnames{i};
+                if isempty(values) || length(values)<i
+                    value = O.(fieldnames{i});
+                else
+                    value = values{i};
+                end
+                
+                % analyzing individual fields
+                if strcmp(fieldname,'rhoc')
+                    if ~(isnumeric(value) && length(value)==1)
+                        
+                        if i<=Iquery
+                            warning('CAT:Setrhoc:WrongType',...
+                            'The rhoc property must be a scalar.');
+                        end
+
+                    validInput(i) = 0;
+                    end
+                elseif strcmp(fieldname,'kv')
+                    
+                    if ~(isnumeric(value) && length(value)==1)
+                        if i<=Iquery
+                            warning('CAT:Setkv:WrongType',...
+                            'The kv property must be a scalar.');
+                        end
+                    validInput(i) = 0;
+                    end
+                    
+                elseif strcmp(fieldname,'init_dist')
+                    
+                    if ~isa(value,'Distribution')
+                        if i<=Iquery
+                            warning('CAT:SetInit_Dist:WrongType',...
+                                'The init_dist property must be a Distribution object');
+                        end
+
+                    validInput(i) = 0;
+                    end
+                
+                elseif strcmp(fieldname,'growthrate')
+                    if isempty(value) || (~isnumeric(value) && ~ischar(value) && ~isa(value,'function_handle'))
+                        if i<=Iquery
+                            warning('Distribution:setgrowthrate:Wrongtype',...
+                            'The growth rate must be a non-negative, finite value, or a function handle with up to three inputs');
+                        end
+                        validInput(i) = 0;
+                    end
+                
+                elseif strcmp(fieldname,'nucleationrate')
+                    
+                    if ~isnumeric(value) && ~ischar(value) && ~isa(value,'function_handle') && ~isempty(value)
+                        if i<=Iquery
+                            warning('Distribution:setnucleationrate:Wrongtype',...
+                                'The nucleation rate must be a non-negative, finite value, empty, or a function handle with up to three inputs');
+                        end
+                        validInput(i) = 0;
+                    end
+                
+                elseif strcmp(fieldname,'sol_time')
+                    if (isnumeric(value) && length(value) > 1  && any(diff(value)<=0)) || ~isnumeric(value) || any(value<0) || isempty(value)
+                        
+                        if i<=Iquery
+                        warning('CAT:SetSol_Time:WrongType',...
+                            'The sol_time property must be a vector of monotonically increasing values or a positive scalar');
+                        end
+                        validInput(i) = 0;
+                        
+                    end
+                    
+                elseif strcmp(fieldname,'solubility')
+                    if isempty(value) || (((isnumeric(value) && ~isscalar(value)) && ~isa(value,'function_handle') && ~ischar(value))) || (isnumeric(value) && value<0)
+                        
+                        if i<=Iquery
+                        warning('CAT:SetSolubility:WrongType',...
+                            'The solubility property must be a positive, finite value or a function handle with one or two inputs');
+                        end
+                        validInput(i) = 0;
+                    end
+                    
+                elseif strcmp(fieldname,'init_conc')
+                    if isempty(value) || (ischar(value) && ~strcmp(value,'sat')) || (~(isscalar(value) && value >= 0 && isfinite(value)))
+                        if i<=Iquery
+                        warning('CAT:SetInit_Conc:WrongType',...
+                            'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
+                        end
+                        validInput(i) = 0;
+                    end
+                    
+                elseif strcmp(fieldname,'init_seed')
+                    if isempty(value) || (isnumeric(value) && length(value)>1) || isnan(value) || value<0 || isinf(value)
+                        if i<=Iquery
+                        warning('CAT:SetInit_Seed:WrongType',...
+                            'The init_seed property must be a non-negative,finite scalar');
+                        end
+                        validInput(i) = 0;
+                    end
+                    
+                elseif strcmp(fieldname,'init_massmedium')
+                    
+                    if isempty(value) || (isnumeric(value) && length(value)>1) || isnan(value) || value<0 || isinf(value)
+                        if i<=Iquery
+                        warning('CAT:SetInit_Massmedium:WrongType',...
+                            'The init_conc property must be a non-negative, finite scalar');
+                        end
+                        validInput(i) = 0;
+                
+                    end
+                    
+                elseif strcmp(fieldname,'sol_options')
+                    
+                    if ~iscell(value)
+                        if i<=Iquery
+                        warning('CAT:SetSol_Options:WrongType',...
+                            'The sol_options property must be a cell object');
+                        end
+                        
+                        validInput(i) = 0;
+                    end
+                    
+                elseif strcmp(fieldname,'Tprofile')
+                    
+                    if  ~isa(value,'function_handle') && ~(isnumeric(value) && isscalar(value)) && ~(~isempty(value) && isnumeric(value) && ismatrix(value) && length(value(:,1)) == 2)
+                        if i<=Iquery
+                        warning('CAT:SetTprofile:WrongType',...
+                            'The Tprofile property must be a positive, finite matrix (may be empty) or a function handle with one input');
+                        end
+                        validInput(i) = 0;
+                    end
+                    
+                elseif strcmp(fieldname,'ASprofile')
+                    
+                    
+                    if ~isa(value,'function_handle') && ~(isnumeric(value) && isscalar(value)) && ~(~isempty(value) && isnumeric(value) && ismatrix(value) && length(value(:,1)) == 2)
+                        if i<=Iquery
+                        warning('CAT:SetASprofile:WrongType',...
+                            'The ASprofile property must be a positive, finite matrix (may be empty) or a function handle with one input');
+                        end
+                        validInput(i) = 0;
+                    end
+                    
+                elseif strcmp(fieldname,'sol_method')
+                    
+                    if ~ischar(value) && ~isempty(value)
+                        if i<=Iquery
+                        warning('CAT:SetSol_Method:WrongType',...
+                            'The sol_method property must be a string or empty (chooses default)');
+                        end
+                        validInput(i) = 0;
+                    end
+                    
+                elseif ~isempty(strfind(fieldname,'calc_'))
+                    ; % calculated fields may be empty
+                    
+                else
+                    validInput(i) = NaN;
+                end
+            end
+            
+            if nargin>3 && ~isempty(find(strcmp(varargin,'solvable')))
+                if sum(validInput)>=length(fieldnames)-1
+                    solvable = 1;
+                else
+                    solvable = 0;
+                end
+                
+            else
+                solvable = [];
+            end
+            
+            if Iquery > 0
+                validInput = validInput(1:Iquery);
+            end
+                
+        end
+        
+        %% Method clone
+        % This function saves the CAT instance in a mat file
+        function [copyCAT] = clone(O,Original)
+            
+            
+            if ~isa(Original,'CAT') && ~isa(Original,'CATTube')
+               
+                warning('CAT:clone:notaCAT',...
+                    'The object you try to clone must be of class CAT');
+                
+            else
+                
+                if nargout == 0
+                    F = O;
+                else
+                    if isa(Original,'CATTube')
+                        F = CATTube('hush','uncloned');
+                    elseif isa(Original,'CAT')
+                        F = CAT('hush');
+                    end
+                end
+                    
+                
+                fieldnames = properties(O);
+                
+                for i = 1:length(fieldnames)
+                   
+                    F.(fieldnames{i}) = Original.(fieldnames{i});
+                    
+                end
+                    
+                if nargout == 1
+                    copyCAT = F;
+                else
+                    copyCAT = [];
+                end
+                
+            end
+            
+            
         end % function
         
         %% Method plot
