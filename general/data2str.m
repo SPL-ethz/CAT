@@ -8,7 +8,7 @@ function outstr = data2str(vdata)
 % Make string representation of the data
 switch(class(vdata))
     
-    case 'char'
+    case 'char' 
         % Do nothing to str inputs - already formatted
         outstr = vdata;
         
@@ -22,7 +22,7 @@ switch(class(vdata))
         if isscalar(vdata)
             outstr = sprintf('%.15g',vdata);
         elseif isempty(vdata)
-            outstr = '[]';
+            outstr = '';
         else
             
             % Check whether vector representation can be shortened
