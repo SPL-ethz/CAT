@@ -107,7 +107,7 @@ classdef CATTube < CAT
                 'Background','w',...
                 'TooltipString','Enter the initial Seed Mass (scalar)',...
                 'Callback',@(hObject,eventdata)set(O,'init_seed',str2num(get(hObject,'String'))),...
-                'Position',[250 60 190 20]);
+                'Position',[250 60 190 20]); %#ok<*ST2NM>
             % Browse button
             O.gui.init.init_seed_browse = uicontrol(O.gui.init.panel,...
                 'Style','pushbutton',...
@@ -177,7 +177,7 @@ classdef CATTube < CAT
                 'Position',[440 10 50 20]...
                 );
             
-            function concCallback(hObject,eventdata)
+            function concCallback(hObject,~)
                 if strcmp(get(hObject,'string'),'sat') || isempty(str2num(get(hObject,'String')))
                     set(O,'init_conc',get(hObject,'String'));
                 else
@@ -551,7 +551,7 @@ classdef CATTube < CAT
             
             % Callback function for parameters that are constraint to an
             % interval
-            function intervalBoundCallback(hObject,eventdata,namestr,xrange)
+            function intervalBoundCallback(hObject,~,namestr,xrange)
             
                 if str2num(get(hObject,'String'))>max(xrange)
                     warning('CATTube:valueOutOfRange',...
@@ -589,7 +589,7 @@ classdef CATTube < CAT
         function copyCAT = clone(O,Original)
             
 
-            if ~isa(Original,'CAT') && ~isa(Original,'CATTube')
+            if ~isa(Original,'CAT')
                
                 warning('CAT:clone:notaCAT',...
                     'The object you try to clone must be of class CAT');
@@ -605,7 +605,7 @@ classdef CATTube < CAT
                     
                 
                 fieldnames = properties(O);
-                fieldnames(find(strcmp(fieldnames,'gui'))) = [];
+                fieldnames(strcmp(fieldnames,'gui')) = [];
                 warning('off','all');
                 for i = 1:length(fieldnames)
                    
@@ -623,7 +623,42 @@ classdef CATTube < CAT
 
         end % function
         
-        %% Method init_dist_onset
+        
+        %% Method O.solvableCheck
+        
+        function validInput = solvableCheck(O,fieldnames)
+            
+            if ~iscell(fieldnames)
+                fieldnames = {fieldnames};
+            end
+            validInput = zeros(size(fieldnames));
+            i = 1;
+            while i <= length(fieldnames) && ~any(validInput) 
+                fieldname = fieldnames{i};
+                if nargin>1
+                    [validInput(i),solvableFlag] = O.diagnose(fieldname,O.(fieldname),'solvable');
+                else
+                    [~,solvableFlag] = O.diagnose([],[],'solvable');
+                    validInput(i) = [];
+                end
+
+                if solvableFlag && isfield(O.gui,'run')
+                    set(O.gui.run.start,'enable','on');
+                elseif isfield(O.gui,'run')
+                    set(O.gui.run.start,'enable','off');
+                end
+                i = i+1;
+            end
+            
+            
+        end % function
+        
+    end % methods
+    
+    methods(Hidden)
+       % Onset Methods go here. Their entire point is to update the GUI when changes occur, there is no need to use these functions independent of normal set actions 
+       
+       %% Method init_dist_onset
         
         function init_dist_onset(O)
             
@@ -853,36 +888,8 @@ classdef CATTube < CAT
             
         end % function
         
-        %% Method O.solvableCheck
-        
-        function validInput = solvableCheck(O,fieldnames)
-            
-            if ~iscell(fieldnames)
-                fieldnames = {fieldnames};
-            end
-            validInput = zeros(size(fieldnames));
-            i = 1;
-            while i <= length(fieldnames) && ~any(validInput) 
-                fieldname = fieldnames{i};
-                if nargin>1
-                    [validInput(i),solvableFlag] = O.diagnose(fieldname,O.(fieldname),'solvable');
-                else
-                    [~,solvableFlag] = O.diagnose([],[],'solvable');
-                    validInput(i) = [];
-                end
-
-                if solvableFlag && isfield(O.gui,'run')
-                    set(O.gui.run.start,'enable','on');
-                elseif isfield(O.gui,'run')
-                    set(O.gui.run.start,'enable','off');
-                end
-                i = i+1;
-            end
-            
-            
-        end % function
-        
-    end % methods
+       
+    end
     
     methods (Static)
         

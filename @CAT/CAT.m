@@ -103,9 +103,9 @@ classdef CAT < hgsetget
             
             % Set values, if they are given
             
-            if  nargin == 0 || (nargin>0 && ~isempty(find(strcmp(varargin,'empty'))))
+            if  nargin == 0 || (nargin>0 && ~isempty(find(strcmp(varargin,'empty'), 1)))
                 
-            elseif  (nargin>0 && ~isempty(find(strcmp(varargin,'default'))))
+            elseif  (nargin>0 && ~isempty(find(strcmp(varargin,'default'), 1)))
                 
                 O.setDefaults;
                 
@@ -145,6 +145,9 @@ classdef CAT < hgsetget
             O.sol_time = [0 100];
         end
         
+        
+%% SETTER AND GETTER METHODS
+
         %% Method set.rhoc
         
         function set.rhoc(O,value)
@@ -163,13 +166,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function rhoc_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
-        
         %% Method set kv
         
         function set.kv(O,value)
@@ -185,14 +181,6 @@ classdef CAT < hgsetget
             end % if else
             
             O.kv_onset;
-            
-        end % function
-        
-        function kv_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
             
         end % function
         
@@ -218,13 +206,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function init_dist_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
-        
         %% Method set.init_seed
         
         function set.init_seed(O,value)
@@ -244,14 +225,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function init_seed_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
-            
-        
         %% Method set/get init_conc
         
         function set.init_conc(O,value)
@@ -267,13 +240,6 @@ classdef CAT < hgsetget
             
             % Extra function - overwritable in subclasses
             O.init_conc_onset;
-            
-        end % function
-        
-        function init_conc_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
             
         end % function
         
@@ -306,13 +272,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function init_massmedium_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
-        
         %% Method set.solubility
         
         function set.solubility(O,value)
@@ -322,8 +281,10 @@ classdef CAT < hgsetget
             %  Setter method for solubility Must be a function handle with
             %  1 or 2 inputs
             
-            try
-                value = str2num(value);
+            % check if the value can be easily calculated to a number (a
+            % number may come in form of a string from the GUI)
+            try %#ok<TRYNC>
+                value = str2num(value); %#ok<*ST2NM>
             end
             
             % Check for number - convert to constant function
@@ -359,13 +320,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function solubility_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
-        
         %% Method set.sol_time
         
         function set.sol_time(O,value)
@@ -388,13 +342,6 @@ classdef CAT < hgsetget
             
             % Extra function - overwritable in subclasses
                 O.sol_time_onset;
-        end % function
-        
-        function sol_time_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
         end % function
         
         %% Method set.sol_method
@@ -442,13 +389,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function sol_method_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
-        
         %% Method set.sol_options
         
         function set.sol_options(O,value)
@@ -471,12 +411,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function sol_options_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
         
         %% Method set.Tprofile
         
@@ -488,20 +422,26 @@ classdef CAT < hgsetget
             % positive, finite elements. The first row indicates the times
             % of the nodes whereas the second row indicates Temp's
 
-            try
+            % check if the value can be easily calculated to a number (a
+            % number may come in form of a string from the GUI)
+            try %#ok<TRYNC>
                 value = str2num(value);
             end
             
             if isempty(value) || O.diagnose('Tprofile',value)
                 if ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
 
+                    if isempty(O.sol_time)
+                        O.sol_time = value(1,end);
+                    end
+                    
                     if value(1,end)<O.sol_time(end)
                         value = [value [0;0]];
                         value(1,end) = O.sol_time(end);
                         value(2,end) = value(2,end-1);
                     end
-    %                 O.Tprofile = @(t) interp1(value(1,:),value(2,:),t); %
-                    O.Tprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
+    
+                    O.Tprofile = str2func(strcat('@(t) piecewiseLinear(',data2str(value(1,:)),',',data2str(value(2,:)),',t)')); %
                     O.tNodes = unique([O.tNodes value(1,:)]);
                 
                 elseif isempty(value)
@@ -530,13 +470,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function Tprofile_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
-        
         %% Method set.ASprofile
         
         function set.ASprofile(O,value)
@@ -546,7 +479,9 @@ classdef CAT < hgsetget
             % Check the time profile (for added AS profiles). It must be
             % a strictly increasing(!), positive vector
             
-            try
+            % check if the value can be easily calculated to a number (a
+            % number may come in form of a string from the GUI)
+            try %#ok<TRYNC>
                 value = str2num(value);
             end
             
@@ -587,14 +522,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function ASprofile_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
-        
-        
         %% Method set.tNodes
         
         function set.tNodes(O,value)
@@ -627,7 +554,9 @@ classdef CAT < hgsetget
             % If the growth rate is not given as a function, make best
             % choice to convert it into 
             
-            try
+            % check if the value can be easily calculated to a number (a
+            % number may come in form of a string from the GUI)
+            try %#ok<TRYNC>
                 value = str2num(value);
             end
             
@@ -681,12 +610,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        function growthrate_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
 
         %% Method set.nucleationrate
         
@@ -728,14 +651,9 @@ classdef CAT < hgsetget
                 O.nucleationrate_onset;
             
         end % function
-        
-        function nucleationrate_onset(O)
-            
-            % Do nothing - no function in this class, merely something to
-            % be overwritten by subclass
-            
-        end % function
 
+        
+%% Additional CAT methods
         %% Mass solvent + antisolvent at t
         function mscalc = massmedium(O,t)
             if ~exist('t','var')
@@ -777,210 +695,7 @@ classdef CAT < hgsetget
             clear superCAT n
         end % function
         
-        %% Mehod diagnose
-        % This function diagnoses whether the set values for individual
-        % fields are valid and whether the CAT instance itself is runnable.
-        function [validInput,solvable] = diagnose(O,fieldnames,values,varargin)
             
-            if nargin>1 && ~isempty(fieldnames) && ~iscell(fieldnames)
-                fieldnames = {fieldnames};
-            end
-            
-            if nargin == 1
-                fieldnames = properties(O);
-                
-                values = NaN;
-            end
-            Iquery = length(fieldnames);
-            
-                       
-            if  ~isempty(fieldnames) && ~iscell(values)
-                values = {values};
-            end
-            
-            if nargin>3 && ~isempty(find(strcmp(varargin,'solvable')))
-                fieldnames = [fieldnames {'ASprofile','Tprofile','init_dist','init_conc','solubility','init_seed','init_massmedium','growthrate','rhoc','kv','sol_time'}];    
-                values = [values num2cell(ones(size(fieldnames))*NaN)];
-            end
-            
-            validInput = ones(length(fieldnames),1);
-            for i = 1:length(fieldnames)
-                
-                fieldname = fieldnames{i};
-                if (~isempty(values{i}) && ~isa(values{i},'function_handle') && (isscalar(values{i}) && isnan(values{i}))) || (length(values)>0 && length(values)<i)
-                    value = O.(fieldnames{i});
-                else
-                    value = values{i};
-                end
-                
-                % analyzing individual fields
-                if strcmp(fieldname,'rhoc')
-                    if ~(isnumeric(value) && length(value)==1) || value<=0
-                        
-                        if i<=Iquery
-                            warning('CAT:Setrhoc:WrongType',...
-                            'The rhoc property must be a scalar.');
-                        end
-
-                    validInput(i) = 0;
-                    end
-                elseif strcmp(fieldname,'kv')
-                    
-                    if ~(isnumeric(value) && length(value)==1) || value<=0 || value>1
-                        if i<=Iquery
-                            warning('CAT:Setkv:WrongType',...
-                            'The kv property must be a scalar in the range (0,1].');
-                        end
-                    validInput(i) = 0;
-                    end
-                    
-                elseif strcmp(fieldname,'init_dist')
-                    
-                    if ~isa(value,'Distribution')
-                        if i<=Iquery
-                            warning('CAT:SetInit_Dist:WrongType',...
-                                'The init_dist property must be a Distribution object');
-                        end
-
-                    validInput(i) = 0;
-                    end
-                
-                elseif strcmp(fieldname,'growthrate')
-                    if isempty(value) || (~isnumeric(value) && ~ischar(value) && ~isa(value,'function_handle'))
-                        if i<=Iquery
-                            warning('Distribution:setgrowthrate:Wrongtype',...
-                            'The growth rate must be a non-negative, finite value, or a function handle with up to three inputs');
-                        end
-                        validInput(i) = 0;
-                    end
-                
-                elseif strcmp(fieldname,'nucleationrate')
-                    
-                    if ~isnumeric(value) && ~ischar(value) && ~isa(value,'function_handle') && ~isempty(value)
-                        if i<=Iquery
-                            warning('Distribution:setnucleationrate:Wrongtype',...
-                                'The nucleation rate must be a non-negative, finite value, empty, or a function handle with up to three inputs');
-                        end
-                        validInput(i) = 0;
-                    end
-                
-                elseif strcmp(fieldname,'sol_time')
-                    if (isnumeric(value) && length(value) > 1  && any(diff(value)<=0)) || ~isnumeric(value) || any(value<0) || isempty(value)
-                        
-                        if i<=Iquery
-                        warning('CAT:SetSol_Time:WrongType',...
-                            'The sol_time property must be a vector of monotonically increasing values or a positive scalar');
-                        end
-                        validInput(i) = 0;
-                        
-                    end
-                    
-                elseif strcmp(fieldname,'solubility')
-                    if ((isnumeric(value) && ~isscalar(value)) && ~isa(value,'function_handle') && ~ischar(value)) || (isnumeric(value) && value<=0) || isempty(value)
-                        
-                        if i<=Iquery
-                        warning('CAT:SetSolubility:WrongType',...
-                            'The solubility property must be a positive, finite value or a function handle with one or two inputs');
-                        end
-                        validInput(i) = 0;
-                    end
-                    
-                elseif strcmp(fieldname,'init_conc')
-                    if isempty(value) || (ischar(value) && ~strcmp(value,'sat')) || (~(isscalar(value) && value >= 0 && isfinite(value)))
-                        if i<=Iquery
-                        warning('CAT:SetInit_Conc:WrongType',...
-                            'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
-                        end
-                        validInput(i) = 0;
-                    end
-                    
-                elseif strcmp(fieldname,'init_seed')
-                    if isempty(value) || (isnumeric(value) && length(value)>1) || isnan(value) || value<0 || isinf(value)
-                        if i<=Iquery
-                        warning('CAT:SetInit_Seed:WrongType',...
-                            'The init_seed property must be a non-negative,finite scalar');
-                        end
-                        validInput(i) = 0;
-                    end
-                    
-                elseif strcmp(fieldname,'init_massmedium')
-                    
-                    if isempty(value) || (isnumeric(value) && length(value)>1) || isnan(value) || value<=0 || isinf(value)
-                        if i<=Iquery
-                        warning('CAT:SetInit_Massmedium:WrongType',...
-                            'The init_conc property must be a positive, finite scalar');
-                        end
-                        validInput(i) = 0;
-                
-                    end
-                    
-                elseif strcmp(fieldname,'sol_options')
-                    
-                    if ~iscell(value)
-                        if i<=Iquery
-                        warning('CAT:SetSol_Options:WrongType',...
-                            'The sol_options property must be a cell object');
-                        end
-                        
-                        validInput(i) = 0;
-                    end
-                    
-                elseif strcmp(fieldname,'Tprofile')
-                    
-                    if  ~isa(value,'function_handle') && ~(isnumeric(value) && isscalar(value)) && ~(~isempty(value) && isnumeric(value) && ismatrix(value) && length(value(:,1)) == 2)
-                        if i<=Iquery
-                        warning('CAT:SetTprofile:WrongType',...
-                            'The Tprofile property must be a positive, finite matrix (may be empty) or a function handle with one input');
-                        end
-                        validInput(i) = 0;
-                    end
-                    
-                elseif strcmp(fieldname,'ASprofile')
-                    
-                    
-                    if ~isa(value,'function_handle') && ~(isnumeric(value) && isscalar(value)) && ~(~isempty(value) && isnumeric(value) && ismatrix(value) && length(value(:,1)) == 2)
-                        if i<=Iquery
-                        warning('CAT:SetASprofile:WrongType',...
-                            'The ASprofile property must be a positive, finite matrix (may be empty) or a function handle with one input');
-                        end
-                        validInput(i) = 0;
-                    end
-                    
-                elseif strcmp(fieldname,'sol_method')
-                    
-                    if ~ischar(value) && ~isempty(value)
-                        if i<=Iquery
-                        warning('CAT:SetSol_Method:WrongType',...
-                            'The sol_method property must be a string or empty (chooses default)');
-                        end
-                        validInput(i) = 0;
-                    end
-                    
-                elseif ~isempty(strfind(fieldname,'calc_'))
-                    ; % calculated fields may be empty
-                    
-                else
-                    validInput(i) = NaN;
-                end
-            end
-            
-            if nargin>3 && ~isempty(find(strcmp(varargin,'solvable')))
-                if any(validInput(1:2)) && all(validInput(3:end))
-                    solvable = 1;
-                else
-                    solvable = 0;
-                end
-                
-            else
-                solvable = [];
-            end
-            
-            if Iquery > 0
-                validInput = validInput(1:Iquery);
-            end
-                
-        end
-        
         %% Method clone
         % This function clones the CAT instance
         function [copyCAT] = clone(O,Original)
@@ -1023,308 +738,85 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method plot
         
-        function PDpl = plot(O,plotwhat,varargin)
-            
-            % Plot function for the results
-            %
-            % Use plot(PD,plotwhat) to plot the results of the
-            % simulation. plotwhat is a string that defines what exactly
-            % should be plotted. Possible input:
-            % 'results'         -   plot everything
-            % 'detailed_results'-   plot everything and more
-            %
-            % plotted using results
-            % 'distributions'   -   plot distributions
-            % 'distoverlap'     -   only plot overlapping distributions (2D)
-            % 'dist3D'          -   only plot 3D surf plot of distributions
-            % 'cumprop'         -   plot cumulative properties (moments)
-            % 'process'         -   plot process variables (T, conc)
-            %
-            % additionally plotted in detailed mode
-            % 'moments'         -   plots of the first four moments
-            % 'integration'     -   details from the integration
-            % (massbalance over time,...)
-            % 
-            % and any combination thereof.
-            %
-            % PLOT returns the handles to the plot objects created. (If
-            % several plots are created the sequence of handles is the
-            % following: PSDs overlapping, PSDs3D, cumulative properties
-            % (moments), process variables (temperature, concentration)
-            %
-            % Graphs can currently not be plotted in existing figures !!
-            %
-            
-            if nargin == 1
-                plotwhat = 'detailed_results';
-            end
-            
-            serLen = length(O); % series length
-            lineProps = {'b-','r-','k-','g-d','m-s','c-o'}; % line properties for series
-            
-            PDpl = [];
-
-  
-            % 3D plot of distributions over time
-            % Note this feature is diasbled for moving pivot
-            if serLen==1 && (~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
-                    || ~isempty(find(strcmp(plotwhat,'dist3D'), 1)) ...
-                    || ~isempty(find(strcmp(plotwhat,'results'), 1))...
-                    || ~isempty(find(strcmp(plotwhat,'detailed_results'), 1))...
-                    && ~strcmp(O.sol_method,'movingpivot'))
-                    
-                
-                for i = 1:length(O.calc_dist)
-                    Fmat(:,i) = O.calc_dist(i).F;
-                end % for
-                
-                figure(12)
-                set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
-                
-                % Handles for plots
-                PDpl_local = zeros(2,1);
-
-                subplot(1,2,1)
-                PDpl_local(1) = surf(O.calc_time(:),O.calc_dist(1).y(:),Fmat,varargin{:});
-                ylabel('Mean Char. Length')
-                xlabel('Time')
-                zlabel('Number Distribution')
-
-                subplot(1,2,2)
-                PDpl_local(2) = surf(O.calc_time,O.calc_dist(1).y,...
-                    Fmat.*repmat(O.calc_dist(1).y(:).^3,1,length(O.calc_time))...
-                    ./repmat(moments(O.calc_dist,3),length(O.calc_dist(1).y),1),...
-                    varargin{:});
-                ylabel('Mean Char. Length')
-                xlabel('Time')
-                zlabel('Normalized Volume Distribution')
-
-                PDpl = [PDpl; PDpl_local];
-                
-            elseif serLen==1 &&(~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
-                    || ~isempty(find(strcmp(plotwhat,'dist3D'), 1)) ...
-                    || ~isempty(find(strcmp(plotwhat,'results'), 1))...
-                    || ~isempty(find(strcmp(plotwhat,'detailed_results'), 1))...
-                    && strcmp(O.sol_method,'movingpivot'...
-                    && serLen==1))
-                
-                figure(12)
-                set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
-                
-                % Handles for plots
-                PDpl_local = zeros(2,1);
-
-                subplot(1,2,1)
-                for i = 1:length(O.calc_time)
-                    PDpl_local(i) = plot3(repmat(O.calc_time(i),size(O.calc_dist(i).y)),O.calc_dist(i).y(:),O.calc_dist(i).F,varargin{:});
-                    hold on
-                end
-                grid on
-                hold off
-                ylabel('Mean Char. Length')
-                xlabel('Time')
-                zlabel('Number Distribution')
-
-                subplot(1,2,2)
-                for i = 1:length(O.calc_time)
-                    PDpl_local(i+length(O.calc_time)) = plot3(repmat(O.calc_time(i),size(O.calc_dist(i).y)),O.calc_dist(i).y,...
-                    O.calc_dist(i).F(:).*O.calc_dist(i).y(:).^3./...
-                    moments(O.calc_dist,3,i),...
-                    varargin{:});
-                hold on
-                end
-                grid on
-                hold off
-                ylabel('Mean Char. Length')
-                xlabel('Time')
-                zlabel('Normalized Volume Distribution')
-                set(PDpl_local,'linewidth',1.5,'color','k')
-                PDpl = [PDpl; PDpl_local];
-                
-            end % if
-            
-            for ii = 1:serLen
-                % Cumulative Properties
-                if (~isempty(find(strcmp(plotwhat,'results'), 1)) || ...
-                    ~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
-                    ~isempty(find(strcmp(plotwhat,'cumprop'), 1)))
-
-                    figure(21)
-                    set(gcf,'numbertitle','off','name','PSD cumulative properties')  
-
-                    % Handles for plots
-                    PDpl_local = zeros(3,1);
-
-                    subplot(3,1,1)
-                    hold on
-                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,0),lineProps{ii});                
-                    ylabel('0^{th} moment [#/g]')
-                    hold off
-                    
-                    subplot(3,1,2)
-                    hold on
-                    PDpl_local(2) = plot(O(ii).calc_time,moments(O(ii).calc_dist,3),lineProps{ii});
-                    ylabel('3^{rd} moment [\mum^3/g]')
-                    hold off
-                    
-                    subplot(3,1,3)
-                    hold on
-                    PDpl_local(3) = plot(O(ii).calc_time,moments(O(ii).calc_dist,4)./moments(O(ii).calc_dist,3),lineProps{ii});
-                    ylabel('Weight average length [\mum]')
-                    xlabel('Time [s]')
-                    hold off
-                    PDpl = [PDpl; PDpl_local];
-                elseif (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
-                    ~isempty(find(strcmp(plotwhat,'moments'), 1)))
-
-                    figure(22)
-                    set(gcf,'numbertitle','off','name','Moments Only')  
-                    PDpl_local = zeros(4,1);
-
-                    subplot(2,2,1)
-                    hold on
-                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,0),lineProps{ii});
-                    ylabel('0^{th} moment')
-                    xlabel('Time')
-                    grid on
-                    hold off
-                    
-                    subplot(2,2,2)
-                    hold on
-                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,1),lineProps{ii});
-                    ylabel('1^{st} moment')
-                    xlabel('Time')
-                    grid on
-                    hold off
-                    
-                    subplot(2,2,3)
-                    hold on
-                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,2),lineProps{ii});
-                    ylabel('2^{nd} moment')
-                    xlabel('Time')
-                    grid on
-                    hold off
-                    
-                    subplot(2,2,4)
-                    hold on
-                    PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,3),lineProps{ii});
-                    ylabel('3^{th} moment')
-                    xlabel('Time')
-                    grid on
-                    hold off
-                end % if
-
-                % Process Variables
-                if (~isempty(find(strcmp(plotwhat,'results'), 1)) || ...
-                    ~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) ||...
-                    ~isempty(find(strcmp(plotwhat,'process'), 1)))
-
-                    figure(31)
-                    set(gcf,'numbertitle','off','name','Process Variables (I)')
-
-                % Handles for plots
-                    PDpl_local = zeros(1,1);
-
-                    nopvit = 1;
-                    if ~isempty(O(ii).calc_conc)
-
-                        subplot(2,2,nopvit)
-                        hold on
-                        PDpl_local = plot(O(ii).calc_time,O(ii).calc_conc,lineProps{ii},'linewidth',1.5);
-                        xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
-                        xlabel('Time [s]')
-                        ylabel('Concentration [g/g]')
-                        grid on
-                        PDpl = [PDpl; PDpl_local];
-
-                        nopvit = nopvit + 1;
-                        hold off
-                    end % if
-
-                    if ~isempty(O(ii).calc_conc)
-                        subplot(2,2,nopvit);              
-                        hold on
-                        PDpl_local = plot(O(ii).calc_time(:),O(ii).calc_conc(:)./O(ii).solubility(O(ii).Tprofile(O(ii).calc_time(:))),lineProps{ii},'linewidth',1.5);
-                        xlabel('Time [s]')
-                        xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
-                        ylabel('Supersaturation [-]')
-                        grid on
-                        PDpl = [PDpl; PDpl_local(:)];
-                        hold off
-                        nopvit = nopvit + 1;
-                    end % if
-
-                    subplot(2,2,nopvit)
-                    hold on
-                    PDpl_local = plot(O(ii).calc_time,O(ii).Tprofile(O(ii).calc_time),lineProps{ii},'linewidth',1.5);
-                    xlabel('Time [s]')
-                    xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
-                    ylabel('Temperature [^\circC]')
-                    grid on
-                    PDpl = [PDpl; PDpl_local(:)];
-                    hold off
-                    nopvit = nopvit + 1;
-
-
-                    subplot(2,2,nopvit);               
-                    hold on
-                    PDpl_local = plot(O(ii).calc_time,massmedium(O(ii)),lineProps{ii},'linewidth',1.5);
-                    xlabel('Time')
-                    xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
-                    ylabel('Total mass Solvent + Antisolvent [g]')
-                    grid on
-                    PDpl = [PDpl; PDpl_local(:)];
-
-                    nopvit = nopvit + 1;
-                    hold off
-
-                    if ~isempty(O(ii).calc_conc) && ...
-                            (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
-                            ~isempty(find(strcmp(plotwhat,'process'), 1)))
-                        PDpl_local = zeros(1,1);
-
-                        figure(32)
-                        hold on
-                        set(gcf,'numbertitle','off','name','Process Variables (II)')
-                        Tvec = linspace(min(O(ii).Tprofile(O(ii).calc_time))-5,max(O(ii).Tprofile(O(ii).calc_time))+5);
-                        plot(Tvec,O(ii).solubility(Tvec),'r--','linewidth',1.5)
-                        legend('Solubility','location','southeast')
-                        PDpl_local = plot(O(ii).Tprofile(O(ii).calc_time),O(ii).calc_conc,lineProps{ii},'linewidth',1.5);
-                        xlabel('Temperature')
-                        ylabel('Concentration [g/g]')
-                        grid on
-                        PDpl = [PDpl; PDpl_local(:)];
-                        hold off
-                    end
-
-                end % if
-
-                if (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
-                    ~isempty(find(strcmp(plotwhat,'integration'), 1)))
-
-                    if ~isempty(O(ii).calc_conc)
-                        figure(41)
-                        hold on
-                        set(gcf,'numbertitle','off','name',...
-                            'Details from Integration')
-                        PDpl_local = zeros(1,1);
-                        PDpl_local = semilogy(O(ii).calc_time,massbal(O(ii)));
-                        xlabel('Time')
-                        ylabel('Mass balance [% error]')
-                        grid on
-                        PDpl = [PDpl; PDpl_local];
-                        hold off
-                    end % if
-
-
-                end
-            end
+        
+    end % methods
+    
+    %% All onset methods
+    % Do nothing - no function in this class, merely something to
+    % be overwritten by subclass
+    methods (Hidden)
+        
+        function init_dist_onset(O) %#ok<*MANU>
             
         end % function
         
-    end % methods
+        
+        function init_conc_onset(O)
+            
+        end % function
+        
+        
+        function init_seed_onset(O)
+            
+        end % function
+        
+        
+        function init_massmedium_onset(O)
+            
+        end % function
+        
+        
+        function rhoc_onset(O)
+            
+        end % function
+        
+        
+        function kv_onset(O)
+            
+        end % function
+        
+        
+        function solubility_onset(O)
+            
+        end % function
+        
+        
+        function Tprofile_onset(O)
+            
+        end % function
+        
+        
+        function ASprofile_onset(O)
+
+        end % function
+        
+        
+        function growthrate_onset(O)
+            
+        end % function
+        
+        
+        function nucleationrate_onset(O)
+
+        end % function
+        
+        
+        function sol_time_onset(O)
+            
+        end % function
+        
+        
+        function sol_method_onset(O)
+            
+        end % function
+        
+        
+        function sol_options_onset(O)
+            
+        end % function
+    end
+    
     %% Static Methods
     methods (Static)
         % Compare two CAT objects
