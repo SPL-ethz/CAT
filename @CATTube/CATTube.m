@@ -20,8 +20,8 @@ classdef CATTube < CAT
         function O = CATTube(varargin)
             
             % Call CAT constructor
-            O = O@CAT( varargin{:} );
-            O_original = O.clone(O);
+            O = O@CAT; % first create an empty object (this will basically draw the GUI). After GUI is finished setting up, we copy the contents of O_original into the GUI
+            O_original = CAT( varargin{:} );
             
             % Start constructing GUI
             
@@ -57,6 +57,11 @@ classdef CATTube < CAT
                 'Style','text',...
                 'String','Initial distribution function',...
                 'Position',[10 85 240 20]);
+            O.gui.init.init_dist_warning = uicontrol(O.gui.init.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 85 10 20]);
             % Input box
             O.gui.init.init_dist = uicontrol(O.gui.init.panel,...
                 'Style','edit',...
@@ -89,6 +94,12 @@ classdef CATTube < CAT
                 'String','Seed mass [?]',...
                 'TooltipString',sprintf('Units must be consistent with those used for\n - Initial Concentration \n - Solubility Function\n - Crystal Density'),...
                 'Position',[10 60 240 20]);
+            % Warning Sign
+            O.gui.init.init_seed_warning = uicontrol(O.gui.init.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 60 10 20]);
             % Input box
             O.gui.init.init_seed = uicontrol(O.gui.init.panel,...
                 'Style','edit',...
@@ -113,6 +124,12 @@ classdef CATTube < CAT
                 'String','Total initial Solvent+Antisolvent Mass [?]',...
                 'TooltipString',sprintf('Units must be consistent with those used for\n - Initial Concentration \n - Solubility Function\n - Antisolvent profile\n - Nucleation Rate'),...
                 'Position',[10 35 240 20]);
+            % Warning Sign
+            O.gui.init.init_massmedium_warning = uicontrol(O.gui.init.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 35 10 20]);
             % Input box
             O.gui.init.init_massmedium = uicontrol(O.gui.init.panel,...
                 'Style','edit',...
@@ -137,6 +154,12 @@ classdef CATTube < CAT
                 'String','Initial concentration [?]',...
                 'TooltipString',sprintf('Units must be MASS SOLUTE PER MASS SOLVENT+ANTISOLVENT and consistent with those used for\n - Seed Mass\n - Crystal Density \n - Total initial Solvent+Antisolvent Mass \n - Solubility Function\n - Antisolvent profile\n - Nucleation Rate'),...
                 'Position',[10 10 240 20]);
+            % Warning Sign
+            O.gui.init.init_conc_warning = uicontrol(O.gui.init.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 10 10 20]);
             % Input box
             O.gui.init.init_conc = uicontrol(O.gui.init.panel,...
                 'Style','edit',...
@@ -181,6 +204,12 @@ classdef CATTube < CAT
                 'String','Temperature Profile [?]',...
                 'ToolTipString',sprintf('Units must be consistent with those used for\n - Solubility Function\n - Nucleation Rate \n - Growth Rate \n - Solution Time'),...
                 'Position',[10 35 240 20]);
+            % Warning Sign
+            O.gui.proc.Tprofile_warning = uicontrol(O.gui.proc.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 35 10 20]);
             % Input box
             O.gui.proc.Tprofile = uicontrol(O.gui.proc.panel,...
                 'Style','edit',...
@@ -205,6 +234,12 @@ classdef CATTube < CAT
                 'String','Antisolvent Profile [?]',...
                 'ToolTipString',sprintf('Units must be consistent with those used for\n - Initial Concentration \n - Solubility Function\n - Nucleation Rate \n - Solvent Mass'),...
                 'Position',[10 10 240 20]);
+            % Warning Sign
+            O.gui.proc.ASprofile_warning = uicontrol(O.gui.proc.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 10 10 20]);
             % Input box
             O.gui.proc.ASprofile = uicontrol(O.gui.proc.panel,...
                 'Style','edit',...
@@ -240,7 +275,12 @@ classdef CATTube < CAT
                 'String','Solubility function [?]',...
                 'TooltipString',sprintf('Units must be MASS SOLUTE PER MASS SOLVENT+ANTISOLVENT and consistent with those used for\n - Seed Mass\n - Crystal Density \n - Total initial Solvent+Antisolvent Mass \n - Initial Concentration\n - Antisolvent profile\n - Nucleation Rate'),...
                 'Position',[10 60 240 20]);
-            
+            % Warning Sign
+            O.gui.td.solubility_warning = uicontrol(O.gui.td.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 60 10 20]);
             % Input box
             O.gui.td.solubility = uicontrol(O.gui.td.panel,...
                 'Style','edit',...
@@ -264,6 +304,11 @@ classdef CATTube < CAT
                 'String','Crystal density [?]',...
                 'ToolTipString',sprintf('Units must be consistent with those used for\n - Seed Mass\n - Initial Concentration \n - Solubility Function\n'),...
                 'Position',[10 35 240 20]);
+            O.gui.td.rhoc_warning = uicontrol(O.gui.td.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 35 10 20]);
             
             % Input box
             O.gui.td.rhoc = uicontrol(O.gui.td.panel,...
@@ -287,6 +332,12 @@ classdef CATTube < CAT
                 'Style','text',...
                 'String','Shape factor [0-1]',...
                 'Position',[10 10 240 20]);
+            % Warning Sign
+            O.gui.td.kv_warning = uicontrol(O.gui.td.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 10 10 20]);
             % Input box
             O.gui.td.kv = uicontrol(O.gui.td.panel,...
                 'Style','edit',...
@@ -304,7 +355,7 @@ classdef CATTube < CAT
                 'Position',[440 10 50 20]...
                 );
             
-            
+            drawnow
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Kinetics
             %
@@ -321,6 +372,12 @@ classdef CATTube < CAT
                 'String','Growth rate [?]',...
                 'ToolTipString',sprintf('Units must be consistent with those used for\n - Initial Distribution\n - Temperature Profile \n - Antisolvent Profile \n - Nucleation Rate \n - Solution Time'),...
                 'Position',[10 35 240 20]);
+            % Warning Sign
+            O.gui.kin.growthrate_warning = uicontrol(O.gui.kin.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 35 10 20]);
             % Input box
             O.gui.kin.growthrate = uicontrol(O.gui.kin.panel,...
                 'Style','edit',...
@@ -378,6 +435,11 @@ classdef CATTube < CAT
                 'String','Time [?]',...
                 'ToolTipString',sprintf('Units must be consistent with those used for\n - Growth Rate\n - Nucleation Rate \n - Antisolvent Profile\n - Temperature Profile\n'),...
                 'Position',[10 60 240 20]);
+            O.gui.solv.sol_time_warning = uicontrol(O.gui.solv.panel,...
+                'Style','text',...
+                'String','!',...
+                'visible','off',...
+                'Position',[235 60 10 20]);
             % Input box
             O.gui.solv.sol_time = uicontrol(O.gui.solv.panel,...
                 'Style','edit',...
@@ -474,7 +536,7 @@ classdef CATTube < CAT
                 'String','Write settings to file',...
                 'Value',0,...
                 'Enable','on',...
-                'Callback',@(hObject,Event) save(O),...
+                'Callback',@(hObject,Event) saveCAT(O),...
                 'Position',[20 140 450 30]...
                 );
             
@@ -486,8 +548,6 @@ classdef CATTube < CAT
                 'Callback',@(hObject,Event)O.plot,...
                 'Position',[20 100 450 30]...
                 );
-            
-            
             
             % Callback function for parameters that are constraint to an
             % interval
@@ -508,16 +568,19 @@ classdef CATTube < CAT
                 end
             end
             
+            O.clone(O_original);
+            
         end % function
         
         %% Method save
         
-        function save(O)
+        function saveCAT(O)
             
             % dialog box for file name
             CATname = inputdlg('Enter desired file name');
+            kitty = O.clone(O);
             
-            O.save(CATname);
+            kitty.save(CATname);
             
         end % function
         
@@ -565,10 +628,14 @@ classdef CATTube < CAT
         function init_dist_onset(O)
             
             % Update the init_dist field
-            if isfield(O.gui,'init')
-                set(O.gui.init.init_dist,'String',data2str(O.init_dist));
+            set(O.gui.init.init_dist,'String',data2str(O.init_dist));
+            validInput = O.solvableCheck('init_dist');
+
+            if validInput
+                set(O.gui.init.init_dist_warning,'visible','off')
+            else
+                set(O.gui.init.init_dist_warning,'visible','on')
             end
-            O.solvableCheck;
         end % function
         
         %% Method init_seed_onset
@@ -576,10 +643,14 @@ classdef CATTube < CAT
         function init_seed_onset(O)
             
             % Update the init_seed field
-            if isfield(O.gui,'init')
-                set(O.gui.init.init_seed,'String',data2str(O.init_seed));
+            set(O.gui.init.init_seed,'String',data2str(O.init_seed));
+            validInput = O.solvableCheck('init_seed');
+
+            if validInput
+                set(O.gui.init.init_seed_warning,'visible','off')
+            else
+                set(O.gui.init.init_seed_warning,'visible','on')
             end
-                O.solvableCheck;
         end % function
         
         %% Method init_massmedium_onset
@@ -587,10 +658,14 @@ classdef CATTube < CAT
         function init_massmedium_onset(O)
             
             % Update the init_massmedium field
-            if isfield(O.gui,'init')
-                set(O.gui.init.init_massmedium,'String',data2str(O.init_massmedium));
+            set(O.gui.init.init_massmedium,'String',data2str(O.init_massmedium));
+            validInput = O.solvableCheck('init_massmedium');
+            
+            if validInput
+                set(O.gui.init.init_massmedium_warning,'visible','off')
+            else
+                set(O.gui.init.init_massmedium_warning,'visible','on')
             end
-            O.solvableCheck;
         end % function
         
         %% Method init_conc_onset
@@ -598,10 +673,14 @@ classdef CATTube < CAT
         function init_conc_onset(O)
             
             % Update the init_conc field
-            if isfield(O.gui,'init')
-                set(O.gui.init.init_conc,'String',data2str(O.init_conc));
-            end
-            O.solvableCheck;
+            set(O.gui.init.init_conc,'String',data2str(O.init_conc));
+            validInput = O.solvableCheck('init_conc');
+            
+            if validInput
+                set(O.gui.init.init_conc_warning,'visible','off')
+            else
+                set(O.gui.init.init_conc_warning,'visible','on')
+            end;
         end % function
         
         %% Method Tprofile_onset
@@ -612,7 +691,15 @@ classdef CATTube < CAT
             if isfield(O.gui,'init')
                 set(O.gui.proc.Tprofile,'String',data2str(O.Tprofile));
             end
-            O.solvableCheck;
+            validInput = O.solvableCheck({'Tprofile','ASprofile'});
+            
+            if any(validInput)
+                set(O.gui.proc.Tprofile_warning,'visible','off')
+                set(O.gui.proc.ASprofile_warning,'visible','off')
+            else
+                set(O.gui.proc.Tprofile_warning,'visible','on')
+                set(O.gui.proc.ASprofile_warning,'visible','on')
+            end
         end % function
         
         %% Method ASprofile_onset
@@ -623,7 +710,17 @@ classdef CATTube < CAT
             if isfield(O.gui,'init')
                 set(O.gui.proc.ASprofile,'String',data2str(O.ASprofile));
             end
-            O.solvableCheck;
+            
+            validInput = O.solvableCheck({'ASprofile' 'Tprofile'});
+            
+            if any(validInput)
+                set(O.gui.proc.Tprofile_warning,'visible','off')
+                set(O.gui.proc.ASprofile_warning,'visible','off')
+            else
+                set(O.gui.proc.Tprofile_warning,'visible','on')
+                set(O.gui.proc.ASprofile_warning,'visible','on')
+            end
+            
         end % function
         
         %% Method solubility_onset
@@ -635,7 +732,13 @@ classdef CATTube < CAT
                 set(O.gui.td.solubility,'String',data2str(O.solubility));
                     set(O.gui.init.init_conc,'String',data2str(O.init_conc));
             end
-            O.solvableCheck;
+            validInput = O.solvableCheck('solubility');
+            
+            if validInput
+                set(O.gui.td.solubility_warning,'visible','off')
+            else
+                set(O.gui.td.solubility_warning,'visible','on')
+            end
         end % function
         
         %% Method rhoc_onset
@@ -646,7 +749,13 @@ classdef CATTube < CAT
             if isfield(O.gui,'init')
                 set(O.gui.td.rhoc,'String',data2str(O.rhoc));
             end
-            O.solvableCheck;
+            validInput = O.solvableCheck('rhoc');
+            
+            if validInput
+                set(O.gui.td.rhoc_warning,'visible','off')
+            else
+                set(O.gui.td.rhoc_warning,'visible','on')
+            end
         end % function
         
         %% Method kv_onset
@@ -657,7 +766,13 @@ classdef CATTube < CAT
             if isfield(O.gui,'init')
                 set(O.gui.td.kv,'String',data2str(O.kv));
             end
-            O.solvableCheck;
+            validInput = O.solvableCheck('kv');
+            
+            if validInput
+                set(O.gui.td.kv_warning,'visible','off')
+            else
+                set(O.gui.td.kv_warning,'visible','on')
+            end
         end % function
         
         %% Method growthrate_onset
@@ -665,22 +780,25 @@ classdef CATTube < CAT
         function growthrate_onset(O)
             
             % Update the growthrate field
-            if isfield(O.gui,'init')
-                set(O.gui.kin.growthrate,'String',data2str(O.growthrate));
+
+            set(O.gui.kin.growthrate,'String',data2str(O.growthrate));
+            validInput = O.solvableCheck('growthrate');
+            
+            if validInput
+                set(O.gui.kin.growthrate_warning,'visible','off')
+            else
+                set(O.gui.kin.growthrate_warning,'visible','on')
             end
-            O.solvableCheck;
         end % function
         
-        %% Method growthrate_onset
+        %% Method nucleationrate_onset
         
         function nucleationrate_onset(O)
             
             % Update the nucleationrate field
-            if isfield(O.gui,'init')   
-                set(O.gui.kin.nucleationrate,'String',data2str(O.nucleationrate));
-            end
+            set(O.gui.kin.nucleationrate,'String',data2str(O.nucleationrate));
             
-            O.solvableCheck;
+            
         end % function
         
         %% Method sol_time_onset
@@ -688,11 +806,16 @@ classdef CATTube < CAT
         function sol_time_onset(O)
             
             % Update the sol_time field
-            if isfield(O.gui,'init')
-                set(O.gui.solv.sol_time,'String',data2str(O.sol_time));
+            set(O.gui.solv.sol_time,'String',data2str(O.sol_time));
+            
+            validInput = O.solvableCheck('sol_time');
+            
+            if validInput
+                set(O.gui.solv.sol_time_warning,'visible','off')
+            else
+                set(O.gui.solv.sol_time_warning,'visible','on')
             end
-                
-            O.solvableCheck;
+            
         end % function
         
         %% Method sol_method_onset
@@ -713,7 +836,7 @@ classdef CATTube < CAT
                 set(O.gui.solv.sol_method,'Value',value);
             end
             
-            O.solvableCheck;
+%             O.solvableCheck('sol_method');
             
         end % function
         
@@ -726,21 +849,36 @@ classdef CATTube < CAT
                 set(O.gui.solv.sol_options,'String',data2str(O.sol_options));
             end
             
-            O.solvableCheck;
+%             O.solvableCheck('sol_options');
             
         end % function
         
         %% Method O.solvableCheck
         
-        function solvableCheck(O)
+        function validInput = solvableCheck(O,fieldnames)
             
-            [~,solvableFlag] = O.diagnose([],[],'solvable');
-            
-            if solvableFlag && isfield(O.gui,'run')
-                set(O.gui.run.start,'enable','on');
-            elseif isfield(O.gui,'run')
-                set(O.gui.run.start,'enable','off');
+            if ~iscell(fieldnames)
+                fieldnames = {fieldnames};
             end
+            validInput = zeros(size(fieldnames));
+            i = 1;
+            while i <= length(fieldnames) && ~any(validInput) 
+                fieldname = fieldnames{i};
+                if nargin>1
+                    [validInput(i),solvableFlag] = O.diagnose(fieldname,O.(fieldname),'solvable');
+                else
+                    [~,solvableFlag] = O.diagnose([],[],'solvable');
+                    validInput(i) = [];
+                end
+
+                if solvableFlag && isfield(O.gui,'run')
+                    set(O.gui.run.start,'enable','on');
+                elseif isfield(O.gui,'run')
+                    set(O.gui.run.start,'enable','off');
+                end
+                i = i+1;
+            end
+            
             
         end % function
         

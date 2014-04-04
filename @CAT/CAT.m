@@ -113,7 +113,7 @@ classdef CAT < hgsetget
             
             % Initialise paths
             
-            if isempty(which('CAT'))
+            if isempty(which('data2str'))
                 disp('Initializing...')
             
                 startstr = pwd;
@@ -815,7 +815,7 @@ classdef CAT < hgsetget
                 
                 % analyzing individual fields
                 if strcmp(fieldname,'rhoc')
-                    if ~(isnumeric(value) && length(value)==1)
+                    if ~(isnumeric(value) && length(value)==1) || value<=0
                         
                         if i<=Iquery
                             warning('CAT:Setrhoc:WrongType',...
@@ -826,10 +826,10 @@ classdef CAT < hgsetget
                     end
                 elseif strcmp(fieldname,'kv')
                     
-                    if ~(isnumeric(value) && length(value)==1)
+                    if ~(isnumeric(value) && length(value)==1) || value<=0 || value>1
                         if i<=Iquery
                             warning('CAT:Setkv:WrongType',...
-                            'The kv property must be a scalar.');
+                            'The kv property must be a scalar in the range (0,1].');
                         end
                     validInput(i) = 0;
                     end
@@ -876,7 +876,7 @@ classdef CAT < hgsetget
                     end
                     
                 elseif strcmp(fieldname,'solubility')
-                    if ((isnumeric(value) && ~isscalar(value)) && ~isa(value,'function_handle') && ~ischar(value)) || (isnumeric(value) && value<0) || isempty(value)
+                    if ((isnumeric(value) && ~isscalar(value)) && ~isa(value,'function_handle') && ~ischar(value)) || (isnumeric(value) && value<=0) || isempty(value)
                         
                         if i<=Iquery
                         warning('CAT:SetSolubility:WrongType',...
@@ -905,10 +905,10 @@ classdef CAT < hgsetget
                     
                 elseif strcmp(fieldname,'init_massmedium')
                     
-                    if isempty(value) || (isnumeric(value) && length(value)>1) || isnan(value) || value<0 || isinf(value)
+                    if isempty(value) || (isnumeric(value) && length(value)>1) || isnan(value) || value<=0 || isinf(value)
                         if i<=Iquery
                         warning('CAT:SetInit_Massmedium:WrongType',...
-                            'The init_conc property must be a non-negative, finite scalar');
+                            'The init_conc property must be a positive, finite scalar');
                         end
                         validInput(i) = 0;
                 
@@ -982,7 +982,7 @@ classdef CAT < hgsetget
         end
         
         %% Method clone
-        % This function saves the CAT instance in a mat file
+        % This function clones the CAT instance
         function [copyCAT] = clone(O,Original)
             
             
