@@ -543,13 +543,13 @@ classdef CATTube < CAT
                 
                 fieldnames = properties(O);
                 fieldnames(find(strcmp(fieldnames,'gui'))) = [];
-                
+                warning('off','all');
                 for i = 1:length(fieldnames)
                    
                     set(F,fieldnames{i},Original.(fieldnames{i}));
                     
                 end
-                    
+                warning('on','all');
                 if nargout == 1
                     copyCAT = F;
                 else

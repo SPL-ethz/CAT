@@ -112,19 +112,18 @@ classdef CAT < hgsetget
             end
             
             % Initialise paths
-            if ~isempty(find(strcmp('hush',varargin)))
+            
+            if isempty(which('CAT'))
                 disp('Initializing...')
-            end
             
-            startstr = pwd;
-%             addpath(startstr)
-            addpath(strcat(startstr,filesep,'general'))
-            addpath(strcat(startstr,filesep,'solvers'))
-            addpath(strcat(startstr,filesep,'solvers',filesep,'hires'))
-            addpath(strcat(startstr,filesep,'solvers',filesep,'movingpivot'))
-            addpath(strcat(startstr,filesep,'solvers',filesep,'centraldifference'))
+                startstr = pwd;
+                addpath(strcat(startstr,filesep,'general'))
+                addpath(strcat(startstr,filesep,'solvers'))
+                addpath(strcat(startstr,filesep,'solvers',filesep,'hires'))
+                addpath(strcat(startstr,filesep,'solvers',filesep,'movingpivot'))
+                addpath(strcat(startstr,filesep,'solvers',filesep,'centraldifference'))
             
-            if ~isempty(find(strcmp('hush',varargin)))
+            
                 disp('Done.')
             end
             
@@ -154,10 +153,9 @@ classdef CAT < hgsetget
             %
             % Check the crystal density. It must be a scalar
             
-            if O.diagnose('rhoc',value)
+            if isempty(value) || O.diagnose('rhoc',value)
             
                 O.rhoc = value;
-
                 
             end % if else
             
@@ -180,10 +178,10 @@ classdef CAT < hgsetget
             %
             % Check the shape factor. It must be a scalar
             
-            if O.diagnose('kv',value)
+            if isempty(value) || O.diagnose('kv',value) 
             
                 O.kv = value;
-                
+
             end % if else
             
             O.kv_onset;
@@ -207,7 +205,7 @@ classdef CAT < hgsetget
             % Check the initial distribution, it must be a distribution
             % class object
             
-            if O.diagnose('init_dist',value)
+            if isempty(value) || O.diagnose('init_dist',value) 
             
                 O.init_dist = value;
 
@@ -235,9 +233,9 @@ classdef CAT < hgsetget
             %
             % Set mass of seeds
             
-            if O.diagnose('init_seed',value)
+            if isempty(value) || O.diagnose('init_seed',value)
+                
                 O.init_seed = value;
-            
                 
             end
             
@@ -262,7 +260,7 @@ classdef CAT < hgsetget
             %
             % Check the initial concentration, it must be a positive,
             % finite scalar (can be zero)
-            if O.diagnose('init_conc',value)
+            if isempty(value) || O.diagnose('init_conc',value)
                 O.init_conc = value;
                 
             end
@@ -297,11 +295,10 @@ classdef CAT < hgsetget
         
         function set.init_massmedium(O,value)
             
-            if O.diagnose('init_massmedium',value)
+            if isempty(value) || O.diagnose('init_massmedium',value)
                 
                 O.init_massmedium = value;
 
-                
             end
             
             % Extra function - overwritable in subclasses
@@ -330,7 +327,7 @@ classdef CAT < hgsetget
             end
             
             % Check for number - convert to constant function
-            if O.diagnose('solubility',value)
+            if isempty(value) || O.diagnose('solubility',value)
                 if isnumeric(value) && length(value) == 1
                     O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
                 elseif ischar(value)
@@ -340,9 +337,9 @@ classdef CAT < hgsetget
                     else
                         O.solubility = str2func([value '*ones(size(T))']);
                     end
-                elseif isa(value,'function_handle')
+                elseif isa(value,'function_handle') || isempty(value)
 
-                    if nargin(value) < 2
+                    if isa(value,'function_handle') && nargin(value) < 2
                         % This is too few, the function needs to accept two
                         % inputs (even if the second isn't used)
                         O.solubility = str2func(['@(T,xm)' anonfunc2str(value)]);
@@ -352,10 +349,9 @@ classdef CAT < hgsetget
                         % needed. This will give an error later
                         O.solubility = value;
                     end % if elseif
-
+                
                 end % if else
 
-                
             end
             
             % Extra function - overwritable in subclasses
@@ -379,9 +375,9 @@ classdef CAT < hgsetget
             % Check the solution time vector. This should be a vector of
             % monotonically increasing values
             
-            if O.diagnose('sol_time',value)
+            if isempty(value) || O.diagnose('sol_time',value)
             
-                if length(value) > 1 
+                if isempty(value) || length(value) > 1 
                     O.sol_time = value;
                 elseif isscalar(value)
                     O.sol_time = [0 value];
@@ -496,7 +492,7 @@ classdef CAT < hgsetget
                 value = str2num(value);
             end
             
-            if O.diagnose('Tprofile',value)
+            if isempty(value) || O.diagnose('Tprofile',value)
                 if ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
 
                     if value(1,end)<O.sol_time(end)
@@ -507,7 +503,9 @@ classdef CAT < hgsetget
     %                 O.Tprofile = @(t) interp1(value(1,:),value(2,:),t); %
                     O.Tprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
                     O.tNodes = unique([O.tNodes value(1,:)]);
-
+                
+                elseif isempty(value)
+                    O.Tprofile = value;
 
                 elseif isa(value,'function_handle') && nargin(value)==1
 
@@ -520,12 +518,11 @@ classdef CAT < hgsetget
                 elseif isnumeric(value) && isscalar(value)
                     O.Tprofile =  str2func(strcat('@(t)', data2str(value),'*ones(size(t))'));
 
-                elseif isempty(value)
-                    O.Tprofile = value;
+                
 
                 end % if else
 
-                
+            
             end
             
             % Extra function - overwritable in subclasses
@@ -553,7 +550,7 @@ classdef CAT < hgsetget
                 value = str2num(value);
             end
             
-            if O.diagnose('ASprofile',value)
+            if isempty(value) || O.diagnose('ASprofile',value)
                 if ~isempty(value) &&  ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
 
                     if value(1,end)<O.sol_time(end)
@@ -564,7 +561,9 @@ classdef CAT < hgsetget
     %                 O.ASprofile = @(t) interp1(value(1,:),value(2,:),t); %
                     O.ASprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
                     O.tNodes = unique([O.tNodes value(1,:)]);
-
+                
+                elseif isempty(value)
+                    O.ASprofile = value;
 
                 elseif isa(value,'function_handle') && nargin(value)==1
                     O.ASprofile = value;
@@ -632,9 +631,11 @@ classdef CAT < hgsetget
                 value = str2num(value);
             end
             
-            if O.diagnose('growthrate',value)
+            if isempty(value) || O.diagnose('growthrate',value)
                 if isnumeric(value) && length(value) == 1
                     O.growthrate = str2func(['@(S,T,y)' num2str(value) '*ones(size(y))']);
+                elseif isempty(value)
+                    O.growthrate = value;
                 elseif ischar(value)
                     if isempty(strfind(value,'@'))
                         O.growthrate = str2func(['@(S,T,y)' value]);
@@ -670,9 +671,8 @@ classdef CAT < hgsetget
                         warning('Distribution:setgrowthrate:Wrongnargin',...
                             'The growth rate function must have 3 input arguments (supersaturation, temperature, sizes) or 2 input arguments (S,T) or (S,y)');
                     end % if
-
+                
                 end %if
-
                 
             end
             
@@ -717,7 +717,7 @@ classdef CAT < hgsetget
                     end
 
                 elseif isempty(value)
-                    ;
+                    O.nucleationrate = value;
 
                 end %if
 
@@ -782,29 +782,32 @@ classdef CAT < hgsetget
         % fields are valid and whether the CAT instance itself is runnable.
         function [validInput,solvable] = diagnose(O,fieldnames,values,varargin)
             
-            if ~isempty(fieldnames) && ~iscell(fieldnames)
+            if nargin>1 && ~isempty(fieldnames) && ~iscell(fieldnames)
                 fieldnames = {fieldnames};
             end
             
             if nargin == 1
                 fieldnames = properties(O);
                 
-                values = [];
+                values = NaN;
             end
             Iquery = length(fieldnames);
             
-            if nargin>3 && ~isempty(find(strcmp(varargin,'solvable')))
-                fieldnames = [fieldnames {'init_dist','init_conc','solubility','init_seed','init_massmedium','growthrate','rhoc','kv','ASprofile','Tprofile','sol_time'}];    
-            end
                        
-            if ~isempty(values) && ~iscell(values)
+            if  ~isempty(fieldnames) && ~iscell(values)
                 values = {values};
             end
+            
+            if nargin>3 && ~isempty(find(strcmp(varargin,'solvable')))
+                fieldnames = [fieldnames {'ASprofile','Tprofile','init_dist','init_conc','solubility','init_seed','init_massmedium','growthrate','rhoc','kv','sol_time'}];    
+                values = [values num2cell(ones(size(fieldnames))*NaN)];
+            end
+            
             validInput = ones(length(fieldnames),1);
             for i = 1:length(fieldnames)
                 
                 fieldname = fieldnames{i};
-                if isempty(values) || length(values)<i
+                if (~isempty(values{i}) && ~isa(values{i},'function_handle') && (isscalar(values{i}) && isnan(values{i}))) || (length(values)>0 && length(values)<i)
                     value = O.(fieldnames{i});
                 else
                     value = values{i};
@@ -873,7 +876,7 @@ classdef CAT < hgsetget
                     end
                     
                 elseif strcmp(fieldname,'solubility')
-                    if isempty(value) || (((isnumeric(value) && ~isscalar(value)) && ~isa(value,'function_handle') && ~ischar(value))) || (isnumeric(value) && value<0)
+                    if ((isnumeric(value) && ~isscalar(value)) && ~isa(value,'function_handle') && ~ischar(value)) || (isnumeric(value) && value<0) || isempty(value)
                         
                         if i<=Iquery
                         warning('CAT:SetSolubility:WrongType',...
@@ -962,7 +965,7 @@ classdef CAT < hgsetget
             end
             
             if nargin>3 && ~isempty(find(strcmp(varargin,'solvable')))
-                if sum(validInput)>=length(fieldnames)-1
+                if any(validInput(1:2)) && all(validInput(3:end))
                     solvable = 1;
                 else
                     solvable = 0;
