@@ -366,6 +366,12 @@ classdef Distribution < handle
             end % if
             
         end % function
+        
+        %% method isnan
+        function no = isnan(O)
+            no = 0;
+        end
+        
 
     end % methods
     methods (Static)
