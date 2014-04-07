@@ -369,7 +369,7 @@ classdef Distribution < handle
         
         %% method isnan
         function no = isnan(O)
-            no = 0;
+            no = false;
         end
         
 
