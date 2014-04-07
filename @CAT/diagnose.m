@@ -19,7 +19,7 @@
                 values = {values};
             end
             
-            if nargin>3 && ~isempty(find(strcmp(varargin,'solvable')))
+            if nargin>3 && any(strcmp(varargin,'solvable'))
                 fieldnames = [fieldnames {'ASprofile','Tprofile','init_dist','init_conc','solubility','init_seed','init_massmedium','growthrate','rhoc','kv','sol_time'}];    
                 values = [values num2cell(ones(size(fieldnames))*NaN)];
             end
@@ -28,7 +28,7 @@
             for i = 1:length(fieldnames)
                 
                 fieldname = fieldnames{i};
-                if (~isempty(values{i}) && ~isa(values{i},'function_handle') && (isscalar(values{i}) && isnan(values{i}))) || (length(values)>0 && length(values)<i)
+                if (~isempty(values{i}) && ~isa(values{i},'function_handle') && (isscalar(values{i}) && isnan(values{i}))) || (~isempty(values) && length(values)<i)
                     value = O.(fieldnames{i});
                 else
                     value = values{i};
@@ -185,7 +185,7 @@
                 end
             end
             
-            if nargin>3 && ~isempty(find(strcmp(varargin,'solvable')))
+            if nargin>3 && any(strcmp(varargin,'solvable'))
                 if any(validInput(1:2)) && all(validInput(3:end))
                     solvable = 1;
                 else
