@@ -682,12 +682,7 @@ classdef CAT < hgsetget
                 namestr = CATname{1};
             end
             
-            n = 1;
-            while exist(strcat(namestr,num2str(n),'.mat'),'file')
-                n = n+1;
-            end
-            
-            namestr = strcat(namestr,'_no',num2str(n),'.mat');
+            namestr = strcat(namestr,'_',datestr(now,'YYYYmmdd_HHMMSS'),'.mat');
  
             superCAT.kitty = O; %#ok<STRNU>
             save(namestr,'-struct','superCAT')
