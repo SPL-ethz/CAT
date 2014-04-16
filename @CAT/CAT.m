@@ -113,7 +113,7 @@ classdef CAT < hgsetget
             
             % Initialise paths
             
-            if isempty(which('data2str'))
+            if isempty(which('hiResGrowth'))
                 disp('Initializing...')
             
                 startstr = pwd;
