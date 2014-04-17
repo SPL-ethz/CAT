@@ -1,6 +1,6 @@
 function [TIME,Y] = hires(kit)
 %% [TIME,Y] = hires(kit) High Resolution method for Nucleation and Growth
-% Solves the PBE according to a High Resolution method (cf. e.g. Gunawan, R.; Fusman, I.; Braatz, R. D. AIChE Journal 2004, 50, 2738–2749).
+% Solves the PBE according to a High Resolution method (cf. e.g. Gunawan, R.; Fusman, I.; Braatz, R. D. AIChE Journal 2004, 50, 2738ï¿½2749).
 % This method does not use a standard ODE solver but rather uses the CFL
 % condition + some heuristics to determine the time step size. 
 % In general, the high resolution method yields quite accurate results
@@ -192,5 +192,201 @@ end
 
 end
 
+%% Function hiResGrowth
+
+function[Ffull] = hiResGrowth(Ffull,G,Dt,Dy,GI,fluxlim)
+   
+FI = zeros(size(GI));FI(1) = max([GI(1)-3 1]);FI(2) = min([GI(2)+3 length(Ffull)]); % boundary box for (padded) distribution
+Dy = [eps;eps;Dy(:); eps];Dy = Dy(FI(1):FI(2));
+
+F = Ffull(FI(1):FI(2)); F = F(:);
+
+% Find Theta
+if any(G>=  0) % growth
+    Theta   =   arrayDivision(diff(F,1,1),1,1);
+else % dissolution
+    F(1:2) = repmat(F(3),[2 1]); % outflow boundary condition p 131 ff leveque
+    Theta   =   arrayDivision(diff(F,1,1),1,2);
+    Theta   =   circshift(Theta,[-1 0]);
+end
+
+Theta(isinf(Theta))     =   0;
+Theta(isnan(Theta))     =   2;
+
+Phi                     =   Phifinder(Theta,fluxlim);    % Flux limiter
+Phi(isnan(Phi))         =   0;
+
+% Propagate Distribution 
+if length(unique(G))==1 % size independent growth
+    Gloc = G(1);
+    if min(G)>=0
+
+        F(3:end-1) = F(3:end-1)-Dt.*Gloc./Dy(3:end-1).*(F(3:end-1)-F(2:end-2))-Dt.*Gloc./(2*Dy(3:end-1)).*(1-Dt.*Gloc./Dy(3:end-1)).*...
+            ((F(4:end)-F(3:end-1)).*Phi(2:end)-(F(3:end-1)-F(2:end-2,:,:,:)).*Phi(1:end-1));
+
+    else
+        F(3:end-1) = F(3:end-1)-Dt*Gloc./Dy(4:end).*(F(4:end)-F(3:end-1))-Dt*Gloc./(2*Dy(4:end)).*(1+Dt*Gloc./Dy(4:end)).*...
+            ((F(3:end-1)-F(2:end-2)).*Phi(1:end-1)-(F(4:end)-F(3:end-1)).*Phi(2:end));     
+    end
+
+elseif length(unique(G))>1 % size depenent growth
+
+    Gloc = [0;0;G(:); 0];Gloc = Gloc(FI(1):FI(2));Gloc=Gloc(:);
+
+    if min(Gloc(:))>=0
+        F(3:end-1)=F(3:end-1)-Dt./Dy(3:end-1).*(Gloc(3:end-1).*F(3:end-1)-Gloc(2:end-2).*F(2:end-2))-...
+                        (Dt./(2*Dy(3:end-1)).*Gloc(3:end-1).*(1-(Dt./Dy(3:end-1).*Gloc(3:end-1))).*(F(4:end)-F(3:end-1)).*Phi(2:end)-...
+                        Dt./(2*Dy(2:end-2)).*Gloc(2:end-2).*(1-Dt./Dy(2:end-2).*Gloc(2:end-2)).*(F(3:end-1)-F(2:end-2)).*Phi(1:end-1));
+
+    else
+%         try
+        F(3:end-1)=F(3:end-1)-Dt./Dy(4:end).*(Gloc(4:end).*F(4:end)-Gloc(3:end-1).*F(3:end-1))+...          
+                    (Dt./(2*Dy(3:end-1)).*Gloc(3:end-1).*(1+(Dt./Dy(3:end-1).*Gloc(3:end-1))).*(F(4:end)-F(3:end-1)).*Phi(2:end)-...
+                    Dt./(2*Dy(2:end-2)).*Gloc(2:end-2).*(1+Dt./Dy(2:end-2).*Gloc(2:end-2)).*(F(3:end-1)-F(2:end-2)).*Phi(1:end-1));
+%         catch
+%             keyboard
+%         end
+    end
+
+end
 
 
+Ffull(FI(1):FI(2)) = F;
+
+end % function hiResGrowth
+
+%% Function arrayCrop
+
+function y = arrayCrop(x,cropSize)
+
+sfx = size(x);sfx(sfx==1) = [];
+nDim = length(sfx);
+
+ind = {};
+
+for k = 1:nDim
+   ind = [ind cropSize(1,k):cropSize(2,k)];
+end
+
+y = x(ind{:});
+
+end % function
+
+%% Function arrayDivision
+
+function [Astar] = arrayDivision(A,dim,order)
+% divides array A element by element along dimension dim, so that 
+% arrayDivision(A,1) gives A(2,:,:)./A(1,:,:) etc. for a 3D array    
+
+%shift the dimensions of the matrix in such a way that the dimension to
+%be divised is the last one
+if length(size(A))>=3
+
+    A = shiftdim(A,dim);
+
+    %calculate the indeces of elements to be divided in the different
+    %layers. variable blub contains the pairs of indices to be divided in
+    %two adjacent columns
+    s = size(A);
+    inc = prod(s(1:end-1));
+    basis = linspace(1,inc,inc)';
+    increments = (1:inc:numel(A))-1;
+    blub = basis*ones(1,length(increments))+ones(inc,1)*increments;
+
+    %do the division
+    if order==2
+        Astar = A(blub(:,2:end))./A(blub(:,1:end-1));
+    elseif order==1
+        Astar = A(blub(:,1:end-1))./A(blub(:,2:end));
+    end
+
+    %this is the new size of the divided matrix
+    s(end) = s(end)-1;
+
+    %reshaping
+    Astar = reshape(Astar, s);
+
+    %re-shifting to reflect the initial dimensions
+
+    Astar = shiftdim(Astar,length(s)-dim);
+
+elseif length(size(A))<3
+    % do the same also for matrices and vectors
+    A=shiftdim(A,dim-1);
+    if order == 2
+        Astar=A(2:end,:)./A(1:end-1,:);
+    elseif order == 1
+        Astar=A(1:end-1,:)./A(2:end,:);
+    end
+
+    Astar=shiftdim(Astar,dim-1);
+end
+
+end % function
+
+%% Function boundingBoxFinder
+
+function [GI] = boundingBoxFinder(F,mlim)
+
+Fcum = cumsum(abs(F));
+
+a0 = find(Fcum./Fcum(end)>mlim,1,'first');
+a0(isempty(a0)) = 1; 
+
+af = find(1-Fcum./Fcum(end)<mlim,1,'first');
+af(isempty(af)) = length(F(3:end-1,1,1));
+
+GI(1,1) = min([a0 max([1 af-1])]);
+GI(1,2) = max([2 af]);
+
+end % function
+
+%% Function Phifinder
+
+function [Phi] = Phifinder(Theta,fluxlim)
+
+% Phifinder(Theta,fluxlim)
+% Given a theta, find the corresponding flux limiter. The user can choose
+% between 5 different functions for Phi (cf. Leveque 2002). Default is
+% VanLeer's function for the limiter
+% Theta = Ratio of differences between 3 cells
+% fluxlim = String determining function that should be used
+
+switch fluxlim
+    case {'vanleer'}
+        Phi     =   (abs(Theta)+Theta)./(1+abs(Theta));
+    case{'koren'}
+        % Check expression here again, might be a little off (different
+        % description of theta?)
+        Phi = zeros(length(Theta),1);
+        for i=1:length(Theta)
+            Phi(i)  =   max([0 min([2.*Theta(i) min([1/3+2/3*Theta(i) 2])])]);
+        end
+        
+    case{'minmod'}
+        Phi = zeros(length(Theta),1);
+        for i=1:length(Theta)
+            Phi(i)  =   max([1 Theta(i)]);
+        end
+        
+    case{'superbee'}
+        Phi = zeros(length(Theta),1);
+        for i=1:length(Theta)
+            Phi(i)  =   max([0 min([1 2*Theta(i)]) min([2 Theta(i)])]);
+        end
+        
+    case{'MC'}
+        Phi = zeros(length(Theta),1);
+        for i=1:length(Theta)
+            Phi(i)  =   max([0 min([2 2.*Theta(i) (1+Theta(i))/2])]);
+        end
+        
+    otherwise
+        % Default is VanLeer
+        Phi=(abs(Theta)+Theta)./(1+abs(Theta));
+        
+end
+
+end
+
+%%
