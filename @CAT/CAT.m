@@ -118,10 +118,7 @@ classdef CAT < hgsetget
             
                 startstr = pwd;
                 addpath(strcat(startstr,filesep,'general'))
-                addpath(strcat(startstr,filesep,'solvers'))
-                addpath(strcat(startstr,filesep,'solvers',filesep,'movingpivot'))
-            
-            
+                
                 disp('Done.')
             end
             
