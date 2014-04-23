@@ -41,7 +41,11 @@ if ~isempty(O.tNodes)
 else    
     
     try
-        PBESolver(O);
+        
+        % Simply run the method corresponding to the chosen solution method
+        % prefixed with solver_
+        O.(['solver_' O.sol_method]);
+        
     catch ME
         error('solve:tryconsttemp:PBESolverfail',...
             'PBESolver failed to integrate your problem. Message: %s',ME.message)
@@ -65,44 +69,3 @@ if any(O.massbal > 5)
 end
 
 end
-
-function PBESolver (O)
-
-% PBESOLVER
-%
-% Handles individual solvers and returns (local) results
-
-solvefun = str2func(['@(t,X) ' O.sol_method '(t,X,O)']);
-
-switch O.sol_method
-
-    case 'movingpivot'
-        O.movingpivot;       
-        
-    case 'centraldifference'
-        
-        options = O.sol_options;
-        if isempty(O.sol_options)
-            options = odeset(options,'reltol',1e-6);
-        end
-        
-        X0 = [O.init_dist.F, O.init_conc];
-        
-        [SolutionTimes,X_out] = ode15s(solvefun , O.sol_time , X0 ,options);
-
-    case 'hires'
-        
-        [SolutionTimes,X_out] = hires(O);
-         
-end %switch
-
-% For CD and HR transform result-arrays into appropriate output structure
-if ~strcmpi(O.sol_method,'movingpivot')
-    SolutionConc = X_out(:,end);
-    SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  % Pre-Allocation for speed               
-    for i = 1:length(SolutionTimes)
-            SolutionDists(i) = Distribution( O.init_dist.y, X_out(i,1:length(O.init_dist.y)),O.init_dist.boundaries );
-    end % for
-end
-
-end % function

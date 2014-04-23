@@ -1,4 +1,4 @@
-function dXdt = centraldifference(O,t,X)
+function dXdt = solver_centraldifference(O,t,X)
 %% [dXdt] = centraldifference(t,X,O) Central Difference Method for Nucleation and Growth
 % Solves the PBE according to a central differences method (cf. Wikipedia).
 % Needs to solve ODE's for number of particles (N), pivot length (y), boundaries (boundaries) and concentration,

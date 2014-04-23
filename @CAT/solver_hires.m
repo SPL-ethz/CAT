@@ -1,4 +1,4 @@
-function [TIME,Y] = hires(O)
+function [TIME,Y] = solver_hires(O)
 %% [TIME,Y] = hires(O) High Resolution method for Nucleation and Growth
 % Solves the PBE according to a High Resolution method (cf. e.g. Gunawan, R.; Fusman, I.; Braatz, R. D. AIChE Journal 2004, 50, 2738�2749).
 % This method does not use a standard ODE solver but rather uses the CFL

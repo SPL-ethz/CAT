@@ -1,6 +1,6 @@
 %% Main method movingpivot
 
-function movingpivot(O)
+function solver_movingpivot(O)
 
 % movingpivot
 %
