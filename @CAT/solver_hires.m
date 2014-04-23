@@ -1,5 +1,6 @@
-function [TIME,Y] = solver_hires(O)
-%% [TIME,Y] = hires(O) High Resolution method for Nucleation and Growth
+function solver_hires(O)
+%% solver_hires(O)
+% High Resolution method for Nucleation and Growth
 % Solves the PBE according to a High Resolution method (cf. e.g. Gunawan, R.; Fusman, I.; Braatz, R. D. AIChE Journal 2004, 50, 2738�2749).
 % This method does not use a standard ODE solver but rather uses the CFL
 % condition + some heuristics to determine the time step size. 
@@ -189,6 +190,19 @@ while t<O.sol_time(end)
 
 
 end
+
+%% Assign output
+
+% Transform result-arrays into appropriate output structure
+SolutionConc = Y(:,end);
+SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  % Pre-Allocation for speed
+for i = 1:length(SolutionTimes)
+    SolutionDists(i) = Distribution( O.init_dist.y, X_out(i,1:length(O.init_dist.y)),O.init_dist.boundaries );
+end % for
+
+O.calc_time = TIME;
+O.calc_dist = SolutionDists;
+O.calc_conc = SolutionConc;
 
 end
 

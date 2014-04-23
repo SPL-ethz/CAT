@@ -1,5 +1,6 @@
-function dXdt = solver_centraldifference(O,t,X)
-%% [dXdt] = centraldifference(t,X,O) Central Difference Method for Nucleation and Growth
+function solver_centraldifference(O)
+%% solver_centraldifference
+% Central Difference Method for Nucleation and Growth
 % Solves the PBE according to a central differences method (cf. Wikipedia).
 % Needs to solve ODE's for number of particles (N), pivot length (y), boundaries (boundaries) and concentration,
 % i.e. the number of ODE's to be solved is ngrid-1+1.
@@ -14,6 +15,32 @@ function dXdt = solver_centraldifference(O,t,X)
 % - Decrease reltol {1e-6} and abstol {1e-6} [sol_options]
 % - Use another method
 
+
+options = O.sol_options;
+if isempty(O.sol_options)
+    options = odeset(options,'reltol',1e-6);
+end
+
+X0 = [O.init_dist.F, O.init_conc];
+
+solvefun = @(t,X) centraldifference_ode(t,X,O);
+
+[SolutionTimes,X_out] = ode15s(solvefun , O.sol_time , X0 ,options);
+
+% Transform result-arrays into appropriate output structure
+SolutionConc = X_out(:,end);
+SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  % Pre-Allocation for speed
+for i = 1:length(SolutionTimes)
+    SolutionDists(i) = Distribution( O.init_dist.y, X_out(i,1:length(O.init_dist.y)),O.init_dist.boundaries );
+end % for
+
+O.calc_time = SolutionTimes;
+O.calc_dist = SolutionDists;
+O.calc_conc = SolutionConc;
+
+end % function
+
+function centraldifference_ode(t,X,O)
 
 % Current solvent + antisolvent mass
 m = O.init_massmedium+(O.ASprofile(t)-O.ASprofile(0));
