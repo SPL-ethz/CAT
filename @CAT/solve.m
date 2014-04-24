@@ -5,38 +5,54 @@ function solve(O)
 % same object. The method does not accept any additional inputs, all options 
 % should therefore be set via the property fields of the object.
 % Solve is structured into two nested parts: An upper layer that handles
-% discontinuities in the supplied AS or T profiles and a lower layer (PBEsolver)
-% that handles the individual solvers.
+% discontinuities in the supplied AS or T profiles and a lower layer (the
+% solvers).
 %% Solve
 O.calc_dist = Distribution;
 if ~isempty(O.init_seed)
     O.init_dist.mass = [O.init_seed O.kv O.rhoc O.init_massmedium];
 end
-sol_time = O.sol_time;
+
 if ~isempty(O.tNodes)
+    
+    % Save for later
+    sol_time = O.sol_time;
+    
     for i = 2:length(O.tNodes) % make sure you hit the different nodes of the non-smooth profiles
         
-        O.sol_time = [O.tNodes(i-1) sol_time(sol_time>O.tNodes(i-1) & sol_time<O.tNodes(i)) O.tNodes(i)];  
+        % Cut out the piece we want to look at currently
+        O.sol_time = [O.tNodes(i-1) sol_time(sol_time>O.tNodes(i-1) & sol_time<O.tNodes(i)) O.tNodes(i)];
         
+        % Solve for the current piece
         try
-            [a b c] = PBESolver(O);
+            % Simply run the method corresponding to the chosen solution method
+            % prefixed with solver_
+            O.(['solver_' O.sol_method]);
         catch ME
             error('solve:tryconsttemp:PBESolverfail',...
-            'PBESolver failed to integrate your problem. Message: %s',ME.message)
+            'Solver failed to integrate your problem. Message: %s',ME.message)
         end
         
-        O.calc_time(end+1:end+length(a)) = a;
-        O.calc_dist(end+1:end+length(b)) = b;    
-        O.calc_conc(end+1:end+length(a)) = c; 
-
+        % Save the solution for the current piece
+        calc_time(end+1:end+length(O.calc_time)) = O.calc_time;
+        calc_dist(end+1:end+length(O.calc_dist)) = O.calc_dist;
+        calc_conc(end+1:end+length(O.calc_conc)) = O.calc_conc; 
+        
+        % Set new initial distribution and initial concentration
         O.init_dist = O.calc_dist(end);
         O.init_conc = O.calc_conc(end);
 
     end % for
 
-        O.calc_dist = O.calc_dist(2:end);
-        O.sol_time = sol_time;
-        O.init_dist = O.calc_dist(1);
+    % Put temporary solution into the right place
+    O.calc_time = calc_time;
+    O.calc_dist = calc_dist;
+    O.calc_conc = calc_conc;
+    % Reset times and initial distribution, concentration
+    O.sol_time = sol_time;
+    O.init_dist = calc_dist(1);
+    O.init_calc = calc_conc(1);
+    
 else    
     
     try
@@ -47,7 +63,7 @@ else
         
     catch ME
         error('solve:tryconsttemp:PBESolverfail',...
-            'PBESolver failed to integrate your problem. Message: %s',ME.message)
+            'Solver failed to integrate your problem. Message: %s',ME.message)
     end
 end
 
