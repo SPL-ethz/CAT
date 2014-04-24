@@ -5,7 +5,7 @@ function setDefaults(O)
 % set sensible defaults for CAT method
 
 O.init_dist = Distribution(linspace(1,500,200),{'normal',100,20});
-O.init_conc = 1; % saturated
+O.init_conc = 1.5; % supersaturated
 O.solubility = @(T,xm) 1;
 O.Tprofile = @(t) 25*ones(size(t));
 O.ASprofile = @(t) 0*t;
