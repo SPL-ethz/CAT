@@ -196,34 +196,6 @@ classdef CAT < hgsetget
     
     methods
         
-        %% Method CAT (constructor)
-        
-        function O = CAT(varargin)
-            
-            % CAT
-            %
-            % Constructor function for CAT class. Called as:
-            %	PD = CAT(init_dist,init_conc,sol_time,...
-            %      sol_method,growthrate)
-            %
-            % Leave any of the variables empty to not assign them.
-            %
-            % The variables which are given are assigned directly to the
-            % corresponding property. All of them can also be assigned
-            % later.
-            
-            % Set values, if they are given
-            
-            if  nargin == 0 || (nargin>0 && ~isempty(find(strcmp(varargin,'empty'), 1)))
-                
-            elseif  (nargin>0 && ~isempty(find(strcmp(varargin,'default'), 1)))
-                
-                O.setDefaults;
-                
-            end
-            
-        end % function        
-        
 %% SETTER AND GETTER METHODS
 
         %% Method set.rhoc
