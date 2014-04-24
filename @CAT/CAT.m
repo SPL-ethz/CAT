@@ -1,6 +1,8 @@
 classdef CAT < hgsetget
     
-% Crystallization Analysis Toolbox (CAT) Usage
+%% Crystallization Analysis Toolbox (CAT)
+%
+%%% Usage
 %
 % CAT uses an object-oriented approach. To use CAT, first define an
 % instance of the class by running:
@@ -24,6 +26,8 @@ classdef CAT < hgsetget
 % SEE ALSO
 % CATTube, Distribution
     
+%% CAT Properties
+
     properties ( Access = protected )
         
         % Time nodes for non-smooth input profiles
@@ -194,11 +198,13 @@ classdef CAT < hgsetget
   
     end % properties
     
+    %% CAT Methods
+    
     methods
-        
-%% SETTER AND GETTER METHODS
 
-        %% Method set.rhoc
+        %% - Set and Get methods
+
+        %% -- set.rhoc
         
         function set.rhoc(O,value)
             
@@ -216,7 +222,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set kv
+        %% -- set.kv
         
         function set.kv(O,value)
             
@@ -234,7 +240,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set init_dist
+        %% -- set.init_dist
         
         function set.init_dist(O,value)
             
@@ -256,7 +262,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.init_seed
+        %% -- set.init_seed
         
         function set.init_seed(O,value)
             
@@ -275,7 +281,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set/get init_conc
+        %% -- set/get.init_conc
         
         function set.init_conc(O,value)
             
@@ -307,7 +313,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.init_massmedium
+        %% -- set.init_massmedium
         
         function set.init_massmedium(O,value)
             
@@ -322,7 +328,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.solubility
+        %% -- set.solubility
         
         function set.solubility(O,value)
             
@@ -370,7 +376,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.sol_time
+        %% -- set.sol_time
         
         function set.sol_time(O,value)
             
@@ -394,7 +400,7 @@ classdef CAT < hgsetget
                 O.sol_time_onset;
         end % function
         
-        %% Method set.sol_method
+        %% -- set.sol_method
         
         function set.sol_method(O,value)
             
@@ -439,7 +445,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.sol_options
+        %% -- set.sol_options
         
         function set.sol_options(O,value)
             
@@ -462,7 +468,7 @@ classdef CAT < hgsetget
         end % function
         
         
-        %% Method set.Tprofile
+        %% -- set.Tprofile
         
         function set.Tprofile(O,value)
             
@@ -520,7 +526,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.ASprofile
+        %% -- set.ASprofile
         
         function set.ASprofile(O,value)
             
@@ -572,7 +578,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.tNodes
+        %% -- set.tNodes
         
         function set.tNodes(O,value)
             
@@ -591,7 +597,7 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% Method set.growthrate
+        %% -- set.growthrate
         
         function set.growthrate(O,value)
             
@@ -661,7 +667,7 @@ classdef CAT < hgsetget
         end % function
         
 
-        %% Method set.nucleationrate
+        %% -- set.nucleationrate
         
         function set.nucleationrate(O,value)
             
@@ -703,8 +709,9 @@ classdef CAT < hgsetget
         end % function
 
         
-%% Additional CAT methods
-        %% Mass solvent + antisolvent at t
+        %% - Additional CAT methods
+        
+        %% -- massmedium: Mass solvent + antisolvent at t
         function mscalc = massmedium(O,t)
             if ~exist('t','var')
                 t = O.calc_time(:);
@@ -712,7 +719,7 @@ classdef CAT < hgsetget
             mscalc = O.init_massmedium+O.ASprofile(t)-O.ASprofile(0); % total amount of medium  
         end % function
         
-        %% Method massbal
+        %% -- massbal
         
         function PDma = massbal(O)
             mass_solute = O.calc_conc(:).*massmedium(O);   % total mass of solute
@@ -722,9 +729,11 @@ classdef CAT < hgsetget
             PDma = 100*((mass_solute + mass_crystals)/(mass_solute(1)+mass_crystals(1))-1);     % mass balance error   
         end % function
         
-        %% Method save
-        % This function saves the CAT instance in a mat file
+        %%  -- save
+        
         function save(O,CATname)
+            
+            % This function saves the CAT instance in a mat file
             
             if nargin<2 || isempty(CATname{1})
                 namestr = 'kitten';
@@ -741,7 +750,7 @@ classdef CAT < hgsetget
         end % function
         
             
-        %% Method clone
+        %% -- clone
         % This function clones the CAT instance
         function [copyCAT] = clone(O,Original)
             
@@ -787,7 +796,9 @@ classdef CAT < hgsetget
         
     end % methods
     
-    %% All onset methods
+    %% Hidden methods
+    
+    %% - All onset methods
     % Do nothing - no function in this class, merely something to
     % be overwritten by subclass
     methods (Hidden)
