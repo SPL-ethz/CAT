@@ -111,17 +111,6 @@ classdef CAT < hgsetget
                 
             end
             
-            % Initialise paths
-            
-            if isempty(which('hiResGrowth'))
-                disp('Initializing...')
-            
-                startstr = pwd;
-                addpath(strcat(startstr,filesep,'general'))
-                
-                disp('Done.')
-            end
-            
         end % function        
         
 %% SETTER AND GETTER METHODS
