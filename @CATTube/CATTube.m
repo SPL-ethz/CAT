@@ -6,7 +6,7 @@ classdef CATTube < CAT
     
     % Martin Iggland, first version 2013-12-04
     
-    properties
+    properties (Access=protected)
         
         % GUI handles and stuff
         gui
