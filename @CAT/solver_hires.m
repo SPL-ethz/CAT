@@ -195,9 +195,9 @@ end
 
 % Transform result-arrays into appropriate output structure
 SolutionConc = Y(:,end);
-SolutionDists = repmat(Distribution(),1,length(SolutionTimes));  % Pre-Allocation for speed
-for i = 1:length(SolutionTimes)
-    SolutionDists(i) = Distribution( O.init_dist.y, X_out(i,1:length(O.init_dist.y)),O.init_dist.boundaries );
+SolutionDists = repmat(Distribution(),1,length(TIME));  % Pre-Allocation for speed
+for i = 1:length(TIME)
+    SolutionDists(i) = Distribution( O.init_dist.y, Y(i,1:length(O.init_dist.y)),O.init_dist.boundaries );
 end % for
 
 O.calc_time = TIME;

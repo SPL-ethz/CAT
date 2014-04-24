@@ -40,7 +40,7 @@ O.calc_conc = SolutionConc;
 
 end % function
 
-function centraldifference_ode(t,X,O)
+function dXdt = centraldifference_ode(t,X,O)
 
 % Current solvent + antisolvent mass
 m = O.init_massmedium+(O.ASprofile(t)-O.ASprofile(0));
