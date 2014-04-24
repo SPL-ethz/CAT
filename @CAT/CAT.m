@@ -1,26 +1,41 @@
 classdef CAT < hgsetget
-    %% Class CAT
-    % The Crystallization Analysis Toolbox (CAT) class defines numerical
-    % settings, initial and operating conditions to set up problems
-    % encountered in crystallization science. It furthermore allows to
-    % solve this kind of problems using a variety of different solvers.
-    % Construct a CAT object and set properties as you see fit. The
-    % currently recommended pathway is to fill out protocat and save it as
-    % new file.
     
-    % Dave Ochsenbein, 15.10.2013
+% Crystallization Analysis Toolbox (CAT) Usage
+%
+% CAT uses an object-oriented approach. To use CAT, first define an
+% instance of the class by running:
+%	>> C = CAT;
+%
+% CAT objects have several properties which can be set in order to define
+% the model you want to solve. To see a list of properties, type
+%	>> C
+%
+% To find out more about any property, use the help function, by typing:
+%	>> help property_name
+%
+% where property_name is the name of the property you are interested in.
+%
+% Once all relevant properties have been defined, run the solver:
+%	>> C.solve
+%
+% Analyse results by plotting:
+%	>> C.plot
+%
+% SEE ALSO
+% CATTube, Distribution
     
     properties ( Access = protected )
         
-        % nodes for non-smooth input profiles
+        % Time nodes for non-smooth input profiles
         tNodes = [];
         
     end
     
     properties
         
-        % Initial distribution (Distribution object, defines size and
-        % distribution
+        % Property: init_dist
+        % The initial distribution is defined by a Distribution
+        % variable.
         init_dist
         
         % Initial concentration
