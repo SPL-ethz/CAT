@@ -1,4 +1,4 @@
-function [O] = solve(O)
+function solve(O)
 %% CAT.solve
 % solve is a method of the CAT class. It integrates the problem according to
 % the settings of the CAT object and fills in the calc-properties of the
