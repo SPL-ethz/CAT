@@ -33,67 +33,163 @@ classdef CAT < hgsetget
     
     properties
         
+        % The comments before each property are what appear as help, and
+        % they also appear in the GUI. Adhere to the following general
+        % layout:
+        %
+        % Property: name
+        % Short description of the property
+        % Description of how the property is defined. Type, attributes etc,
+        % units.
+        
+        
         % Property: init_dist
-        % The initial distribution is defined by a Distribution
-        % variable.
+        % Initial particle size distribution
+        % Defined using Distribution class
         init_dist
         
-        % Initial concentration
-        init_conc % saturated
-        
-        % Solubility
-        % @(T,xm)
-        solubility
-        
-        % Temperature profile
-        Tprofile
-        
-        % (Anti)solvent added mass profile
-        ASprofile
-
-        % Growth rate function This function should be called as
-        % growthrate(S,T,y) where S is the current supersaturation, T is the
-        % temperature and y is the size. It should return a vector the same
-        % size as y
-        growthrate
-        
-        % Nucleation rate function
-        % This function should be called as nucleationrate(c,T,m) where S is the current
-        % supersaturation, T is the temperature. Optionally, the user can
-        % specificy that the nucleation rate depends on a moment m of the
-        % passed distribution F
-        nucleationrate
-        
-        % Seed mass
+        % Property: init_seed
+        % Initial seed mass.
+        % Scalar value. The units must be consistent with those used for:
+        %  * Initial concentration
+        %  * Solubility function
+        %  * Crystal density
         init_seed
         
-        % Initial mass of solvent + antisolvent
+        % Property: init_massmedium
+        % Initial mass of the continuous medium: total mass of solvent and
+        % antisolvent.
+        % Scalar value. The units must be consistent with those used for:
+        %  * Initial concentration
+        %  * Solubility function
+        %  * Antisolvent profile
+        %  * Nucleation rate
         init_massmedium
         
-        % Solution time vector
-        sol_time
+        % Property: init_conc
+        % Initial concentration.
+        % Scalar value, with units of mass per total solvent mass.
+        % Use 'sat' for a saturated solution.
+        % Units must be consistent with those used for:
+        %  * Seed mass
+        %  * Crystal density
+        %  * Total initial solvent+antisolvent mass
+        %  * Solubility function
+        %  * Antisolvent profile
+        %  * Nucleation rate
+        init_conc
         
-        % Crystal density
+        
+        % Property: Tprofile
+        % Temperature profile: temperature as a function of time.
+        % Can be: anon. function, matrix or scalar.
+        % Units must be consistent with those used for:
+        %  * Solubility function
+        %  * Nucleation rate
+        %  * Growth rate
+        %  * Solubility
+        Tprofile
+        
+        % Property: ASprofile
+        % Antisolvent profile: mass added as a function of time.
+        % Can be: anon. function, or matrix
+        % Units must be consistens with those used for:
+        %  * Initial concentration
+        %  * Solubility function
+        %  * Nucleation rate
+        %  * Growth rate
+        %  * Solvent mass
+        ASprofile
+        
+        
+        % Property: solubility
+        % Solubility function as a function of temperature (T) and antisolvent mass fraction (xm).
+        % Can be an anon. function (Defined as: @(T,xm) or a scalar.
+        % Units must be mass solute per total solvent mass and consistent with:
+        %  * Seed mass
+        %  * Crystal density
+        %  * Total initial solvent+antisolvent mass
+        %  * Initial concentration
+        %  * Antisolvent profile
+        %  * Nucleation rate
+        solubility
+        
+        % Property: rhoc
+        % Crystal density.
+        % Scalar value. The units must be consistent with those used for:
+        %  * Seed mass
+        %  * Initial concentration
+        %  * Solubility function
         rhoc
         
+        % Property
         % Shape factor
+        % Dimensionless scalar value, between 0 and 1.
         kv
         
-        % Method to use - default to central difference
+        % Property: growthrate
+        % Growth rate as a function of supersaturation (S), temperature (T) and size (y).
+        % Defined as an anon. function: @(S,T,y)
+        % Units must be consistent with those used for:
+        %  * Initial distribution
+        %  * Temperature profile
+        %  * Antisolvent profile
+        %  * Nucleation rate
+        %  * Solution time
+        %
+        % The function should return a vector the same size as y
+        growthrate
+        
+        % Property: nucleationrate
+        % Nucleation rate function
+        % Nucleation rate as a function of supersaturation (S), temperature (T) or (moments of) the distribution F.
+        % Defined as an anon. function: @(S,T,F)
+        % Units must be consistent with those used for:
+        %  * Initial distribution
+        %  * Temperature profile
+        %  * Antisolvent profile
+        %  * Growth rate
+        %  * Solution time
+        %
+        % The function should return a scalar value
+        nucleationrate
+        
+        
+        % Property: sol_time
+        % Solution time
+        % Vector or scalar.
+        % The units must be consistent with those used for:
+        %  * Growth rate
+        %  * Nucleation rate
+        %  * Antisolvent profile
+        %  * Temperature profile
+        sol_time
+        
+        % Property: sol_method
+        % Solution method.
+        % Defines which numerical method to use.
+        % Use the solutionMethods function to see a list of available
+        % solvers.
         sol_method
         
-        % Solver Options
+        % Property: sol_options
+        % Solver options
         sol_options = [];
         
-        %% Results
+        %
+        % Results properties
+        %
         
+        % Property: calc_time
         % Vector of actual times returned by solver
         calc_time
         
+        % Property: calc_dist
         % Distributions for each time step
         calc_dist
         
-        % Concentrations over time [g solute / g total solvents]
+        % Property: calc_conc
+        % Vector of solution concentrations for times given in calc_time
         calc_conc
   
     end % properties
@@ -801,6 +897,7 @@ classdef CAT < hgsetget
             
         % Fill out the template form
         fillOutForm(setupCat);
+        
     end
     
 end % classdef
