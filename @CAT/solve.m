@@ -21,9 +21,8 @@ if ~isempty(O.tNodes)
         try
             [a b c] = PBESolver(O);
         catch ME
-            keyboard
             error('solve:tryconsttemp:PBESolverfail',...
-            'PBESolver failed to integrate your problem.')
+            'PBESolver failed to integrate your problem. Message: %s',ME.message)
         end
         
         O.calc_time(end+1:end+length(a)) = a;
