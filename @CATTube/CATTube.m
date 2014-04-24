@@ -1,10 +1,16 @@
 classdef CATTube < CAT
     
-    % GUI for CAT
+    %% Crystallization Analysis Toolbox GUI (CATTube)
     %
+    %%% Usage
     %
+    % CAT uses an object-oriented approach. To use the CAT GUI, simply run:
+    %	>> C = CATTube;
+    %
+    % SEE ALSO
+    % CAT, Distribution
     
-    % Martin Iggland, first version 2013-12-04
+    %% CATTube properties
     
     properties (Access=protected)
         
@@ -13,9 +19,11 @@ classdef CATTube < CAT
         
     end % properties
     
+    %% CATTube methods
+    
     methods
         
-        %% Constructor method
+        %% - Constructor method
         
         function O = CATTube(varargin)
             
@@ -585,7 +593,7 @@ classdef CATTube < CAT
             
         end % function
         
-        %% Method save
+        %% - save
         
         function saveCAT(O)
             
@@ -597,7 +605,7 @@ classdef CATTube < CAT
             
         end % function
         
-        %% Method clone
+        %% - clone
         
         function copyCAT = clone(O,Original)
             
@@ -637,7 +645,7 @@ classdef CATTube < CAT
         end % function
         
         
-        %% Method O.solvableCheck
+        %% - solvableCheck
         
         function validInput = solvableCheck(O,fieldnames)
             
@@ -668,10 +676,12 @@ classdef CATTube < CAT
         
     end % methods
     
+    %% Hidden methods
+    
     methods(Hidden)
        % Onset Methods go here. Their entire point is to update the GUI when changes occur, there is no need to use these functions independent of normal set actions 
        
-       %% Method init_dist_onset
+       %% - init_dist_onset
         
         function init_dist_onset(O)
             
@@ -686,7 +696,7 @@ classdef CATTube < CAT
             end
         end % function
         
-        %% Method init_seed_onset
+        %% - init_seed_onset
         
         function init_seed_onset(O)
             
@@ -701,7 +711,7 @@ classdef CATTube < CAT
             end
         end % function
         
-        %% Method init_massmedium_onset
+        %% - init_massmedium_onset
         
         function init_massmedium_onset(O)
             
@@ -716,7 +726,7 @@ classdef CATTube < CAT
             end
         end % function
         
-        %% Method init_conc_onset
+        %% - init_conc_onset
         
         function init_conc_onset(O)
             
@@ -731,7 +741,7 @@ classdef CATTube < CAT
             end;
         end % function
         
-        %% Method Tprofile_onset
+        %% - Tprofile_onset
         
         function Tprofile_onset(O)
             
@@ -750,7 +760,7 @@ classdef CATTube < CAT
             end
         end % function
         
-        %% Method ASprofile_onset
+        %% - ASprofile_onset
         
         function ASprofile_onset(O)
             
@@ -771,7 +781,7 @@ classdef CATTube < CAT
             
         end % function
         
-        %% Method solubility_onset
+        %% - solubility_onset
         
         function solubility_onset(O)
             
@@ -789,7 +799,7 @@ classdef CATTube < CAT
             end
         end % function
         
-        %% Method rhoc_onset
+        %% - rhoc_onset
         
         function rhoc_onset(O)
             
@@ -806,7 +816,7 @@ classdef CATTube < CAT
             end
         end % function
         
-        %% Method kv_onset
+        %% - kv_onset
         
         function kv_onset(O)
             
@@ -823,7 +833,7 @@ classdef CATTube < CAT
             end
         end % function
         
-        %% Method growthrate_onset
+        %% - growthrate_onset
         
         function growthrate_onset(O)
             
@@ -839,7 +849,7 @@ classdef CATTube < CAT
             end
         end % function
         
-        %% Method nucleationrate_onset
+        %% - nucleationrate_onset
         
         function nucleationrate_onset(O)
             
@@ -849,7 +859,7 @@ classdef CATTube < CAT
             
         end % function
         
-        %% Method sol_time_onset
+        %% - sol_time_onset
         
         function sol_time_onset(O)
             
@@ -866,7 +876,7 @@ classdef CATTube < CAT
             
         end % function
         
-        %% Method sol_method_onset
+        %% - sol_method_onset
         
         function sol_method_onset(O)
             
@@ -888,7 +898,7 @@ classdef CATTube < CAT
             
         end % function
         
-        %% Method sol_options_onset
+        %% - sol_options_onset
         
         function sol_options_onset(O)
             
@@ -903,6 +913,8 @@ classdef CATTube < CAT
         
        
     end
+    
+    %% Static methods
     
     methods (Static)
         
