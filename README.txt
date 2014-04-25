@@ -36,3 +36,7 @@ Features that are currently planned for the future
 - Ostwald ripening
 - Lattice-Boltzman method
 - 1D agglomeration
+
+** Installation
+
+See Install.m for installation instructions
