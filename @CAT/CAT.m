@@ -2,7 +2,28 @@ classdef CAT < hgsetget
     
 %% Crystallization Analysis Toolbox (CAT)
 %
-%%% Usage
+%% About CAT
+%
+% The Crystallization Analysis Toolbox is a Matlab toolbox that aims at
+% facilitating access to population balance equations.
+%
+% CAT allows modelling cooling and antisolvent (semi-)batch crystallization
+% processes with homogeneous/heterogeneous nucleation and size
+% (in)dependent growth, i.e. problems of a general type:
+% 
+% d(fM)/dt + Md(Gf)/dL = JM*dirac(L)
+%
+% Where f is a number density function and L a characteristic length of
+% the particles; G is a growth rate; M is the total solvent mass. This
+% equation is coupled with a mass balance for the solution phase.
+%
+% CAT is developed at the ETH Zürich, by Dave Ochsenbein of the Automatic
+% Control Laboratory and Martin Iggland of the Separation Processes
+% Laboratory.
+%
+% Website: http://www.ipe.ethz.ch/laboratories/spl/cat
+%
+%% Usage
 %
 % CAT uses an object-oriented approach. To use CAT, first define an
 % instance of the class by running:
