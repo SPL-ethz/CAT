@@ -11,7 +11,7 @@ for i = 1:length(setupCat)
     elseif isnumeric(setupCat{i})
         setupCat{i} = mat2str(setupCat{i});
     elseif isa(setupCat{i},'Distribution')
-        setupCat{i} = Dist2str(setupCat{i});
+        setupCat{i} = dist2str(setupCat{i});
     elseif isstr(setupCat{i})
         setupCat{i} = strcat('''',setupCat{i},'''');
     end

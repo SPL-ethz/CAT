@@ -19,8 +19,8 @@ for i = 1:length(p)
         str1 = func2str(CAT1.(p{i}));
         str2 = func2str(CAT1.(p{i}));
     elseif isa(CAT1.(p{i}),'Distribution') && isa(CAT2.(p{i}),'Distribution')
-        str1 = Dist2str(CAT1.(p{i}));
-        str2 = Dist2str(CAT1.(p{i}));
+        str1 = dist2str(CAT1.(p{i}));
+        str2 = dist2str(CAT1.(p{i}));
     end
         result(i) = isequal(str1,str2);
     

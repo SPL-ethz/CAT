@@ -314,11 +314,11 @@ classdef Distribution < handle
             
         end % function data2str
         
-        %% Method Dist2str 
+        %% Method dist2str 
         % Returns the distribution as a string (useful for a comparison of
         % distributions, which in general can be vectors or function
         % handles).
-        function [outstr] = Dist2str(O)
+        function [outstr] = dist2str(O)
             if isnumeric(O.pF)
                 Fstr = mat2str(O.pF);
             elseif isa(O.pF,'function_handle')
