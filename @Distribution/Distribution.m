@@ -1,4 +1,4 @@
-classdef Distribution < handle
+classdef Distribution < hgsetgetplus
     %% Class Distribution
     % Note that F is assumed to be a density function and therefore
     % boundaries of the bins are necessary to correctly calculate the
@@ -100,45 +100,26 @@ classdef Distribution < handle
             
         end % function
         
-        %% Method set.y
+        %% Method set.y, set.boundaries
+        
+        % In both these function, simply call the set() method again, with
+        % different syntax - workaround since D.y = ... doesn't go via
+        % hgsetgetplus as set(D,'y',..) does
         
         function set.y(O,value)
-            
-            % SET.Y
-            %
-            % Check input for y: a vector, all positive, increasing. Always
-            % set y as a row vector
-
-            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
-                O.y = value(:)';
-                
-            else
-                value = sort(value(:));
-                O.y = value(:)';
-                warning('Distribution:SetY:WrongValue',...
-                    'The property y must be a vector of positive values, in increasing order (duplicates allowed)');
+            if length(dbstack) == 1
+                % In this case, D.y = value syntax was used - change to
+                % set(D,'y',value)
+                set(O,'y',value)
             end % if
-            
         end % function
                     
-        %% Method set.boundaries
-        
         function set.boundaries(O,value)
-            
-            % SET.Y
-            %
-            % Check input for boundaries: a vector, all positive (and 0),
-            % duplicates allowed. Always set boundaries as a row vector
-            
-            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
-                O.boundaries = value(:)';
-            else
-                value = sort(value(:));
-                O.boundaries = value(:)';
-                warning('Distribution:SetBoundaries:WrongValue',...
-                    'The property boundaries must be a vector of positive values, in increasing order (duplicates allowed)');
+            if length(dbstack) == 1
+                % In this case, D.y = value syntax was used - change to
+                % set(D,'y',value)
+                set(O,'boundaries',value);
             end % if
-            
         end % function
         
         %% Method set.F
@@ -231,6 +212,23 @@ classdef Distribution < handle
                 O.F = O.F*0;
             end 
                         
+        end % function
+        
+        %% Method get.mass
+        
+        function value = get.mass(O)
+            
+            % Distribution.get.mass
+            %
+            % Get function for mass
+            %
+            % Return 3rd moment!
+            %
+            % SEE ALSO
+            % Distribution
+            
+            value = O.moments(3);
+            
         end % function
         
         %% Method moments(F,j)
