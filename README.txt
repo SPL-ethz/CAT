@@ -40,3 +40,15 @@ Features that are currently planned for the future
 ** Installation
 
 See Install.m for installation instructions
+
+** Getting started
+
+After installation, type
+>> help CAT
+or have a look at the demos to get an idea of how to use the toolbox.
+
+** Bug reports
+
+Please submit bugs via the Github page:
+https://github.com/miggland/PBEToolbox
+
