@@ -18,7 +18,7 @@ function configStr = configToString(config)
 
 configStr = '';
 
-if ~isempty(config.choices)
+if isfield(config,'choices') && ~isempty(config.choices)
     in = config.choices;
     
     % Find default, if any, and put brackets around it.
