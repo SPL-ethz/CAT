@@ -17,6 +17,9 @@ if ~isempty(O.tNodes)
     
     % Save for later
     sol_time = O.sol_time;
+    calc_time = [];
+    calc_dist = Distribution;
+    calc_conc = [];
     
     for i = 2:length(O.tNodes) % make sure you hit the different nodes of the non-smooth profiles
         
@@ -46,12 +49,12 @@ if ~isempty(O.tNodes)
 
     % Put temporary solution into the right place
     O.calc_time = calc_time;
-    O.calc_dist = calc_dist;
+    O.calc_dist = calc_dist(2:end);
     O.calc_conc = calc_conc;
     % Reset times and initial distribution, concentration
     O.sol_time = sol_time;
-    O.init_dist = calc_dist(1);
-    O.init_calc = calc_conc(1);
+    O.init_dist = calc_dist(2);
+    O.init_conc = calc_conc(1);
     
 else    
     
