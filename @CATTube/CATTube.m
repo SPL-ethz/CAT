@@ -620,7 +620,7 @@ classdef CATTube < CAT
                 if nargout == 0
                     F = O;
                 else
-                    F = CAT('hush');
+                    F = CAT;
                     
                 end
                     
