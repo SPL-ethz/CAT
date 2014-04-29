@@ -10,7 +10,7 @@ function solve(O)
 %% Solve
 O.calc_dist = Distribution;
 if ~isempty(O.init_seed)
-    O.init_dist.mass = [O.init_seed O.kv O.rhoc O.init_massmedium];
+    O.init_dist.F = O.init_dist.F*O.init_seed/(moments(O.init_dist,3)*O.kv*O.rhoc*O.init_massmedium);
 end
 
 if ~isempty(O.tNodes)

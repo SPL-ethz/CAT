@@ -279,27 +279,6 @@ classdef Distribution < handle
             
         end % function
         
-        %% - set.mass
-        
-        function set.mass(O,value)
-            
-            % Distribution.set.mass
-            %
-            % Scale the distribution according a defined mass.
-            %
-            % THIS FUNCTION WILL LIKELY BE REMOVED IN A FUTURE VERSION
-            %
-            % SEE ALSo
-            % Distribution
-            
-            if value(1) ~=0
-                O.F = O.F*value(1)/(moments(O,3)*value(2)*value(3)*value(4));
-            else
-                O.F = O.F*0;
-            end
-            
-        end % function
-        
         %% - moments(F,j)
         
         function Fmo = moments(O,j,icalc)
