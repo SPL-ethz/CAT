@@ -470,14 +470,7 @@ classdef Distribution < handle
             
         end % function
         
-    end % methods
-    
-    %% Static methods
-    
-    methods (Static)
-        
-        %% - isnan
-        function no = isnan()
+        function no = isnan(O)
             
             % Distribution.isnan
             %
@@ -488,6 +481,12 @@ classdef Distribution < handle
             
             no = false;
         end
+        
+    end % methods
+    
+    %% Static methods
+    
+    methods (Static)
         
         %% - generateCC
         
