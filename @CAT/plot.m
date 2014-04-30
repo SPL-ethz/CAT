@@ -32,7 +32,7 @@
             % Graphs can currently not be plotted in existing figures !!
             %
             
-            set(0,'defaultaxesfontsize',14,'defaulttextfontsize',16)
+            set(0,'defaultaxesfontsize',14,'defaulttextfontsize',16);
             
             if nargin == 1
                 plotwhat = 'detailed_results';
@@ -66,7 +66,8 @@
                 PDpl_local = zeros(2,1);
 
                 subplot(1,2,1)
-                PDpl_local(1) = surf(O.calc_time(:),O.calc_dist(1).y(:),Fmat./repmat(moments(O.calc_dist,0),length(O.calc_dist(1).y),1),varargin{:});
+                PDpl_local(1) = surf(O.calc_time(:),O.calc_dist(1).y(:),...
+                    Fmat./repmat(moments(O.calc_dist,0),length(O.calc_dist(1).y),1),varargin{:});
                 ylabel('Mean Char. Length')
                 xlabel('Time')
                 zlabel('Normalized Number Distribution')
@@ -98,14 +99,15 @@
 
                 subplot(1,2,1)
                 for i = 1:length(O.calc_time)
-                    PDpl_local(i) = plot3(repmat(O.calc_time(i),size(O.calc_dist(i).y)),O.calc_dist(i).y(:),O.calc_dist(i).F,varargin{:});
+                    PDpl_local(i) = plot3(repmat(O.calc_time(i),size(O.calc_dist(i).y)),O.calc_dist(i).y(:),...
+                        O.calc_dist(i).F/moments(O.calc_dist,0),varargin{:});
                     hold on
                 end
                 grid on
                 hold off
                 ylabel('Mean Char. Length')
                 xlabel('Time')
-                zlabel('Number Distribution')
+                zlabel('Normalized Number Distribution')
 
                 subplot(1,2,2)
                 for i = 1:length(O.calc_time)
