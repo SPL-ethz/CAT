@@ -8,82 +8,87 @@ function solve(O)
 % discontinuities in the supplied AS or T profiles and a lower layer (the
 % solvers).
 %% Solve
-O.calc_dist = Distribution;
-if ~isempty(O.init_seed)
-    O.init_dist.F = O.init_dist.F*O.init_seed/(moments(O.init_dist,3)*O.kv*O.rhoc*O.init_massmedium);
-end
 
-if ~isempty(O.tNodes)
-    
-    % Save for later
-    sol_time = O.sol_time;
-    calc_time = [];
-    calc_dist = Distribution;
-    calc_conc = [];
-    
-    for i = 2:length(O.tNodes) % make sure you hit the different nodes of the non-smooth profiles
-        
-        % Cut out the piece we want to look at currently
-        O.sol_time = [O.tNodes(i-1) sol_time(sol_time>O.tNodes(i-1) & sol_time<O.tNodes(i)) O.tNodes(i)];
-        
-        % Solve for the current piece
+for ii = 1:length(O)
+
+    O(ii).calc_dist = Distribution;
+    if ~isempty(O(ii).init_seed)
+        O(ii).init_dist.F = O(ii).init_dist.F*O(ii).init_seed/(moments(O(ii).init_dist,3)*O(ii).kv*O(ii).rhoc*O(ii).init_massmedium);
+    end
+
+    if ~isempty(O(ii).tNodes)
+
+        % Save for later
+        sol_time = O(ii).sol_time;
+        calc_time = [];
+        calc_dist = Distribution;
+        calc_conc = [];
+
+        for i = 2:length(O(ii).tNodes) % make sure you hit the different nodes of the non-smooth profiles
+
+            % Cut out the piece we want to look at currently
+            O(ii).sol_time = [O(ii).tNodes(i-1) sol_time(sol_time>O(ii).tNodes(i-1) & sol_time<O(ii).tNodes(i)) O(ii).tNodes(i)];
+
+            % Solve for the current piece
+            try
+                % Simply run the method corresponding to the chosen solution method
+                % prefixed with solver_
+                O(ii).(['solver_' O(ii).sol_method]);
+            catch ME
+                keyboard
+                error('solve:tryconsttemp:PBESolverfail',...
+                'Solver failed to integrate your problem. Message: %s',ME.message)
+
+            end
+
+            % Save the solution for the current piece
+            calc_time(end+1:end+length(O(ii).calc_time)) = O(ii).calc_time;
+            calc_dist(end+1:end+length(O(ii).calc_dist)) = O(ii).calc_dist;
+            calc_conc(end+1:end+length(O(ii).calc_conc)) = O(ii).calc_conc; 
+
+            % Set new initial distribution and initial concentration
+            O(ii).init_dist = O(ii).calc_dist(end);
+            O(ii).init_conc = O(ii).calc_conc(end);
+
+        end % for
+
+        % Put temporary solution into the right place
+        O(ii).calc_time = calc_time;
+        O(ii).calc_dist = calc_dist(2:end);
+        O(ii).calc_conc = calc_conc;
+        % Reset times and initial distribution, concentration
+        O(ii).sol_time = sol_time;
+        O(ii).init_dist = calc_dist(2);
+        O(ii).init_conc = calc_conc(1);
+
+    else    
+
         try
+
             % Simply run the method corresponding to the chosen solution method
             % prefixed with solver_
-            O.(['solver_' O.sol_method]);
+            O(ii).(['solver_' O(ii).sol_method]);
+
         catch ME
             error('solve:tryconsttemp:PBESolverfail',...
-            'Solver failed to integrate your problem. Message: %s',ME.message)
+                'Solver failed to integrate your problem. Message: %s',ME.message)
         end
-        
-        % Save the solution for the current piece
-        calc_time(end+1:end+length(O.calc_time)) = O.calc_time;
-        calc_dist(end+1:end+length(O.calc_dist)) = O.calc_dist;
-        calc_conc(end+1:end+length(O.calc_conc)) = O.calc_conc; 
-        
-        % Set new initial distribution and initial concentration
-        O.init_dist = O.calc_dist(end);
-        O.init_conc = O.calc_conc(end);
+    end
 
-    end % for
+    O(ii).init_conc = O(ii).calc_conc(1);
+    O(ii).init_dist = O(ii).calc_dist(1);
 
-    % Put temporary solution into the right place
-    O.calc_time = calc_time;
-    O.calc_dist = calc_dist(2:end);
-    O.calc_conc = calc_conc;
-    % Reset times and initial distribution, concentration
-    O.sol_time = sol_time;
-    O.init_dist = calc_dist(2);
-    O.init_conc = calc_conc(1);
-    
-else    
-    
-    try
-        
-        % Simply run the method corresponding to the chosen solution method
-        % prefixed with solver_
-        O.(['solver_' O.sol_method]);
-        
-    catch ME
-        error('solve:tryconsttemp:PBESolverfail',...
-            'Solver failed to integrate your problem. Message: %s',ME.message)
+    if length(O(ii).sol_time)>2
+        [~,I] = intersect(O(ii).calc_time,O(ii).sol_time);
+        O(ii).calc_time = O(ii).calc_time(I);
+        O(ii).calc_dist = O(ii).calc_dist(I);
+        O(ii).calc_conc = O(ii).calc_conc(I);
+    end
+
+    %% Check Mass balance
+    if any(O(ii).massbal > 5)
+       warning('ProfileManager:massbalcheck:largeerror',...
+                        'Your mass balance error is unusually large (%4.2f%%). Check validity of equations and consider increasing the number of bins.',max(O(ii).massbal)); 
     end
 end
-
-O.init_conc = O.calc_conc(1);
-O.init_dist = O.calc_dist(1);
-
-if length(O.sol_time)>2
-    [~,I] = intersect(O.calc_time,O.sol_time);
-    O.calc_time = O.calc_time(I);
-    O.calc_dist = O.calc_dist(I);
-    O.calc_conc = O.calc_conc(I);
-end
-
-%% Check Mass balance
-if any(O.massbal > 5)
-   warning('ProfileManager:massbalcheck:largeerror',...
-                    'Your mass balance error is unusually large (%4.2f%%). Check validity of equations and consider increasing the number of bins.',max(O.massbal)); 
-end
-
 end

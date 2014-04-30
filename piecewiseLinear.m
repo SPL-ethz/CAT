@@ -18,6 +18,9 @@ if ~issorted(tpoints)
     warning('piecewiseLinear:unsortedTime',...
         'Your PWC profile has an unsorted time');
 end
+
+t(t<tpoints(1) && t>=tpoints(1)-1e-5) = tpoints(1);
+
     
 tpoints = tpoints(:);
 ypoints = ypoints(:);

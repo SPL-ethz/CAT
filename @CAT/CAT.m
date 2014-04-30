@@ -409,7 +409,7 @@ classdef CAT < hgsetget
             if isempty(value) || O.diagnose('sol_time',value)
             
                 if isempty(value) || length(value) > 1 
-                    O.sol_time = value;
+                    O.sol_time = value(:)';
                 elseif isscalar(value)
                     O.sol_time = [0 value];
                 end % if else
