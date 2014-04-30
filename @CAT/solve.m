@@ -14,7 +14,7 @@ for ii = 1:length(O)
     % A small number of properties are allowed to be empty when filling out
     % a CAT object, but you should set them to default (do nothing) values
     % when starting the solver
-    O(ii).setDefaults('empty');
+    O(ii).setDefaults('emptyonly');
     
     
     O(ii).calc_dist = Distribution;

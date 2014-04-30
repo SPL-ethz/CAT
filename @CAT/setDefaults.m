@@ -3,53 +3,53 @@ function setDefaults(O,varargin)
 % setDefaults
 %
 % set sensible defaults for CAT method
-if ~any(strcmp(varargin,'empty')) || isempty(O.init_dist)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.init_dist)
     O.init_dist = Distribution(linspace(1,750,250),{'normal',100,20});
 end
-if ~any(strcmp(varargin,'empty')) || isempty(O.init_conc)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.init_conc)
     O.init_conc = 1.2; % supersaturated
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.solubility)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.solubility)
     O.solubility = @(T,xm) 1;
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.Tprofile)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.Tprofile)
     O.Tprofile = @(t) 25*ones(size(t));
 end
-if ~any(strcmp(varargin,'empty')) || isempty(O.ASprofile)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.ASprofile)
     O.ASprofile = @(t) 0*t;
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.growthrate)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.growthrate)
     O.growthrate = @(S,T,y) (S-1)*ones(size(y));
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.nucleationrate)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.nucleationrate)
     O.nucleationrate = @(S,T,m) 0;
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.init_seed)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.init_seed)
     O.init_seed = 1.5;
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.init_massmedium)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.init_massmedium)
     O.init_massmedium = 1000;
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.rhoc)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.rhoc)
     O.rhoc = 1e-12;
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.kv)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.kv)
     O.kv = 1;
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.sol_method)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_method)
     O.sol_method = 'cd';
 end
 
-if ~any(strcmp(varargin,'empty')) || isempty(O.sol_time)
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_time)
     O.sol_time = [0:100:10000];
 end
 

@@ -18,6 +18,8 @@ function solver_movingpivot(O)
 
 if ~isempty(O.sol_options) && ~isempty(find(strcmpi(O.sol_options,'dL'),1))
     dL = O.sol_options(find(strcmpi(O.sol_options,'dL'),1)+1);
+elseif strcmp(func2str(O.nucleationrate),'@(S,T,m)0') || strcmp(func2str(O.nucleationrate),'@(S,T)0')
+    dL = inf;
 else
     dL = 10; % critical bin size for event listener
 end
@@ -122,13 +124,12 @@ end
 Gy = O.growthrate(S,T,y); % growth rate for pivots
 Gboundaries = O.growthrate(S,T,boundaries); % growth rate for boundaries
 
-Gboundaries(boundaries<=0) = 0;
+Gboundaries(boundaries<0) = 0;
 
 dNdt = [J; zeros(nBins-1,1)]-N(1:nBins)/m*Q; % change in number (per mass medium): nucleation - dilution
 dcdt = -3*O.rhoc*O.kv*sum(y.^2.*Gy.*N)-c/m*Q-J*y(1)^3*O.kv*O.rhoc;
 
 dxdt = [dNdt; Gy; Gboundaries; dcdt;];
-
 
 end
 
@@ -163,7 +164,7 @@ nBins = (length(x)-2)/3;
 boundaries = x(2*nBins+1:2*nBins+2);
 
 value(1) = dL - boundaries(1); % Detect when first bin becomes too broad (value <= 0)
-value(2) = x(nBins+1);
+value(2) = x(nBins+1); % Detects when first pivot becomes smaller than one
 
 value = value(:);
 isterminal = ones(2,1);   % Stop the integration
