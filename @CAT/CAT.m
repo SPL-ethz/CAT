@@ -17,7 +17,7 @@ classdef CAT < hgsetget
 % the particles; G is a growth rate; M is the total solvent mass. This
 % equation is coupled with a mass balance for the solution phase.
 %
-% CAT is developed at the ETH Zürich, by Dave Ochsenbein of the Automatic
+% CAT is developed at the ETH Zuerich, by Dave Ochsenbein of the Automatic
 % Control Laboratory and Martin Iggland of the Separation Processes
 % Laboratory.
 %
