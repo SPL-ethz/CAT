@@ -12,7 +12,9 @@ if nargin < 6 || isempty(classfilter)
 else
     % Check if classfilter is char or cell - convert to cell
     if ischar(classfilter)
-        classfilter = {classfilter};
+        classfilter = {classfilter 'struct'};
+    else
+        classfilter = [classfilter 'struct'];
     end % if
 end % if else
 
@@ -69,6 +71,7 @@ glb.import = uicontrol(glb.fighandle,...
         % Remove all variables which are CATTube objects
         V = V(~strcmp([{V.class}'],'CATTube')); %#ok<NBRAK>
         
+        
         % If filters defined, keep only those class types listed
         if ~isempty(classfilter)
             Vselection = false(size(V));
@@ -87,6 +90,12 @@ glb.import = uicontrol(glb.fighandle,...
         glb.V = getVarList;
         
         varnames = [{glb.V.name}']; %#ok<NBRAK>
+        for i = 1:length(varnames)
+            if strcmp(glb.V(i).class,'struct')
+                varnames{i} = ['+',varnames{i}]; % highlight structures
+            end
+        end
+                
         
         set(glb.lbox,'String',varnames);
         
@@ -113,6 +122,10 @@ glb.import = uicontrol(glb.fighandle,...
         
         % Print variable details
         set(glb.text,'String',vtext)
+        
+        if (strcmp(get(glb.fighandle, 'SelectionType'), 'open')) % if double click
+            disp('test')
+        end
         
     end % function
 
