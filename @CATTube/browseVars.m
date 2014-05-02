@@ -6,15 +6,14 @@ function browseVars(O,~,~,classvarname,displayfield,classfilter)
 % next to a variable input box. It lists the variables in the workspace and
 % allows the choice of one
 % Assign the chosen variable to the variable in the class
-
 if nargin < 6 || isempty(classfilter)
     classfilter = {};
 else
     % Check if classfilter is char or cell - convert to cell
     if ischar(classfilter)
-        classfilter = {classfilter 'struct'};
+        classfilter = {classfilter};
     else
-        classfilter = [classfilter 'struct'];
+        classfilter = [classfilter];
     end % if
 end % if else
 
@@ -67,21 +66,55 @@ glb.import = uicontrol(glb.fighandle,...
     function V = getVarList
         
         % Get variable list
-        V = evalin('base','whos');
-        % Remove all variables which are CATTube objects
-        V = V(~strcmp([{V.class}'],'CATTube')); %#ok<NBRAK>
+        varList = evalin('base','who');
+        varList = varList(~strcmp('varList',varList) & ~strcmp('activeList',varList));
+        varList = [varList repmat({''},size(varList))];
+        activeList = varList;
+        % if there are structures, whose fields may contain the necessary
+        % data, we should be aware of this... therefore let's first explore
+        % all structures in the workspace
+        while ~isempty(activeList)
+            if isa(evalin('base',[activeList{1,2},activeList{1,1}]),'struct')
+                for i = 1:length(evalin('base',[activeList{1,2},activeList{1,1}]))
+                    if length(evalin('base',[activeList{1,2},activeList{1,1}]))>1
+                        indstr = ['(',num2str(i),')'];
+                    else
+                        indstr = '';
+                    end
+                    fields = fieldnames(evalin('base',[activeList{1,2},activeList{1,1},indstr]));
+                    varList = [varList; fields repmat({[activeList{1,2},activeList{1,1},indstr,'.']},[length(fields) 1])];
+                    activeList = [activeList; fields repmat({[activeList{1,2},activeList{1,1},indstr,'.']},[length(fields) 1])];
+                end
+            end
+
+            activeList(1,:) = [];
+
+        end
         
         
         % If filters defined, keep only those class types listed
         if ~isempty(classfilter)
-            Vselection = false(size(V));
+            Vname = cell(0);
             for i = 1:length(classfilter)
-                Vselection = Vselection | strcmp([{V.class}'],classfilter{i});
+                for j = 1:length(varList(:,1))
+                   if isa(evalin('base',[varList{j,2},varList{j,1}]),classfilter{i})
+                       Vname = [Vname;[varList{j,2},varList{j,1}]];
+                   end
+                end
             end % for
         else
-            Vselection = true(size(V));
+            Vname = cell(0);
+            for j = 1:length(varList(:,1))
+                Vname = [Vname;[varList{2,j},varList{1,j}]];
+            end
         end % if
-        V = V(Vselection);
+        
+        for i = 1:length(Vname)
+           V(i).name = Vname{i};
+           V(i).class = class(evalin('base',Vname{i}));
+           V(i).size = size(evalin('base',Vname{i}));
+        end
+        
         
     end % function getVarList
 
@@ -89,13 +122,8 @@ glb.import = uicontrol(glb.fighandle,...
         
         glb.V = getVarList;
         
+        
         varnames = [{glb.V.name}']; %#ok<NBRAK>
-        for i = 1:length(varnames)
-            if strcmp(glb.V(i).class,'struct')
-                varnames{i} = ['+',varnames{i}]; % highlight structures
-            end
-        end
-                
         
         set(glb.lbox,'String',varnames);
         
@@ -123,11 +151,19 @@ glb.import = uicontrol(glb.fighandle,...
         % Print variable details
         set(glb.text,'String',vtext)
         
-        if (strcmp(get(glb.fighandle, 'SelectionType'), 'open')) % if double click
-            disp('test')
-        end
+%         if (strcmp(get(glb.fighandle, 'SelectionType'), 'open')) % if double click
+%             expandStruct(hObject,[])
+%         end
         
     end % function
+
+%     function expandStruct(hObject,~)
+%         strind = get(glb.lbox,'value');
+%         strname = structInfos.names{structInfos.values == strind};
+%         fields = fieldnames(evalin('base',strname));
+%         updateVarList(hObject,[],fields);
+%         keyboard
+%     end
 
     function setVar(hObject,~)
         
