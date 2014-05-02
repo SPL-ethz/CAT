@@ -109,10 +109,16 @@ glb.import = uicontrol(glb.fighandle,...
             end
         end % if
         
+        parents = strtok(Vname,'.');
+        [~,I] = sort(parents);
+        Vname = Vname(I);
+        
+%         keyboard
         for i = 1:length(Vname)
            V(i).name = Vname{i};
            V(i).class = class(evalin('base',Vname{i}));
            V(i).size = size(evalin('base',Vname{i}));
+           V(i).depth = max([0 length(strfind(Vname{i},'.'))-1]);
         end
         
         
@@ -124,6 +130,9 @@ glb.import = uicontrol(glb.fighandle,...
         
         
         varnames = [{glb.V.name}']; %#ok<NBRAK>
+        for i =1:length(varnames)
+           varnames{i} = [repmat('  ',[1 glb.V(i).depth]),varnames{i}];
+        end
         
         set(glb.lbox,'String',varnames);
         
