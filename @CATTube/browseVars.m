@@ -118,103 +118,100 @@ glb.import = uicontrol(glb.fighandle,...
                 Vidparent = [Vidparent; varList{j,3} varList{j,4}];
             end
         end % if
-        
-%         parents = strtok(Vname,'.');
-%         [~,I] = sort(parents);
-%         
-        parents = Vidparent(Vidparent(:,end) == 0,1);
-        Inew = parents(:)';
-        while ~isempty(parents)
-            children = Vidparent(parents(1)==floor(Vidparent(:,2)),:);
-            children = sortrows(children,2);
-            children = children(:,1);
-            I = find(Inew==parents(1));
-            Iloc = Inew(1:I);
-            Inew(1:I) = [];
-            Iloc = [Iloc children(:)' Inew];
-            Inew = Iloc;
-            parents = [parents children(:)'];
-            parents(1) = [];
-        end
-        for i = 1:length(Inew)
-            Vname2{i} = Vname{Vidparent(:,1) == Inew(i)};
-            Vidparent2(i,:) = Vidparent(Vidparent(:,1) == Inew(i),:);
-        end
-        Vname = Vname2(:);
-        Vidparent = Vidparent2;
-%         keyboard
-        
-        
         V = struct('name',[],'class',[],'size',[],'depth',[],'id',[],'parent',[],'hiddenFlag',[]);
-        
-        for i = 1:length(Vname)
-           V(i).name = Vname{i};
-           if ~isfield(glb,'V') && any(Vidparent(:,2)==Vidparent(i,1))
-              V(i).name = [V(i).name,'+']; 
-           elseif isfield(glb,'V')
-               V(i).name = glb.V(i).name;
-           end
-           V(i).class = class(evalin('base',Vname{i}));
-           V(i).size = size(evalin('base',Vname{i}));
-           V(i).depth = length(strfind(Vname{i},'.'));
-           V(i).id = Vidparent(i,1);
-           V(i).parent = Vidparent(i,2);
-           
-           
-           if ~isfield(glb,'V') && V(i).depth==0
-               V(i).hiddenFlag = 0;
-           elseif ~isfield(glb,'V') && V(i).depth>0
-               V(i).hiddenFlag = 1;
-           else
-               V(i).hiddenFlag = glb.V(i).hiddenFlag;
-           end
-        end
-        
-        j = 1;
-        for i = 1:length(Vname)
-            if ~V(i).hiddenFlag
-                Vvis(j) = V(i);
-                j = j+1;
+        Vvis = V;
+        if ~isempty(Vname)
+            parents = Vidparent(Vidparent(:,end) == 0,1);
+            Inew = parents(:)';
+            while ~isempty(parents)
+                children = Vidparent(parents(1)==floor(Vidparent(:,2)),:);
+                children = sortrows(children,2);
+                children = children(:,1);
+                I = find(Inew==parents(1));
+                Iloc = Inew(1:I);
+                Inew(1:I) = [];
+                Iloc = [Iloc children(:)' Inew];
+                Inew = Iloc;
+                parents = [parents(:)' children(:)'];
+                parents(1) = [];
             end
-        end
-        
-        for i = 1:length(Vvis)
-           if any(unHideSwitch==i)
-               if ~isempty(strfind(V([V.id]==Vvis(i).id).name,'+'))
-                    V([V.id]==Vvis(i).id).name = strrep(V([V.id]==Vvis(i).id).name,'+','-');
-               else
-                    V([V.id]==Vvis(i).id).name = strrep(V([V.id]==Vvis(i).id).name,'-','+');
-               end
+            for i = 1:length(Inew)
+                Vname2{i} = Vname{Vidparent(:,1) == Inew(i)};
+                Vidparent2(i,:) = Vidparent(Vidparent(:,1) == Inew(i),:);
+            end
+            Vname = Vname2(:);
+            Vidparent = Vidparent2;
 
-               for jj = 1:length(V)
-                   if floor(V(jj).parent) == Vvis(i).id
-                    V(jj).hiddenFlag = ~glb.V(jj).hiddenFlag;
+
+
+            for i = 1:length(Vname)
+               V(i).name = Vname{i};
+               if ~isfield(glb,'V') && any(Vidparent(:,2)==Vidparent(i,1))
+                  V(i).name = [V(i).name,'+']; 
+               elseif isfield(glb,'V')
+                   V(i).name = glb.V(i).name;
+               end
+               V(i).class = class(evalin('base',Vname{i}));
+               V(i).size = size(evalin('base',Vname{i}));
+               V(i).depth = length(strfind(Vname{i},'.'));
+               V(i).id = Vidparent(i,1);
+               V(i).parent = Vidparent(i,2);
+
+
+               if ~isfield(glb,'V') && V(i).depth==0
+                   V(i).hiddenFlag = 0;
+               elseif ~isfield(glb,'V') && V(i).depth>0
+                   V(i).hiddenFlag = 1;
+               else
+                   V(i).hiddenFlag = glb.V(i).hiddenFlag;
+               end
+            end
+
+            j = 1;
+            for i = 1:length(Vname)
+                if ~V(i).hiddenFlag
+                    Vvis(j) = V(i);
+                    j = j+1;
+                end
+            end
+
+            for i = 1:length(Vvis)
+               if any(unHideSwitch==i)
+                   if ~isempty(strfind(V([V.id]==Vvis(i).id).name,'+'))
+                        V([V.id]==Vvis(i).id).name = strrep(V([V.id]==Vvis(i).id).name,'+','-');
+                   else
+                        V([V.id]==Vvis(i).id).name = strrep(V([V.id]==Vvis(i).id).name,'-','+');
+                   end
+
+                   for jj = 1:length(V)
+                       if floor(V(jj).parent) == Vvis(i).id
+                        V(jj).hiddenFlag = ~glb.V(jj).hiddenFlag;
+                       end
                    end
                end
-           end
-        end
-        
-        for i = 1:length(V)
-           if V(i).parent ~=0 && V([V.id]==floor(V(i).parent)).hiddenFlag == 1
-               V(i).hiddenFlag = 1;
-               V(i).name = strrep(V(i).name,'-','+');
-           end
-        end
-        
-        for i = 1:length(V)
-           if V(i).parent ~=0 && (V([V.id] == floor(V(i).parent)).hiddenFlag ==1 || V(i).hiddenFlag == 1)
-               V(i).name = strrep(V(i).name,'-','+');
-           end
-        end
-        
-        j = 1;
-        for i = 1:length(Vname)
-            if ~V(i).hiddenFlag
-                Vvis(j) = V(i);
-                j = j+1;
+            end
+
+            for i = 1:length(V)
+               if V(i).parent ~=0 && V([V.id]==floor(V(i).parent)).hiddenFlag == 1
+                   V(i).hiddenFlag = 1;
+                   V(i).name = strrep(V(i).name,'-','+');
+               end
+            end
+
+            for i = 1:length(V)
+               if V(i).parent ~=0 && (V([V.id] == floor(V(i).parent)).hiddenFlag ==1 || V(i).hiddenFlag == 1)
+                   V(i).name = strrep(V(i).name,'-','+');
+               end
+            end
+
+            j = 1;
+            for i = 1:length(Vname)
+                if ~V(i).hiddenFlag
+                    Vvis(j) = V(i);
+                    j = j+1;
+                end
             end
         end
-        
     end % function getVarList
 
     function updateVarList(~,~,unHideSwitch)
@@ -278,7 +275,7 @@ glb.import = uicontrol(glb.fighandle,...
         if varnum <= length(glb.V)
             
             if ~isempty(classvarname)
-                vardata = evalin('base',[glb.V(varnum).name]);
+                vardata = evalin('base',[glb.Vvis(varnum).name]);
                 set(O,classvarname,vardata);
             end % if
             
