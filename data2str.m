@@ -22,7 +22,7 @@ switch(class(vdata))
         if isscalar(vdata)
             outstr = sprintf('%.15g',vdata);
         elseif isempty(vdata)
-            outstr = '';
+            outstr = '[]';
         else
             
             % Check whether vector representation can be shortened

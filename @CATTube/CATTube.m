@@ -620,6 +620,7 @@ classdef CATTube < CAT
            
             fieldnames = properties(O);
             fieldnames(strcmp(fieldnames,'gui')) = [];
+            fieldnames(~cellfun(@isempty,strfind(fieldnames,'calc'))) = [];
             
             namestr = strcat('CATsource','_',datestr(now,'YYYYmmdd_HHMMSS'),'.m');
             fid = fopen(namestr,'w+');
@@ -627,19 +628,38 @@ classdef CATTube < CAT
             fprintf(fid,'kitty = CAT; \n\n');
             
             for i = 1:length(fieldnames)
-               if isfield(O.gui,'source') && isfield(O.gui.source,fieldnames{i})
-                   valstr = O.gui.source.(fieldnames{i});
-               else
-                   valstr = data2str(O.(fieldnames{i}));
-               end
-               
                y = strsplit(help(strcat('CAT.',fieldnames{i})),{'\n','\r'});
                pcsstr = repmat({'%'},[length(y')-2 1]);pcsstr = ['%%';pcsstr];
                y = [pcsstr(:) y(1:end-1)'];
+               
                for j = 1:length(y(:,1))
-                fprintf(fid,'%s %s \n',y{j,:});
+                   fprintf(fid,'%s %s \n',y{j,:});
                end
-               fprintf(fid,strcat('kitty.',fieldnames{i},' = ',valstr,'; \n\n\n'));
+               
+               if ~strcmp(fieldnames{i},'init_dist')
+                   if isfield(O.gui,'source') && isfield(O.gui.source,fieldnames{i})
+                       valstr = O.gui.source.(fieldnames{i});
+                   else
+                       valstr = data2str(O.(fieldnames{i}));
+                   end
+
+                   fprintf(fid,strcat('kitty.',fieldnames{i},' = ',valstr,'; \n\n\n'));
+               else
+                   if isfield(O.gui,'source') && isfield(O.gui.source.init_dist,'y')
+                       valstr{1} = O.gui.source.init_dist.y;
+                   else
+                       valstr{1} = data2str(O.init_dist.y);
+                   end
+
+                   if isfield(O.gui,'source') && isfield(O.gui.source.init_dist,'F')
+                       valstr{2} = O.gui.source.init_dist.F;
+                   else
+                       valstr{2} = data2str(O.init_dist.F);
+                   end
+                   
+                   fprintf(fid,strcat('kitty.init_dist.y = ',valstr{1},'; \n'));
+                   fprintf(fid,strcat('kitty.init_dist.F = ',valstr{2},'; \n\n\n'));
+               end
                 
             end
             
@@ -728,7 +748,7 @@ classdef CATTube < CAT
         function init_dist_onset(O)
             
             % Update the init_dist field
-            set(O.gui.init.init_dist,'String',data2str(O.init_dist));
+            set(O.gui.init.init_dist,'String',strrep(data2str(O.init_dist),'[]',''));
             validInput = O.solvableCheck('init_dist');
 
             if validInput
@@ -743,7 +763,7 @@ classdef CATTube < CAT
         function init_seed_onset(O)
             
             % Update the init_seed field
-            set(O.gui.init.init_seed,'String',data2str(O.init_seed));
+            set(O.gui.init.init_seed,'String',strrep(data2str(O.init_seed),'[]',''));
             validInput = O.solvableCheck('init_seed');
 
             if validInput
@@ -759,7 +779,7 @@ classdef CATTube < CAT
         function init_massmedium_onset(O)
             
             % Update the init_massmedium field
-            set(O.gui.init.init_massmedium,'String',data2str(O.init_massmedium));
+            set(O.gui.init.init_massmedium,'String',strrep(data2str(O.init_massmedium),'[]',''));
             validInput = O.solvableCheck('init_massmedium');
             
             if validInput
@@ -774,7 +794,7 @@ classdef CATTube < CAT
         function init_conc_onset(O)
             
             % Update the init_conc field
-            set(O.gui.init.init_conc,'String',data2str(O.init_conc));
+            set(O.gui.init.init_conc,'String',strrep(data2str(O.init_conc),'[]',''));
             validInput = O.solvableCheck('init_conc');
             
             if validInput
@@ -790,7 +810,7 @@ classdef CATTube < CAT
             
             % Update the Tprofile field
             if isfield(O.gui,'init')
-                set(O.gui.proc.Tprofile,'String',data2str(O.Tprofile));
+                set(O.gui.proc.Tprofile,'String',strrep(data2str(O.Tprofile),'[]',''));
             end
             validInput = O.solvableCheck({'Tprofile','ASprofile'});
             
@@ -809,7 +829,7 @@ classdef CATTube < CAT
             
             % Update the ASprofile field
             if isfield(O.gui,'init')
-                set(O.gui.proc.ASprofile,'String',data2str(O.ASprofile));
+                set(O.gui.proc.ASprofile,'String',strrep(data2str(O.ASprofile),'[]',''));
             end
             
             validInput = O.solvableCheck({'ASprofile' 'Tprofile'});
@@ -830,8 +850,8 @@ classdef CATTube < CAT
             
             % Update the solubility field
             if isfield(O.gui,'init')
-                set(O.gui.td.solubility,'String',data2str(O.solubility));
-                    set(O.gui.init.init_conc,'String',data2str(O.init_conc));
+                set(O.gui.td.solubility,'String',strrep(data2str(O.solubility),'[]',''));
+                    set(O.gui.init.init_conc,'String',strrep(data2str(O.init_conc),'[]',''));
             end
             validInput = O.solvableCheck('solubility');
             
@@ -848,7 +868,7 @@ classdef CATTube < CAT
             
             % Update the rhoc field
             if isfield(O.gui,'init')
-                set(O.gui.td.rhoc,'String',data2str(O.rhoc));
+                set(O.gui.td.rhoc,'String',strrep(data2str(O.rhoc),'[]',''));
             end
             validInput = O.solvableCheck('rhoc');
             
@@ -865,7 +885,7 @@ classdef CATTube < CAT
             
             % Update the kv field
             if isfield(O.gui,'init')
-                set(O.gui.td.kv,'String',data2str(O.kv));
+                set(O.gui.td.kv,'String',strrep(data2str(O.kv),'[]',''));
             end
             validInput = O.solvableCheck('kv');
             
@@ -882,7 +902,7 @@ classdef CATTube < CAT
             
             % Update the growthrate field
 
-            set(O.gui.kin.growthrate,'String',data2str(O.growthrate));
+            set(O.gui.kin.growthrate,'String',strrep(data2str(O.growthrate),'[]',''));
             validInput = O.solvableCheck('growthrate');
             
             if validInput
@@ -897,7 +917,7 @@ classdef CATTube < CAT
         function nucleationrate_onset(O)
             
             % Update the nucleationrate field
-            set(O.gui.kin.nucleationrate,'String',data2str(O.nucleationrate));
+            set(O.gui.kin.nucleationrate,'String',strrep(data2str(O.nucleationrate),'[]',''));
             
             
         end % function
@@ -907,7 +927,7 @@ classdef CATTube < CAT
         function sol_time_onset(O)
             
             % Update the sol_time field
-            set(O.gui.solv.sol_time,'String',data2str(O.sol_time));
+            set(O.gui.solv.sol_time,'String',strrep(data2str(O.sol_time),'[]',''));
             
             validInput = O.solvableCheck('sol_time');
             
@@ -947,7 +967,7 @@ classdef CATTube < CAT
             
             % Update the sol_options field
             if isfield(O.gui,'init')
-                set(O.gui.solv.sol_options,'String',data2str(O.sol_options));
+                set(O.gui.solv.sol_options,'String',strrep(data2str(O.sol_options),'[]',''));
             end
             
 %             O.solvableCheck('sol_options');

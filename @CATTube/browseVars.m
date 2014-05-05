@@ -202,7 +202,14 @@ glb.refresh = uicontrol(glb.fighandle,...
             end
 
             Vvis =  V([V.hiddenFlag] == 0); % update visible list
+            if isempty(strrep([V.class],'struct',''))
+                Vvis = struct('name',[],'class',[],'size',[],'depth',[],'id',[],'parent',[],'hiddenFlag',[]);
+                
+            end
             
+        else
+            V = struct('name',[],'class',[],'size',[],'depth',[],'id',[],'parent',[],'hiddenFlag',[]);
+            Vvis = struct('name',[],'class',[],'size',[],'depth',[],'id',[],'parent',[],'hiddenFlag',[]);
         end
     end % function getVarList
 
@@ -215,12 +222,12 @@ glb.refresh = uicontrol(glb.fighandle,...
         [glb.V,glb.Vvis] = getVarList([],[],unHideSwitch);
         
         
-        varnames = [{glb.V.name}']; %#ok<NBRAK>
+        varnames = [{glb.Vvis.name}']; %#ok<NBRAK>
         j = 1;
         finalvarnames = cell(0);
         for i =1:length(varnames)
-           if ~glb.V(i).hiddenFlag
-            finalvarnames{j} = [repmat('  ',[1 glb.V(i).depth]),varnames{i}];
+           if ~glb.Vvis(i).hiddenFlag
+            finalvarnames{j} = [repmat('  ',[1 glb.Vvis(i).depth]),varnames{i}];
             j = j+1;
            end
         end
@@ -231,43 +238,45 @@ glb.refresh = uicontrol(glb.fighandle,...
 
     function varDetails(hObject,~)
         
-        % Find selected variable
-        if ~isempty(hObject)
-            varnum = get(hObject,'Value');
-        else
-            varnum = 1;
-        end
-        
-        % Make string for description of this variable
-        % Output something like:
-        % a
-        % 2x3 double
-        
-        vname = sprintf('%s\n',glb.Vvis(varnum).name);
-        if length(glb.Vvis(varnum).size) == 2
-            vsize = sprintf('%ix%i',glb.Vvis(varnum).size);
-        else %multidimensional
-            vsize = sprintf('%ix%ix...',glb.Vvis(varnum).size(1:2));
-        end % if else
-        
-        vtext = sprintf('%s %s %s',vname,vsize,glb.Vvis(varnum).class);
-        
-        % Print variable details
-        set(glb.text,'String',vtext);
-        
-        %Check if the currently chosen variable is a structure... we cant
-        %import structures
-        varNaked = strrep(glb.Vvis(varnum).name,'+','');
-        varNaked = strrep(varNaked,'-','');
-        
-        if isstruct(evalin('base',varNaked))
-            set(glb.import,'enable','off');
-        else
-            set(glb.import,'enable','on');
-        end
-        
-        if (strcmp(get(glb.fighandle, 'SelectionType'), 'open')) % if double click
-            updateVarList([],[],get(glb.lbox,'value'));
+        if isfield(glb,'Vvis') && ~isempty(glb.Vvis(1).name)
+            % Find selected variable
+            if ~isempty(hObject)
+                varnum = get(hObject,'Value');
+            else
+                varnum = 1;
+            end
+
+            % Make string for description of this variable
+            % Output something like:
+            % a
+            % 2x3 double
+
+            vname = sprintf('%s\n',glb.Vvis(varnum).name);
+            if length(glb.Vvis(varnum).size) == 2
+                vsize = sprintf('%ix%i',glb.Vvis(varnum).size);
+            else %multidimensional
+                vsize = sprintf('%ix%ix...',glb.Vvis(varnum).size(1:2));
+            end % if else
+
+            vtext = sprintf('%s %s %s',vname,vsize,glb.Vvis(varnum).class);
+
+            % Print variable details
+            set(glb.text,'String',vtext);
+
+            %Check if the currently chosen variable is a structure... we cant
+            %import structures
+            varNaked = strrep(glb.Vvis(varnum).name,'+','');
+            varNaked = strrep(varNaked,'-','');
+
+            if isstruct(evalin('base',varNaked))
+                set(glb.import,'enable','off');
+            else
+                set(glb.import,'enable','on');
+            end
+
+            if (strcmp(get(glb.fighandle, 'SelectionType'), 'open')) % if double click
+                updateVarList([],[],get(glb.lbox,'value'));
+            end
         end
         
     end % function
@@ -283,7 +292,7 @@ glb.refresh = uicontrol(glb.fighandle,...
             
             if ~isempty(classvarname)
                 vardata = evalin('base',[glb.Vvis(varnum).name]);
-                set(O,classvarname,vardata);
+                eval(['O.',classvarname,'= vardata']);
             end % if
             
             % Close the variable list window
@@ -292,7 +301,8 @@ glb.refresh = uicontrol(glb.fighandle,...
             % Update the field for the current variable
             set(displayfield,'String',data2str(vardata));
             
-            O.gui.source.(classvarname) = glb.Vvis(varnum).name;
+            eval(['O.gui.source.',classvarname, '= glb.Vvis(varnum).name']);
+            uiresume
             
         end % if
         
