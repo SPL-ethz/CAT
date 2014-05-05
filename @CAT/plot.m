@@ -309,7 +309,7 @@
                 end
             end
          
-            set(fhandle,'units','normalized','position',[0.2 0.3 0.5 0.6])
+            set(fhandle,'units','normalized','position',[0.2 0.3 0.5 0.6]);
             set(0,'default');
   
             

@@ -643,22 +643,29 @@ classdef CATTube < CAT
                        valstr = data2str(O.(fieldnames{i}));
                    end
 
-                   fprintf(fid,strcat('kitty.',fieldnames{i},' = ',valstr,'; \n\n\n'));
+                   fprintf(fid,strcat('kitty.',fieldnames{i},' = ',{valstr},'; \n\n\n'));
                else
                    if isfield(O.gui,'source') && isfield(O.gui.source.init_dist,'y')
                        valstr{1} = O.gui.source.init_dist.y;
                    else
-                       valstr{1} = data2str(O.init_dist.y);
+                       if isfield(O.init_dist,'y')
+                        valstr{1} = data2str(O.init_dist.y);
+                       else
+                           valstr{1} = '[]';
+                       end
                    end
 
                    if isfield(O.gui,'source') && isfield(O.gui.source.init_dist,'F')
                        valstr{2} = O.gui.source.init_dist.F;
                    else
-                       valstr{2} = data2str(O.init_dist.F);
+                       if isfield(O.init_dist,'F')
+                        valstr{2} = data2str(O.init_dist.F);
+                       else
+                           valstr{2} = '[]';
+                       end
                    end
                    
-                   fprintf(fid,strcat('kitty.init_dist.y = ',valstr{1},'; \n'));
-                   fprintf(fid,strcat('kitty.init_dist.F = ',valstr{2},'; \n\n\n'));
+                   fprintf(fid,strcat('kitty.init_dist = Distribution(',valstr{1},',',valstr{2},');'))
                end
                 
             end
