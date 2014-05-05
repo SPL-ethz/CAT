@@ -81,7 +81,8 @@ glb.refresh = uicontrol(glb.fighandle,...
         id = length(varList(:,1));
         % if there are structures, whose fields may contain the necessary
         % data, we should be aware of this... therefore let's first explore
-        % all structures in the workspace
+        % all structures in the workspace and create a list of all
+        % variables, also those 'hidden' in structures
         while ~isempty(activeList)
             if isa(evalin('base',[activeList{1,2},activeList{1,1}]),'struct')
                 for i = 1:length(evalin('base',[activeList{1,2},activeList{1,1}]))
@@ -121,9 +122,9 @@ glb.refresh = uicontrol(glb.fighandle,...
                 Vidparent = [Vidparent; varList{j,3} varList{j,4}];
             end
         end % if
-        V = struct('name',[],'class',[],'size',[],'depth',[],'id',[],'parent',[],'hiddenFlag',[]);
-        Vvis = V;
+        V = struct('name',[],'class',[],'size',[],'depth',[],'id',[],'parent',[],'hiddenFlag',[]); % structure containing all allowed variables and additional information about them
         if ~isempty(Vname)
+            % Reorder items according to our own rules
             parents = Vidparent(Vidparent(:,end) == 0,1);
             Inew = parents(:)';
             while ~isempty(parents)
@@ -145,11 +146,9 @@ glb.refresh = uicontrol(glb.fighandle,...
             Vname = Vname2(:);
             Vidparent = Vidparent2;
 
-
-
             for i = 1:length(Vname)
                V(i).name = Vname{i};
-               if ~isfield(glb,'V') && any(Vidparent(:,2)==Vidparent(i,1))
+               if ~isfield(glb,'V') && any(Vidparent(:,2)==Vidparent(i,1)) || (isfield(glb,'V') && isempty(glb.V(1).name))
                   V(i).name = [V(i).name,'+']; 
                elseif isfield(glb,'V')
                    V(i).name = glb.V(i).name;
@@ -161,7 +160,7 @@ glb.refresh = uicontrol(glb.fighandle,...
                V(i).parent = Vidparent(i,2);
 
 
-               if ~isfield(glb,'V') && V(i).depth==0
+               if ~isfield(glb,'V') && V(i).depth==0 || (isfield(glb,'V') && isempty(glb.V(1).name))
                    V(i).hiddenFlag = 0;
                elseif ~isfield(glb,'V') && V(i).depth>0
                    V(i).hiddenFlag = 1;
@@ -170,14 +169,9 @@ glb.refresh = uicontrol(glb.fighandle,...
                end
             end
 
-            j = 1;
-            for i = 1:length(Vname)
-                if ~V(i).hiddenFlag
-                    Vvis(j) = V(i);
-                    j = j+1;
-                end
-            end
-
+            Vvis =  V([V.hiddenFlag] == 0); % structure containing all currently visible variables
+            
+            % change status of their hiddenFlag if double clicked
             for i = 1:length(Vvis)
                if any(unHideSwitch==i)
                    if ~isempty(strfind(V([V.id]==Vvis(i).id).name,'+'))
@@ -207,13 +201,8 @@ glb.refresh = uicontrol(glb.fighandle,...
                end
             end
 
-            j = 1;
-            for i = 1:length(Vname)
-                if ~V(i).hiddenFlag
-                    Vvis(j) = V(i);
-                    j = j+1;
-                end
-            end
+            Vvis =  V([V.hiddenFlag] == 0); % update visible list
+            
         end
     end % function getVarList
 
