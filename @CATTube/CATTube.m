@@ -550,16 +550,6 @@ classdef CATTube < CAT
                 'Position',[20 180 450 30]...
                 );
             
-            % Write to file button
-            O.gui.run.export = uicontrol(O.gui.run.panel,...
-                'Style','pushbutton',...
-                'String','Write settings to file',...
-                'Value',0,...
-                'Enable','on',...
-                'Callback',@(hObject,Event) saveCAT(O),...
-                'Position',[20 140 450 30]...
-                );
-            
             % Plot button
             O.gui.run.plot = uicontrol(O.gui.run.panel,...
                 'Style','pushbutton',...
@@ -567,8 +557,29 @@ classdef CATTube < CAT
                 'Value',0,...
                 'Enable','off',...
                 'Callback',@(hObject,Event)O.plot,...
-                'Position',[20 100 450 30]...
+                'Position',[20 140 450 30]...
                 );
+            
+            % Save CAT
+            O.gui.run.export = uicontrol(O.gui.run.panel,...
+                'Style','pushbutton',...
+                'String','Save CAT object',...
+                'Value',0,...
+                'Enable','on',...
+                'Callback',@(hObject,Event) saveCAT(O),...
+                'Position',[20 10 225 30]...
+                );
+            
+            % Write down sources
+            O.gui.run.sources = uicontrol(O.gui.run.panel,...
+                'Style','pushbutton',...
+                'String','Write sources to m-file',...
+                'Value',0,...
+                'Enable','on',...
+                'Callback',@(hObject,Event) saveSources(O),...
+                'Position',[245 10 225 30]...
+                );
+            
             
             % Callback function for parameters that are constraint to an
             % interval
@@ -604,6 +615,37 @@ classdef CATTube < CAT
             kitty.save(CATname);
             
         end % function
+        
+        function saveSources(O)
+           
+            fieldnames = properties(O);
+            fieldnames(strcmp(fieldnames,'gui')) = [];
+            
+            namestr = strcat('CATsource','_',datestr(now,'YYYYmmdd_HHMMSS'),'.m');
+            fid = fopen(namestr,'w+');
+            
+            fprintf(fid,'kitty = CAT; \n\n');
+            
+            for i = 1:length(fieldnames)
+               if isfield(O.gui,'source') && isfield(O.gui.source,fieldnames{i})
+                   valstr = O.gui.source.(fieldnames{i});
+               else
+                   valstr = data2str(O.(fieldnames{i}));
+               end
+               
+               y = strsplit(help(strcat('CAT.',fieldnames{i})),{'\n','\r'});
+               pcsstr = repmat({'%'},[length(y')-2 1]);pcsstr = ['%%';pcsstr];
+               y = [pcsstr(:) y(1:end-1)'];
+               for j = 1:length(y(:,1))
+                fprintf(fid,'%s %s \n',y{j,:});
+               end
+               fprintf(fid,strcat('kitty.',fieldnames{i},' = ',valstr,'; \n\n\n'));
+                
+            end
+            
+            fclose(fid);
+            
+        end
         
         %% - clone
         
@@ -709,6 +751,7 @@ classdef CATTube < CAT
             else
                 set(O.gui.init.init_seed_warning,'visible','on')
             end
+
         end % function
         
         %% - init_massmedium_onset
@@ -738,7 +781,7 @@ classdef CATTube < CAT
                 set(O.gui.init.init_conc_warning,'visible','off')
             else
                 set(O.gui.init.init_conc_warning,'visible','on')
-            end;
+            end;    
         end % function
         
         %% - Tprofile_onset

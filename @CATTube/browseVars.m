@@ -55,8 +55,12 @@ glb.text = uicontrol(glb.fighandle,...
     'BackgroundColor',get(glb.fighandle,'Color'),...
     'Position',[280 320 110 30]);
 
+if ~isempty(glb.Vvis(1).name)
+    varDetails([],[]);
+end
+
 % Create refresh button
-glb.import = uicontrol(glb.fighandle,...
+glb.refresh = uicontrol(glb.fighandle,...
     'Style','pushbutton',...
     'String','Refresh',...
     'Units','pixels',...
@@ -94,7 +98,6 @@ glb.import = uicontrol(glb.fighandle,...
                     id = id+length(fields);
                 end
             end
-%             id = id +1;
             activeList(1,:) = [];
 
         end
@@ -240,7 +243,11 @@ glb.import = uicontrol(glb.fighandle,...
     function varDetails(hObject,~)
         
         % Find selected variable
-        varnum = get(hObject,'Value');
+        if ~isempty(hObject)
+            varnum = get(hObject,'Value');
+        else
+            varnum = 1;
+        end
         
         % Make string for description of this variable
         % Output something like:
@@ -248,7 +255,7 @@ glb.import = uicontrol(glb.fighandle,...
         % 2x3 double
         
         vname = sprintf('%s\n',glb.Vvis(varnum).name);
-        if length(glb.V(varnum).size) == 2
+        if length(glb.Vvis(varnum).size) == 2
             vsize = sprintf('%ix%i',glb.Vvis(varnum).size);
         else %multidimensional
             vsize = sprintf('%ix%ix...',glb.Vvis(varnum).size(1:2));
@@ -258,6 +265,17 @@ glb.import = uicontrol(glb.fighandle,...
         
         % Print variable details
         set(glb.text,'String',vtext);
+        
+        %Check if the currently chosen variable is a structure... we cant
+        %import structures
+        varNaked = strrep(glb.Vvis(varnum).name,'+','');
+        varNaked = strrep(varNaked,'-','');
+        
+        if isstruct(evalin('base',varNaked))
+            set(glb.import,'enable','off');
+        else
+            set(glb.import,'enable','on');
+        end
         
         if (strcmp(get(glb.fighandle, 'SelectionType'), 'open')) % if double click
             updateVarList([],[],get(glb.lbox,'value'));
@@ -272,7 +290,7 @@ glb.import = uicontrol(glb.fighandle,...
         
         % Assign the corresponding CAT variable to the chosen variable
         % Get variable data
-        if varnum <= length(glb.V)
+        if varnum <= length(glb.Vvis)
             
             if ~isempty(classvarname)
                 vardata = evalin('base',[glb.Vvis(varnum).name]);
@@ -284,6 +302,8 @@ glb.import = uicontrol(glb.fighandle,...
             
             % Update the field for the current variable
             set(displayfield,'String',data2str(vardata));
+            
+            O.gui.source.(classvarname) = glb.Vvis(varnum).name;
             
         end % if
         
