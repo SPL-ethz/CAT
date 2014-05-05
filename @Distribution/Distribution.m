@@ -245,7 +245,7 @@ classdef Distribution < handle
                 if any( size(O.pF) ~= size(O.y) )
                     warning('Distribution:getF0:WrongSize',...
                         'F is not the same size as y');
-                    Fout = [];
+                    Fout = O.pF;
                 else
                     Fout = O.pF;
                 end % if else
