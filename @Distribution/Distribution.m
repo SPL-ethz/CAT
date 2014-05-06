@@ -420,7 +420,7 @@ classdef Distribution < handle
             % SEE ALSO
             % Distribution
             
-            if nargin < 2 || isempty(Parent) || ~ishandle(Parent)
+            if nargin < 2 || all(isempty(Parent)) || ~any(ishandle(Parent))
                 Parent = figure;
                 set(Parent,'numbertitle','off','name','PSDs (overlapping)');
             end % if
