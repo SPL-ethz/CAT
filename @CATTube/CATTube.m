@@ -645,7 +645,7 @@ classdef CATTube < CAT
 
                    fprintf(fid,strcat('kitty.',fieldnames{i},' = ',{valstr},'; \n\n\n'));
                else
-                   if isfield(O.gui,'source') && isfield(O.gui.source.init_dist,'y')
+                   if isfield(O.gui,'source') && isfield(O.gui.source,'init_dist') && isfield(O.gui.source.init_dist,'y')
                        valstr{1} = O.gui.source.init_dist.y;
                    else
                        if isfield(O.init_dist,'y')
@@ -655,7 +655,7 @@ classdef CATTube < CAT
                        end
                    end
 
-                   if isfield(O.gui,'source') && isfield(O.gui.source.init_dist,'F')
+                   if isfield(O.gui,'source') && isfield(O.gui.source,'init_dist') && isfield(O.gui.source.init_dist,'F')
                        valstr{2} = O.gui.source.init_dist.F;
                    else
                        if isfield(O.init_dist,'F')
