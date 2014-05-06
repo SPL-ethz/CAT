@@ -668,7 +668,7 @@ classdef CATTube < CAT
                        end
                    end
                    
-                   fprintf(fid,strcat('kitty.init_dist = Distribution(',valstr{1},',',valstr{2},');'))
+                   fprintf(fid,strcat('kitty.init_dist = Distribution(',valstr{1},',',valstr{2},');\n\n\n'))
                end
                 
             end

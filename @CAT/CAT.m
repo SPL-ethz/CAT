@@ -325,8 +325,7 @@ classdef CAT < hgsetget
             % GET.INIT_CONC
             %
             % Getter method for init conc
-            
-            
+
             if strcmpi('sat',O.init_conc) && ~isempty(O.solubility)
                 O.init_conc = O.solubility(O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium);
             end
@@ -667,12 +666,20 @@ classdef CAT < hgsetget
 
                     elseif nargin(value) == 2 && length(value(1.1,1))==1
                         % assume size independent function
-                        O.growthrate = @(S,T,~) value(S,T);
+                        
+                        y = strsplit(data2str(value),')');
+                        f = [y{1},',y)',strjoin(y(2:end),')'),'*ones(size(y))'];
+                        O.growthrate = str2func(f);
 
                     elseif nargin(value) == 2 && length(value(1.1,[1 2]))==2
                         % assume temperature independent function
                         O.growthrate = @(S,~,y) value(S,y);
 
+                    elseif nargin(value) == 1
+                        % assume growth rate function only depending on S
+                        y = strsplit(data2str(value),')');
+                        f = [y{1},',~,y)',strjoin(y(2:end),')'),'*ones(size(y))'];
+                        O.growthrate = str2func(f);
                     else
                         warning('Distribution:setgrowthrate:Wrongnargin',...
                             'The growth rate function must have 3 input arguments (supersaturation, temperature, sizes) or 2 input arguments (S,T) or (S,y)');
