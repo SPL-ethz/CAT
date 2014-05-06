@@ -38,8 +38,15 @@
                 plotwhat = 'detailed_results';
             end
             
+            if ishandle(21)
+                h = get(21,'children');
+                defactoSeries = length(get(h(1),'children'))+1;
+            else
+                defactoSeries = 1;
+            end
+            
             serLen = length(O); % series length
-            lineProps = {'b-','r-','k-','g-d','m-s','c-o'}; % line properties for series
+            lineProps = {'b-','k--','g-d','m-s','c-o','r+'}; % line properties for series
             
             PDpl = [];
             fhandle = [];
@@ -141,21 +148,21 @@
 
                         subplot(3,1,1)
                         hold on
-                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,0),lineProps{ii});                
+                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,0),lineProps{ii+defactoSeries},'linewidth',1.5);                
                         ylabel('0^{th} moment')
                         grid on
                         hold off
 
                         subplot(3,1,2)
                         hold on
-                        PDpl_local(2) = plot(O(ii).calc_time,moments(O(ii).calc_dist,3),lineProps{ii});
+                        PDpl_local(2) = plot(O(ii).calc_time,moments(O(ii).calc_dist,3),lineProps{ii+defactoSeries},'linewidth',1.5);
                         ylabel('3^{rd} moment')
                         grid on
                         hold off
 
                         subplot(3,1,3)
                         hold on
-                        PDpl_local(3) = plot(O(ii).calc_time,moments(O(ii).calc_dist,4)./moments(O(ii).calc_dist,3),lineProps{ii});
+                        PDpl_local(3) = plot(O(ii).calc_time,moments(O(ii).calc_dist,4)./moments(O(ii).calc_dist,3),lineProps{ii+defactoSeries},'linewidth',1.5);
                         ylabel('Weight average length')
                         xlabel('Time')
                         grid on
@@ -171,7 +178,7 @@
 
                         subplot(2,2,1)
                         hold on
-                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,0),lineProps{ii});
+                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,0),lineProps{ii+defactoSeries},'linewidth',1.5);
                         ylabel('0^{th} moment')
                         xlabel('Time')
                         grid on
@@ -179,7 +186,7 @@
 
                         subplot(2,2,2)
                         hold on
-                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,1),lineProps{ii});
+                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,1),lineProps{ii+defactoSeries},'linewidth',1.5);
                         ylabel('1^{st} moment')
                         xlabel('Time')
                         grid on
@@ -187,7 +194,7 @@
 
                         subplot(2,2,3)
                         hold on
-                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,2),lineProps{ii});
+                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,2),lineProps{ii+defactoSeries},'linewidth',1.5);
                         ylabel('2^{nd} moment')
                         xlabel('Time')
                         grid on
@@ -195,7 +202,7 @@
 
                         subplot(2,2,4)
                         hold on
-                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,3),lineProps{ii});
+                        PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,3),lineProps{ii+defactoSeries},'linewidth',1.5);
                         ylabel('3^{th} moment')
                         xlabel('Time')
                         grid on
@@ -219,7 +226,7 @@
 
                             subplot(2,2,nopvit)
                             hold on
-                            PDpl_local = plot(O(ii).calc_time,O(ii).calc_conc,lineProps{ii},'linewidth',1.5);
+                            PDpl_local = plot(O(ii).calc_time,O(ii).calc_conc,lineProps{ii+defactoSeries},'linewidth',1.5);
                             xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
                             xlabel('Time')
                             ylabel('Concentration')
@@ -233,7 +240,7 @@
                         if ~isempty(O(ii).calc_conc)
                             subplot(2,2,nopvit);              
                             hold on
-                            PDpl_local = plot(O(ii).calc_time(:),O(ii).calc_conc(:)./O(ii).solubility(O(ii).Tprofile(O(ii).calc_time(:))),lineProps{ii},'linewidth',1.5);
+                            PDpl_local = plot(O(ii).calc_time(:),O(ii).calc_conc(:)./O(ii).solubility(O(ii).Tprofile(O(ii).calc_time(:))),lineProps{ii+defactoSeries},'linewidth',1.5);
                             xlabel('Time')
                             xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
                             ylabel('Supersaturation [-]')
@@ -245,7 +252,7 @@
 
                         subplot(2,2,nopvit)
                         hold on
-                        PDpl_local = plot(O(ii).calc_time,O(ii).Tprofile(O(ii).calc_time),lineProps{ii},'linewidth',1.5);
+                        PDpl_local = plot(O(ii).calc_time,O(ii).Tprofile(O(ii).calc_time),lineProps{ii+defactoSeries},'linewidth',1.5);
                         xlabel('Time')
                         xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
                         ylabel('Temperature')
@@ -257,7 +264,7 @@
 
                         subplot(2,2,nopvit);               
                         hold on
-                        PDpl_local = plot(O(ii).calc_time,massmedium(O(ii)),lineProps{ii},'linewidth',1.5);
+                        PDpl_local = plot(O(ii).calc_time,massmedium(O(ii)),lineProps{ii+defactoSeries},'linewidth',1.5);
                         xlabel('Time')
                         xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
                         ylabel('Total mass Solvent + Antisolvent')
@@ -279,7 +286,7 @@
                             Tvec = linspace(min(O(ii).Tprofile(O(ii).calc_time))-5,max(O(ii).Tprofile(O(ii).calc_time))+5);
                             plot(Tvec,O(ii).solubility(Tvec),'r--','linewidth',1.5)
                             legend('Solubility','location','southeast')
-                            PDpl_local = plot(O(ii).Tprofile(O(ii).calc_time),O(ii).calc_conc,lineProps{ii},'linewidth',1.5);
+                            PDpl_local = plot(O(ii).Tprofile(O(ii).calc_time),O(ii).calc_conc,lineProps{ii+defactoSeries},'linewidth',1.5);
                             xlabel('Temperature')
                             ylabel('Concentration')
                             grid on
