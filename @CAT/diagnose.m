@@ -137,6 +137,10 @@
                     
                 elseif strcmp(fieldname,'sol_options')
                     
+                    if isempty(value)
+                        value = {''};
+                    end
+                    
                     if ~iscell(value)
                         if i<=Iquery
                         warning('CAT:SetSol_Options:WrongType',...

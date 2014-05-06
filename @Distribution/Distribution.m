@@ -180,7 +180,9 @@ classdef Distribution < handle
             if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
                 O.boundaries = value(:)';
                 
-                O.y = (O.boundaries(1:end-1)+O.boundaries(2:end))/2;
+                if length(O.y) ~= length(value)-1
+                    O.y = (O.boundaries(1:end-1)+O.boundaries(2:end))/2;
+                end
             else
                 value = sort(value(:));
                 O.boundaries = value(:)';

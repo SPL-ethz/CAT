@@ -641,9 +641,12 @@ classdef CATTube < CAT
                        valstr = O.gui.source.(fieldnames{i});
                    else
                        valstr = data2str(O.(fieldnames{i}));
+                       if isstr(O.(fieldnames{i}))
+                           valstr = ['''',valstr,''''];
+                       end
                    end
 
-                   fprintf(fid,strcat('kitty.',fieldnames{i},' = ',{valstr},'; \n\n\n'));
+                   fprintf(fid,strcat('kitty.',fieldnames{i},' = ',valstr,'; \n\n\n'));
                else
                    if isfield(O.gui,'source') && isfield(O.gui.source,'init_dist') && isfield(O.gui.source.init_dist,'y')
                        valstr{1} = O.gui.source.init_dist.y;

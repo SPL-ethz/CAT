@@ -397,7 +397,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
             set(Dgui.density.function,'string',['1./',get(Dgui.density.function_nor_sigma,'string'),'*exp(-(x-',get(Dgui.density.function_nor_mu,'string'),').^2./(2*',get(Dgui.density.function_nor_sigma,'string'),'.^2))'])
             changedensity(hObject,[],'function')
         elseif strcmp(ftype,'lognormal') && ~isempty(str2num(get(Dgui.density.function_lognor_sigma,'string'))) && ~isempty(str2num(get(Dgui.density.function_lognor_mu,'string'))) 
-            set(Dgui.density.function,'string',['1./(',get(Dgui.density.function_nor_mu,'string'),'*',get(Dgui.density.function_nor_sigma,'string'),')*exp(-(log(x)-',get(Dgui.density.function_nor_mu,'string'),').^2./(2*',get(Dgui.density.function_nor_sigma,'string'),'.^2))'])
+            set(Dgui.density.function,'string',['1./(',get(Dgui.density.function_lognor_mu,'string'),'*',get(Dgui.density.function_lognor_sigma,'string'),')*exp(-(log(x)-',get(Dgui.density.function_lognor_mu,'string'),').^2./(2*',get(Dgui.density.function_lognor_sigma,'string'),'.^2))'])
             changedensity(hObject,[],'function')
         end
           
@@ -582,7 +582,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
             % If values wanted, translate to values
             if strcmpi(type,'values')
                 try
-                    if isa(f,'func_handle')
+                    if isa(f,'function_handle')
                         f = f(x);
                     end
                         
@@ -637,6 +637,12 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         [x,f] = getDgui_current('values');
         
         Dgui.preview.lines = line(x,f,'marker','o');
+        if strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Log10' )
+            set(gca,'xscale','log')
+        else
+            set(gca,'xscale','linear')
+        end
+            
         
     end % function plotDist
 

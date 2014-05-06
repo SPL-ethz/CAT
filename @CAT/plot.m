@@ -142,20 +142,23 @@
                     subplot(3,1,1)
                     hold on
                     PDpl_local(1) = plot(O(ii).calc_time,moments(O(ii).calc_dist,0),lineProps{ii});                
-                    ylabel('0^{th} moment [#/g]')
+                    ylabel('0^{th} moment')
+                    grid on
                     hold off
                     
                     subplot(3,1,2)
                     hold on
                     PDpl_local(2) = plot(O(ii).calc_time,moments(O(ii).calc_dist,3),lineProps{ii});
-                    ylabel('3^{rd} moment [\mum^3/g]')
+                    ylabel('3^{rd} moment')
+                    grid on
                     hold off
                     
                     subplot(3,1,3)
                     hold on
                     PDpl_local(3) = plot(O(ii).calc_time,moments(O(ii).calc_dist,4)./moments(O(ii).calc_dist,3),lineProps{ii});
-                    ylabel('Weight average length [\mum]')
+                    ylabel('Weight average length')
                     xlabel('Time')
+                    grid on
                     hold off
                     PDpl = [PDpl; PDpl_local];
                 elseif (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
@@ -295,7 +298,6 @@
                         hold on
                         set(gcf,'numbertitle','off','name',...
                             'Details from Integration')
-                        PDpl_local = zeros(1,1);
                         PDpl_local = semilogy(O(ii).calc_time,massbal(O(ii)));
                         xlabel('Time')
                         ylabel('Mass balance [% error]')
@@ -309,7 +311,7 @@
             end
          
             set(fhandle,'units','normalized','position',[0.2 0.3 0.5 0.6]);
-            set(0,'default');
+            set(0,'defaultaxesfontsize','default','defaulttextfontsize','default');
   
             
         end % function
