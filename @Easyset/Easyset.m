@@ -1,35 +1,105 @@
 classdef Easyset < hgsetget
-    % Easyset
+    %% Easyset
     % Class to implement some automation on set methods
     %
     % Check set value against defined:
     % - choices of variables
     % or
     % - list of classes and list of attributes
+    %
+    % How to use this class:
+    %
+    % Make your class a subclass of Easyset:
+    %   classdef NewClass < Easyset
+    %
+    % Define set methods for each variable which you want to restrict. The
+    % class should:
+    %  1. Define the choices/classes/attributes structure for the current
+    %  property
+    %  2. Call the setPropertyValue method to perform the checking (will
+    %  call error if any checks fail)
+    %  3. Do any optional extra setting
+    %  4. Save the value at the end of the function
+    %
+    %% EXAMPLE for a property named VAR:
+    %
+    %     function set.VAR(O,value)
+    %
+    %         % Define properties here
+    %         O.classes.VAR = 'numeric';
+    %         O.attributes.VAR = {'vector','real','finite','nonnegative'};
+    %
+    %         % Redirect to setPropertyValue function to do checking
+    %         O.setPropertyValue('VAR',value);
+    %
+    %         % If checks didn't fail, method has not exited, so do extra
+    %         % checks here
+    %
+    %         % Set the value
+    %         O.VAR = value;
+    %
+    %     end % function
+    %
+    % Instead of defining the property structure at the beginning of the
+    % set method, the method configureproperties can be defined to take
+    % care of this. This can be useful when many properties share the same
+    % definition, for example VAR and VAR2 in this example:
+    %
+    %     function configureproperties(O)
+    %
+    %         % In this case, VAR and boundaries have the same restrictions
+    %         [O.classes.VAR,O.classes.VAR2] = deal({'numeric'});
+    %         [O.attributes.VAR,O.attributes.VAR2] = deal({'vector','real','finite','nonnegative'});
+    %
+    %     end % function
+    %
+    %% SEE ALSO
+    % Easyset.choices, Easyset.classes, Easyset.attributes,
+    % Easyset.configureproperties
+
+    %% Easyset properties
     
     properties (Access=protected)
         
-        % Set value choices for restricted properties
-        % These override any attribute and class choices
-        % This is a structure listing the allowable choices for each
-        % restricted property
+        % Easyset.choices
+        %
+        % Structure of choices for restricted properties. These override
+        % any attribute and class choices. Defined as a structure listing
+        % the allowable choices for each restricted property
+        %
+        % SEE ALSO
+        % Easyset, Easyset.classes, Easyset.attributes
         choices
         
-        % Set allowed classes for restricted properties
-        % Structure with fields for each property, containing cell values
-        % listing allowable classes.
+        % Easyset.classes
+        %
+        % Structure of allowed classes for restricted properties. Defined
+        % as a structure with fields for each property, containing cell
+        % values listing allowable classes.
+        %
         % At least one class must be defined for each property if
         % attributes are to be checked! If no class is defined, no checking
         % is done on the attributes of the property.
+        %
+        % SEE ALSO
+        % Easyset, Easyset.choices, Easyset.attributes
         classes
         
-        % Set attributes for restricted properties
-        % Structure with fields for each property, containing cell values
+        % Easyset.attributes
+        %
+        % Structure of attributes for restricted properties. Defined as a
+        % structure with fields for each property, containing cell values
         % listing allowable attributes.
+        %
+        % Only works if classes is defined for the property!
+        %
+        % SEE ALSO
+        % Easyset, Easyset.choices, Easyset.classes
         attributes
         
     end
     
+    %% Easyset methods
     methods
         
         %% Constructor method
@@ -41,9 +111,17 @@ classdef Easyset < hgsetget
             
         end % function
         
-        %% Empty configureproperties
+        %% Method configureproperties
         
         function configureproperties(O)
+            
+            % configureproperties
+            %
+            % This method is run when Easyset is constructed. It can be
+            % used to define the structures choices, classes and attributes
+            %
+            % SEE ALSO
+            % Easyset
             
             % Empty - to be overwritten by subfunctions
             
@@ -192,4 +270,3 @@ classdef Easyset < hgsetget
     end
     
 end
-
