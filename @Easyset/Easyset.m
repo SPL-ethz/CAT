@@ -16,7 +16,7 @@ classdef Easyset < hgsetget
     % class should:
     %  1. Define the choices/classes/attributes structure for the current
     %  property
-    %  2. Call the setPropertyValue method to perform the checking (will
+    %  2. Call the checkPropertyValue method to perform the checking (will
     %  call error if any checks fail)
     %  3. Do any optional extra setting
     %  4. Save the value at the end of the function
@@ -29,8 +29,8 @@ classdef Easyset < hgsetget
     %         O.classes.VAR = 'numeric';
     %         O.attributes.VAR = {'vector','real','finite','nonnegative'};
     %
-    %         % Redirect to setPropertyValue function to do checking
-    %         O.setPropertyValue('VAR',value);
+    %         % Redirect to checkPropertyValue function to do checking
+    %         O.checkPropertyValue('VAR',value);
     %
     %         % If checks didn't fail, method has not exited, so do extra
     %         % checks here
@@ -149,9 +149,9 @@ classdef Easyset < hgsetget
                 % Attempt to set the value - use its set method
                 O.(property) = value;
             elseif nargin == 2 && ~isempty(property)
-                % Set without any values - send this to setPropertyValue so
+                % Set without any values - send this to checkPropertyValue so
                 % that it can do its thing. Don't set anything
-                O.setPropertyValue(property);
+                O.checkPropertyValue(property);
             else
                 % Don't know what to do, show properties for the used class
                 fprintf('Available properties: %s\n',implode(properties(O),', '));
@@ -159,11 +159,11 @@ classdef Easyset < hgsetget
             
         end % function
         
-        %% Function setPropertyValue
+        %% Function checkPropertyValue
         
-        function setPropertyValue(O,property,varargin)
+        function checkPropertyValue(O,property,varargin)
             
-            % setPropertyValue
+            % checkPropertyValue
             % Function to check values against structure of choices,
             % classes and attributes defined in class file, or to return a
             % string describing what a property can be set to.

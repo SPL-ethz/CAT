@@ -101,7 +101,7 @@ classdef Distribution < Easyset
         
         %% Method set.y,
         
-        % Call the setPropertyValue() method
+        % Call the checkPropertyValue() method
         % Along with the set() method, this function
         % captures the two ways of setting a property:
         % D.y = ...
@@ -113,8 +113,8 @@ classdef Distribution < Easyset
             O.classes.y = 'numeric';
             O.attributes.y = {'vector','real','finite','nonnegative'};
             
-            % Redirect to setPropertyValue function to do checking
-            O.setPropertyValue('y',value);
+            % Redirect to checkPropertyValue function to do checking
+            O.checkPropertyValue('y',value);
             
             % If checks didn't fail, method has not exited, so do extra
             % checks
@@ -128,7 +128,7 @@ classdef Distribution < Easyset
         
         %% Method set.boundaries
         
-        % Call the setPropertyValue() method
+        % Call the checkPropertyValue() method
         % Along with the set() method, this function
         % captures the two ways of setting a property:
         % D.y = ...
@@ -140,8 +140,8 @@ classdef Distribution < Easyset
             O.classes.boundaries = 'numeric';
             O.attributes.boundaries = {'vector','real','finite','nonnegative'};
             
-            % Redirect to setPropertyValue function to do checking
-            O.setPropertyValue('boundaries',value);
+            % Redirect to checkPropertyValue function to do checking
+            O.checkPropertyValue('boundaries',value);
             
             % If checks didn't fail, method has not exited, so do extra
             % checks
