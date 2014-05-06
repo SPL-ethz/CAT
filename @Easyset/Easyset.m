@@ -153,8 +153,8 @@ classdef Easyset < hgsetget
                 % that it can do its thing. Don't set anything
                 O.setPropertyValue(property);
             else
-                % Don't know what to do, show help for this function
-                help('Distribution.set')
+                % Don't know what to do, show properties for the used class
+                fprintf('Available properties: %s\n',implode(properties(O),', '));
             end % if elseif else
             
         end % function
