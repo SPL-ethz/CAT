@@ -161,6 +161,13 @@ classdef Distribution < Easyset
             %
             % Check input: vector, function handle, empty
             
+            % Define properties here
+            O.classes.F = {'function_handle','numeric','cell'};
+            O.attributes.F = {'vector','real'};
+            
+            % Redirect to checkPropertyValue function to do checking
+            O.checkPropertyValue('F',value);
+            
             if isa(value,'function_handle')
                 % Value is ok, set                
                     O.pF = value;                
