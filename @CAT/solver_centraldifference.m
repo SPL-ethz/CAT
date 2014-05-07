@@ -91,13 +91,9 @@ Gb = O.growthrate(S, T, yb );
 Fb = F( [1 1:end-2 end-2] );
 
 % nucleation
-if nargin(O.nucleationrate)>3
+if nargin(O.nucleationrate)>2
     dist = Distribution(y,F,O.init_dist.boundaries);
-    J = O.nucleationrate(S,T,t,dist);
-    % nucleation
-    Fb(1) = J/G(1);
-else
-    J = O.nucleationrate(S,T,t);
+    J = O.nucleationrate(S,T,dist);
     % nucleation
     Fb(1) = J/G(1);
 end

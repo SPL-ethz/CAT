@@ -125,11 +125,9 @@ y = x(nBins+1:2*nBins); %pivot sizes
 boundaries = x(2*nBins+1:3*nBins+1); %boundaries
 Dy = diff(boundaries);Dy = Dy(:);
 
-if nargin(O.nucleationrate)>3
+if nargin(O.nucleationrate)>2
     dist = Distribution(y,N./Dy,boundaries);
-    J = O.nucleationrate(S,T,t,dist);
-else
-    J = O.nucleationrate(S,T,t);
+    J = O.nucleationrate(S,T,dist);
 end
 
 Gy = O.growthrate(S,T,y); % growth rate for pivots
