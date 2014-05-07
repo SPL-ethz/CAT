@@ -34,7 +34,7 @@ classdef CAT < hgsetget
 %	>> C
 %
 % To find out more about any property, use the help function, by typing:
-%	>> help property_name
+%	>> help CAT.property_name
 %
 % where property_name is the name of the property you are interested in.
 %
