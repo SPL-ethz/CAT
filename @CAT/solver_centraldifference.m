@@ -108,6 +108,22 @@ dc = -3*O.kv*O.rhoc*sum(G(:).*F(:).*Dy(:).*y(:).^2)-c/m*Q-J*y(1)^3*O.kv*O.rhoc;
 
 dXdt = [dF(:)-Q*F(:)/m; dc];
 
+if findall(0,'name','Looking at CATs')
+            
+    if isempty(O.tNodes)
+        tFinal = O.sol_time(end);
+    else
+        tFinal = O.tNodes(end);
+    end
+    if floor(t/tFinal/0.05)>str2num(get(gca,'tag'))
+        fill([0 t/tFinal t/tFinal 0],[0 0 1 1],'c','edgecolor','none')
+        delete(findall(gcf,'type','text'))
+        text(0.44,0.5,[num2str(floor(t/tFinal*100),'%2d'),'%'])
+        set(gca,'tag',num2str(floor(t/tFinal/0.05)))
+        drawnow
+    end
+end
+
 
 end % function
 

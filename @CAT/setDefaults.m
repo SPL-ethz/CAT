@@ -51,6 +51,10 @@ if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_method)
     O.sol_method = 'cd';
 end
 
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_method)
+    O.sol_options= {''};
+end
+
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_time)
     O.sol_time = [0:100:10000];
 end

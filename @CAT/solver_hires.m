@@ -81,6 +81,11 @@ end
 %% Integration
 flagdt = 0; % flag if time step was just rejected (skip time step evaluation)
 Dtlast = inf; % last time step
+if isempty(O.tNodes)
+    tFinal = O.sol_time(end);
+else
+    tFinal = O.tNodes(end);
+end
 
 while t<O.sol_time(end)
        % Growth rate
@@ -179,6 +184,17 @@ while t<O.sol_time(end)
         TIME    =   [TIME t]; %#ok<*AGROW>
         F = arrayCrop(F_dummy,[3;length(F_dummy)-1])';
         Y(end+1,:) = [F(:)' c];
+        
+        if findall(0,'name','Looking at CATs')
+
+            if floor(t/tFinal/0.05)>str2num(get(gca,'tag'))
+                fill([0 t/tFinal t/tFinal 0],[0 0 1 1],'c','edgecolor','none')
+                delete(findall(gcf,'type','text'))
+                text(0.44,0.5,[num2str(floor(t/tFinal*100),'%2d'),'%'])
+                set(gca,'tag',num2str(floor(t/tFinal/0.05)))
+                drawnow
+            end
+        end
 
     else % results violate tolerances and conditions
         % Use a smaller timestep and repeat everything
@@ -204,6 +220,8 @@ end % for
 O.calc_time = TIME;
 O.calc_dist = SolutionDists;
 O.calc_conc = SolutionConc;
+
+
 
 end
 

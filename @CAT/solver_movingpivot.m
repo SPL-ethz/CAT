@@ -40,9 +40,9 @@ tend = O.sol_time(end); % overall end time
 % necessary
 options = O.sol_options;
 if isempty(O.sol_options)
-    options = odeset(options,'Events',@(t,x) EventBin(t,x,dL,massbalTol,O),'reltol',1e-6);
+    options = odeset('Events',@(t,x) EventBin(t,x,dL,massbalTol,O),'reltol',1e-6);
 else
-    options = odeset(options,'Events',@(t,x) EventBin(t,x,dL,massbalTol,O));
+    options = odeset('Events',@(t,x) EventBin(t,x,dL,massbalTol,O));
 end
 
 
@@ -139,6 +139,22 @@ dNdt = [J; zeros(nBins-1,1)]-N(1:nBins)/m*Q; % change in number (per mass medium
 dcdt = -3*O.rhoc*O.kv*sum(y.^2.*Gy.*N)-c/m*Q-J*y(1)^3*O.kv*O.rhoc;
 
 dxdt = [dNdt; Gy; Gboundaries; dcdt;];
+
+if findall(0,'name','Looking at CATs')
+            
+    if isempty(O.tNodes)
+        tFinal = O.sol_time(end);
+    else
+        tFinal = O.tNodes(end);
+    end
+    if floor(t/tFinal/0.05)>str2num(get(gca,'tag'))
+        fill([0 t/tFinal t/tFinal 0],[0 0 1 1],'c','edgecolor','none')
+        delete(findall(gcf,'type','text'))
+        text(0.44,0.5,[num2str(floor(t/tFinal*100),'%2d'),'%'])
+        set(gca,'tag',num2str(floor(t/tFinal/0.05)))
+        drawnow
+    end
+end
 
 end
 
