@@ -310,14 +310,6 @@ Dgui.preview.panel = uipanel('Parent',Dgui.fighandle,...
     'Units','pixels',...
     'Position',[20 45 520 220]);
 % 
-% % Update button
-% Dgui.preview.update = uicontrol(Dgui.preview.panel,...
-%     'Style','pushbutton',...
-%     'String','Update',...
-%     'Value',0,...
-%     'Callback',@plotDist,...
-%     'Position',[460 185 50 20]...
-%     );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OK, Reset, Cancel buttons
@@ -397,7 +389,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
             set(Dgui.density.function,'string',['1./',get(Dgui.density.function_nor_sigma,'string'),'*exp(-(x-',get(Dgui.density.function_nor_mu,'string'),').^2./(2*',get(Dgui.density.function_nor_sigma,'string'),'.^2))'])
             changedensity(hObject,[],'function')
         elseif strcmp(ftype,'lognormal') && ~isempty(str2num(get(Dgui.density.function_lognor_sigma,'string'))) && ~isempty(str2num(get(Dgui.density.function_lognor_mu,'string'))) 
-            set(Dgui.density.function,'string',['1./(',get(Dgui.density.function_nor_mu,'string'),'*',get(Dgui.density.function_nor_sigma,'string'),')*exp(-(log(x)-',get(Dgui.density.function_nor_mu,'string'),').^2./(2*',get(Dgui.density.function_nor_sigma,'string'),'.^2))'])
+            set(Dgui.density.function,'string',['1./(x','.*',get(Dgui.density.function_lognor_sigma,'string'),')*exp(-(log(x)-',get(Dgui.density.function_lognor_mu,'string'),').^2./(2*',get(Dgui.density.function_lognor_sigma,'string'),'.^2))'])
             changedensity(hObject,[],'function')
         end
           
@@ -412,6 +404,8 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
             set(Dgui.grid.min,'string',num2str(min(O.init_dist.y)));
             set(Dgui.grid.max,'string',num2str(max(O.init_dist.y)));
             set(Dgui.grid.numpoints,'string',num2str(numel(O.init_dist.y)));
+            
+            set(Dgui.grid.spacingtype,'selectedobject',[])
 
             newspacing = (max(O.init_dist.y)- min(O.init_dist.y)) / (numel(O.init_dist.y)-1);
             set(Dgui.grid.spacing,'String',num2str(newspacing));
@@ -563,8 +557,10 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         
         if strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Log10' )
             x = logspace(xmin,xmax,xnumpoints);
-        else
+        elseif strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Linear' )
             x = linspace(xmin,xmax,xnumpoints);
+        else
+            x = O.init_dist.y;
         end % if
         
         % Get currently defined distribution function
@@ -582,7 +578,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
             % If values wanted, translate to values
             if strcmpi(type,'values')
                 try
-                    if isa(f,'func_handle')
+                    if isa(f,'function_handle')
                         f = f(x);
                     end
                         
@@ -637,6 +633,12 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         [x,f] = getDgui_current('values');
         
         Dgui.preview.lines = line(x,f,'marker','o');
+        if strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Log10' )
+            set(gca,'xscale','log')
+        else
+            set(gca,'xscale','linear')
+        end
+            
         
     end % function plotDist
 

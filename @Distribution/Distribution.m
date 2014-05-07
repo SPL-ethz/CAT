@@ -180,7 +180,9 @@ classdef Distribution < handle
             if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
                 O.boundaries = value(:)';
                 
-                O.y = (O.boundaries(1:end-1)+O.boundaries(2:end))/2;
+                if length(O.y) ~= length(value)-1
+                    O.y = (O.boundaries(1:end-1)+O.boundaries(2:end))/2;
+                end
             else
                 value = sort(value(:));
                 O.boundaries = value(:)';
@@ -208,11 +210,11 @@ classdef Distribution < handle
                 O.pF = value(:)'; %make it a row vector
             elseif iscell(value) && length(value)==3
                 if strcmpi(value{1},'normal')
-                    O.pF = @(x) 1/(value{3}*sqrt(2*pi))*exp(-((x-value{2}).^2/(2*value{3}^2)));
+                    O.pF = @(x) 1./(value{3}*sqrt(2*pi))*exp(-((x-value{2}).^2/(2*value{3}^2)));
                     O.mu = value{2};
                     O.sigma = value{3};
                 elseif strcmpi(value{1},'lognormal')
-                    O.pF = @(x) 1/(x*value{3}*sqrt(2*pi))*exp(-((log(x)-value{2}).^2/(2*value{3}^2)));
+                    O.pF = @(x) 1./(x*value{3}).*exp(-((log(x)-value{2}).^2/(2*value{3}^2)));
                     O.mu = value{2};
                     O.sigma = value{3};
                 end

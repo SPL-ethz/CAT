@@ -1,4 +1,4 @@
-function solver_hires(O)
+function [mbflag] = solver_hires(O)
 %% solver_hires(O)
 % High Resolution method for Nucleation and Growth
 % Solves the PBE according to a High Resolution method (cf. e.g. Gunawan, R.; Fusman, I.; Braatz, R. D. AIChE Journal 2004, 50, 2738�2749).
@@ -81,6 +81,11 @@ end
 %% Integration
 flagdt = 0; % flag if time step was just rejected (skip time step evaluation)
 Dtlast = inf; % last time step
+if isempty(O.tNodes)
+    tFinal = O.sol_time(end);
+else
+    tFinal = O.tNodes(end);
+end
 
 while t<O.sol_time(end)
        % Growth rate
@@ -127,11 +132,11 @@ while t<O.sol_time(end)
     
     %% Nucleation
     if  c>cs % nucleation can never occur for S<=1
-        if nargin(O.nucleationrate) > 3 % case where nucleation depends on a moment
+        if nargin(O.nucleationrate) > 2 % case where nucleation depends on a moment
             dist = Distribution(y,F_dummy(3:end-1));
-            J = O.nucleationrate(S,T,t-Dt,dist);
+            J = O.nucleationrate(S,T,dist);
         else % nucleation depends only on S and T
-            J = O.nucleationrate(S,T,t-Dt);
+            J = O.nucleationrate(S,T);
         end
         F_dummy(3)  = F_dummy(3) + J/Dy(1)*Dt; 
     end
@@ -179,6 +184,17 @@ while t<O.sol_time(end)
         TIME    =   [TIME t]; %#ok<*AGROW>
         F = arrayCrop(F_dummy,[3;length(F_dummy)-1])';
         Y(end+1,:) = [F(:)' c];
+        
+        if findall(0,'name','Looking at CATs')
+
+            if floor(t/tFinal/0.05)>str2num(get(gca,'tag'))
+                fill([0 t/tFinal t/tFinal 0],[0 0 1 1],'c','edgecolor','none')
+                delete(findall(gcf,'type','text'))
+                text(0.44,0.5,[num2str(floor(t/tFinal*100),'%2d'),'%'])
+                set(gca,'tag',num2str(floor(t/tFinal/0.05)))
+                drawnow
+            end
+        end
 
     else % results violate tolerances and conditions
         % Use a smaller timestep and repeat everything
@@ -188,6 +204,7 @@ while t<O.sol_time(end)
         Dt      =   Dt/3;
     end
 
+mbflag = 0;
 
 end
 
@@ -203,6 +220,8 @@ end % for
 O.calc_time = TIME;
 O.calc_dist = SolutionDists;
 O.calc_conc = SolutionConc;
+
+
 
 end
 

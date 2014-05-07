@@ -6,19 +6,21 @@ function setDefaults(O,varargin)
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.init_dist)
     O.init_dist = Distribution(linspace(1,750,250),{'normal',100,20});
 end
+
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.Tprofile)
+    O.Tprofile = @(t) 25*ones(size(t));
+end
+
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.ASprofile)
+    O.ASprofile = @(t) 0*t;
+end
+
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.init_conc)
     O.init_conc = 1.2; % supersaturated
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.solubility)
     O.solubility = @(T,xm) 1;
-end
-
-if ~any(strcmp(varargin,'emptyonly')) || isempty(O.Tprofile)
-    O.Tprofile = @(t) 25*ones(size(t));
-end
-if ~any(strcmp(varargin,'emptyonly')) || isempty(O.ASprofile)
-    O.ASprofile = @(t) 0*t;
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.growthrate)
@@ -47,6 +49,10 @@ end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_method)
     O.sol_method = 'cd';
+end
+
+if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_method)
+    O.sol_options= {''};
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_time)

@@ -560,6 +560,11 @@ classdef CATTube < CAT
                 'Position',[20 140 450 30]...
                 );
             
+            O.gui.progressBar = uipanel('Parent',O.gui.run.panel,...
+                'bordertype','none',...
+                'Units','pixels',...
+                'Position',[20 70 450 50]);
+
             % Save CAT
             O.gui.run.export = uicontrol(O.gui.run.panel,...
                 'Style','pushbutton',...
@@ -576,7 +581,7 @@ classdef CATTube < CAT
                 'String','Write sources to m-file',...
                 'Value',0,...
                 'Enable','on',...
-                'Callback',@(hObject,Event) saveSources(O),...
+                'Callback',@(hObject,Event) O.saveSources,...
                 'Position',[245 10 225 30]...
                 );
             
@@ -615,65 +620,7 @@ classdef CATTube < CAT
             kitty.save(CATname);
             
         end % function
-        
-        function saveSources(O)
-           
-            fieldnames = properties(O);
-            fieldnames(strcmp(fieldnames,'gui')) = [];
-            fieldnames(~cellfun(@isempty,strfind(fieldnames,'calc'))) = [];
-            
-            namestr = strcat('CATsource','_',datestr(now,'YYYYmmdd_HHMMSS'),'.m');
-            fid = fopen(namestr,'w+');
-            
-            fprintf(fid,'kitty = CAT; \n\n');
-            
-            for i = 1:length(fieldnames)
-               y = strsplit(help(strcat('CAT.',fieldnames{i})),{'\n','\r'});
-               pcsstr = repmat({'%'},[length(y')-2 1]);pcsstr = ['%%';pcsstr];
-               y = [pcsstr(:) y(1:end-1)'];
-               
-               for j = 1:length(y(:,1))
-                   fprintf(fid,'%s %s \n',y{j,:});
-               end
-               
-               if ~strcmp(fieldnames{i},'init_dist')
-                   if isfield(O.gui,'source') && isfield(O.gui.source,fieldnames{i})
-                       valstr = O.gui.source.(fieldnames{i});
-                   else
-                       valstr = data2str(O.(fieldnames{i}));
-                   end
 
-                   fprintf(fid,strcat('kitty.',fieldnames{i},' = ',{valstr},'; \n\n\n'));
-               else
-                   if isfield(O.gui,'source') && isfield(O.gui.source,'init_dist') && isfield(O.gui.source.init_dist,'y')
-                       valstr{1} = O.gui.source.init_dist.y;
-                   else
-                       if isfield(O.init_dist,'y')
-                        valstr{1} = data2str(O.init_dist.y);
-                       else
-                           valstr{1} = '[]';
-                       end
-                   end
-
-                   if isfield(O.gui,'source') && isfield(O.gui.source,'init_dist') && isfield(O.gui.source.init_dist,'F')
-                       valstr{2} = O.gui.source.init_dist.F;
-                   else
-                       if isfield(O.init_dist,'F')
-                        valstr{2} = data2str(O.init_dist.F);
-                       else
-                           valstr{2} = '[]';
-                       end
-                   end
-                   
-                   fprintf(fid,strcat('kitty.init_dist = Distribution(',valstr{1},',',valstr{2},');'))
-               end
-                
-            end
-            
-            fclose(fid);
-            
-        end
-        
         %% - clone
         
         function copyCAT = clone(O,Original)

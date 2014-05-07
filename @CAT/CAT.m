@@ -94,7 +94,7 @@ classdef CAT < hgsetget
         % Property: init_conc
         % Initial concentration.
         % Scalar value, with units of mass per total solvent mass.
-        % Use 'sat' for a saturated solution.
+        % Use 'S=xx' for a solution with a defined Supersaturation.
         % Units must be consistent with those used for:
         %  * Seed mass
         %  * Crystal density
@@ -325,10 +325,14 @@ classdef CAT < hgsetget
             % GET.INIT_CONC
             %
             % Getter method for init conc
-            
-            
-            if strcmpi('sat',O.init_conc) && ~isempty(O.solubility)
-                O.init_conc = O.solubility(O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium);
+
+            if ischar(O.init_conc) && ~isempty(strfind(O.init_conc,'S=')) && ~isempty(O.solubility)
+                
+                S0 = str2double(strrep(O.init_conc,'S=',''));
+                if isnan(S0)
+                    S0 = eval(strrep(O.init_conc,'S=','')); % maybe user has written something 'S=2/3'
+                end
+                O.init_conc = O.solubility(O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium)*S0;
             end
             cinit = O.init_conc;
             
@@ -570,7 +574,6 @@ classdef CAT < hgsetget
                         value(1,end) = O.sol_time(end);
                         value(2,end) = value(2,end-1);
                     end
-    %                 O.ASprofile = @(t) interp1(value(1,:),value(2,:),t); %
                     O.ASprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
                     O.tNodes = unique([O.tNodes value(1,:)]);
                 
@@ -606,7 +609,7 @@ classdef CAT < hgsetget
             % SET.tNodes
             %
             % Set time nodes (make sure integrator covers them correctly)
-            if isvector(value) && all(value>=0)
+            if isvector(value) && all(value>=0) || isempty(value)
 
                 O.tNodes = value;
 
@@ -667,12 +670,20 @@ classdef CAT < hgsetget
 
                     elseif nargin(value) == 2 && length(value(1.1,1))==1
                         % assume size independent function
-                        O.growthrate = @(S,T,~) value(S,T);
+                        
+                        y = strsplit(data2str(value),')');
+                        f = [y{1},',y)',strjoin(y(2:end),')'),'*ones(size(y))'];
+                        O.growthrate = str2func(f);
 
                     elseif nargin(value) == 2 && length(value(1.1,[1 2]))==2
                         % assume temperature independent function
                         O.growthrate = @(S,~,y) value(S,y);
 
+                    elseif nargin(value) == 1
+                        % assume growth rate function only depending on S
+                        y = strsplit(data2str(value),')');
+                        f = [y{1},',~,y)',strjoin(y(2:end),')'),'*ones(size(y))'];
+                        O.growthrate = str2func(f);
                     else
                         warning('Distribution:setgrowthrate:Wrongnargin',...
                             'The growth rate function must have 3 input arguments (supersaturation, temperature, sizes) or 2 input arguments (S,T) or (S,y)');
@@ -813,7 +824,66 @@ classdef CAT < hgsetget
             
         end % function
         
-        
+        function saveSources(O)
+           
+            fieldnames = properties(O);
+            fieldnames(strcmp(fieldnames,'gui')) = [];
+            fieldnames(~cellfun(@isempty,strfind(fieldnames,'calc'))) = [];
+            
+            namestr = strcat('CATsource','_',datestr(now,'YYYYmmdd_HHMMSS'),'.m');
+            fid = fopen(namestr,'w+');
+            
+            fprintf(fid,'kitty = CAT; \n\n');
+            
+            for i = 1:length(fieldnames)
+               y = strsplit(help(strcat('CAT.',fieldnames{i})),{'\n','\r'});
+               pcsstr = repmat({'%'},[length(y')-2 1]);pcsstr = ['%%';pcsstr];
+               y = [pcsstr(:) y(1:end-1)'];
+               
+               for j = 1:length(y(:,1))
+                   fprintf(fid,'%s %s \n',y{j,:});
+               end
+               
+               if ~strcmp(fieldnames{i},'init_dist')
+                   if isfield(O,'gui') && isfield(O.gui,'source') && isfield(O.gui.source,fieldnames{i})
+                       valstr = O.gui.source.(fieldnames{i});
+                   else
+                       valstr = data2str(O.(fieldnames{i}));
+                       if ischar(O.(fieldnames{i}))
+                           valstr = ['''',valstr,''''];
+                       end
+                   end
+
+                   fprintf(fid,strcat('kitty.',fieldnames{i},' = ',valstr,'; \n\n\n'));
+               else
+                   if isfield(O,'gui') && isfield(O.gui,'source') && isfield(O.gui.source,'init_dist') && isfield(O.gui.source.init_dist,'y')
+                       valstr{1} = O.gui.source.init_dist.y;
+                   else
+                       if isa(O.init_dist,'Distribution')
+                        valstr{1} = data2str(O.init_dist.y);
+                       else
+                           valstr{1} = '[]';
+                       end
+                   end
+
+                   if isfield(O,'gui') && isfield(O.gui,'source') && isfield(O.gui.source,'init_dist') && isfield(O.gui.source.init_dist,'F')
+                       valstr{2} = O.gui.source.init_dist.F;
+                   else
+                       if isa(O.init_dist,'Distribution')
+                        valstr{2} = data2str(O.init_dist.F);
+                       else
+                           valstr{2} = '[]';
+                       end
+                   end
+                   
+                   fprintf(fid,strcat('kitty.init_dist = Distribution(',valstr{1},',',valstr{2},');\n\n\n'));
+               end
+                
+            end
+            
+            fclose(fid);
+            
+        end
         
     end % methods
     

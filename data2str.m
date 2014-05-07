@@ -16,6 +16,10 @@ switch(class(vdata))
         
         outstr = func2str(vdata);
         
+    case 'cell'
+        
+        outstr = ['{''',strjoin(vdata,''','''),'''}'];
+        
     case {'double'}
         
         % Numbers - can be scalar or vectors, matrices

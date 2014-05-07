@@ -39,7 +39,7 @@ for ii = 1:length(O)
             try
                 % Simply run the method corresponding to the chosen solution method
                 % prefixed with solver_
-                O(ii).(['solver_' O(ii).sol_method]);
+                [mbflag] = O(ii).(['solver_' O(ii).sol_method]);
             catch ME
                 keyboard
                 error('solve:tryconsttemp:PBESolverfail',...
@@ -55,7 +55,13 @@ for ii = 1:length(O)
             % Set new initial distribution and initial concentration
             O(ii).init_dist = O(ii).calc_dist(end);
             O(ii).init_conc = O(ii).calc_conc(end);
-
+            
+            if mbflag 
+                mb = massbal(O(ii));
+                warning('CAT:solve:massbalanceerrortoolarge',...
+                    'Your mass balance error is unusually large (%4.2f%%). Check validity of equations and consider increasing the number of bins; simulation aborted.',mb(end));
+                break
+            end
         end % for
 
         % Put temporary solution into the right place
@@ -91,10 +97,5 @@ for ii = 1:length(O)
         O(ii).calc_conc = O(ii).calc_conc(I);
     end
 
-    %% Check Mass balance
-    if any(O(ii).massbal > 5)
-       warning('ProfileManager:massbalcheck:largeerror',...
-                        'Your mass balance error is unusually large (%4.2f%%). Check validity of equations and consider increasing the number of bins.',max(O(ii).massbal)); 
-    end
 end
 end
