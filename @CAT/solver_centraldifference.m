@@ -1,4 +1,4 @@
-function solver_centraldifference(O)
+function [mbflag] = solver_centraldifference(O)
 %% solver_centraldifference
 % Central Difference Method for Nucleation and Growth
 % Solves the PBE according to a central differences method (cf. Wikipedia).
@@ -15,10 +15,14 @@ function solver_centraldifference(O)
 % - Decrease reltol {1e-6} and abstol {1e-6} [sol_options]
 % - Use another method
 
+if ~isempty(O.sol_options) && ~isempty(find(strcmpi(O.sol_options,'massbalTol'),1))
+    massbalTol = O.sol_options(find(strcmpi(O.sol_options,'massbalTol'),1)+1);
+else
+    massbalTol = 0.05; % massbalance error tolerance
+end
 
-options = O.sol_options;
-if isempty(O.sol_options)
-    options = odeset(options,'reltol',1e-6);
+if isempty(O.sol_options{1})
+    options = odeset('Events',@(t,x) Event(t,x,massbalTol,O),'reltol',1e-6);
 end
 
 X0 = [O.init_dist.F, O.init_conc];
@@ -37,6 +41,13 @@ end % for
 O.calc_time = SolutionTimes;
 O.calc_dist = SolutionDists;
 O.calc_conc = SolutionConc;
+
+if O.calc_time(end)<O.sol_time(end) 
+    mbflag = 1;
+else
+    mbflag = 0;
+end
+
 
 end % function
 
@@ -103,3 +114,18 @@ dXdt = [dF(:)-Q*F(:)/m; dc];
 
 
 end % function
+
+%% Function EventBin
+
+function [value,isterminal,direction] = Event(t,x,massbalTol,O)
+
+m = O.init_massmedium+(O.ASprofile(t)-O.ASprofile(0));
+
+value(1) = massbalTol-...
+    abs(((O.init_conc*O.init_massmedium+moments(O.init_dist,3)*O.kv*O.rhoc*O.init_massmedium)-(x(end)*m+sum(x(1:end-1).*diff(O.init_dist.boundaries(:)).*O.init_dist.y(:).^3)*O.kv*O.rhoc*m))/...
+    (O.init_conc*O.init_massmedium+moments(O.init_dist,3)*O.kv*O.rhoc*O.init_massmedium)); % current massbalance error
+
+value = value(:);
+isterminal = 1;   % Stop the integration
+direction = 0;   % Negative direction only
+end

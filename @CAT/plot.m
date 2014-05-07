@@ -305,7 +305,7 @@
                             hold on
                             set(gcf,'numbertitle','off','name',...
                                 'Details from Integration')
-                            PDpl_local = semilogy(O(ii).calc_time,massbal(O(ii)));
+                            PDpl_local = semilogy(O(ii).calc_time,massbal(O(ii)),lineProps{ii+defactoSeries},'linewidth',1.5);
                             xlabel('Time')
                             ylabel('Mass balance [% error]')
                             grid on

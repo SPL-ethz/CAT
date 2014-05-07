@@ -107,10 +107,10 @@
                     end
                     
                 elseif strcmp(fieldname,'init_conc')
-                    if isempty(value) || (ischar(value) && ~strcmp(value,'sat')) || (isscalar(value) && value <= 0 && ~isfinite(value))
+                    if isempty(value) || (ischar(value) && ~isempty(strfind(O.init_conc,'S='))) || (isscalar(value) && value <= 0 && ~isfinite(value))
                         if i<=Iquery
                         warning('CAT:SetInit_Conc:WrongType',...
-                            'The init_conc property must be a positive, finite scalar (may be zero) or the string ''sat''');
+                            'The init_conc property must be a positive, finite scalar (may be zero) or a string ''S=xx'' where xx is replace by an initial supersaturation.');
                         end
                         validInput(i) = 0;
                     end

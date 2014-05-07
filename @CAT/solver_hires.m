@@ -1,4 +1,4 @@
-function solver_hires(O)
+function [mbflag] = solver_hires(O)
 %% solver_hires(O)
 % High Resolution method for Nucleation and Growth
 % Solves the PBE according to a High Resolution method (cf. e.g. Gunawan, R.; Fusman, I.; Braatz, R. D. AIChE Journal 2004, 50, 2738�2749).
@@ -188,6 +188,7 @@ while t<O.sol_time(end)
         Dt      =   Dt/3;
     end
 
+mbflag = 0;
 
 end
 

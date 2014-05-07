@@ -1,6 +1,6 @@
 %% Main method movingpivot
 
-function solver_movingpivot(O)
+function [mbflag] = solver_movingpivot(O)
 
 % movingpivot
 %
@@ -23,6 +23,13 @@ elseif strcmp(func2str(O.nucleationrate),'@(S,T,m)0') || strcmp(func2str(O.nucle
 else
     dL = 10; % critical bin size for event listener
 end
+
+if ~isempty(O.sol_options) && ~isempty(find(strcmpi(O.sol_options,'massbalTol'),1))
+    massbalTol = O.sol_options(find(strcmpi(O.sol_options,'massbalTol'),1)+1);
+else
+    massbalTol = 0.05; % massbalance error tolerance
+end
+
 X0 = [O.init_dist.F.*diff(O.init_dist.boundaries) ...
     O.init_dist.y O.init_dist.boundaries O.init_conc];
 tstart = O.sol_time(1); % local start time
@@ -33,9 +40,9 @@ tend = O.sol_time(end); % overall end time
 % necessary
 options = O.sol_options;
 if isempty(O.sol_options)
-    options = odeset(options,'Events',@(t,x) EventBin(t,x,dL),'reltol',1e-6);
+    options = odeset(options,'Events',@(t,x) EventBin(t,x,dL,massbalTol,O),'reltol',1e-6);
 else
-    options = odeset(options,'Events',@(t,x) EventBin(t,x,dL));
+    options = odeset(options,'Events',@(t,x) EventBin(t,x,dL,massbalTol,O));
 end
 
 
@@ -46,7 +53,7 @@ while tstart<tend
     
     % Solve until the next event where the nucleation bin becomes to big (as defined by dL)
     solvefun = @(t,x) movingpivot_ode(t,x,O);
-    [TIME,X_out] = ode15s(solvefun, [tstart ts tend],X0, options);
+    [TIME,X_out,TE] = ode15s(solvefun, [tstart ts tend],X0, options);
     
     X_out(X_out<0) = 0;
     
@@ -70,8 +77,12 @@ while tstart<tend
     s = s+length(TIME);
     tstart = TIME(end);
     
-    
-    
+    if ~isempty(TE)
+        mbflag = 1;
+    else
+        mbflag = 0;
+    end
+
 end %while
 
 O.calc_time = SolutionTimes;
@@ -157,18 +168,23 @@ end
 
 %% Function EventBin
 
-function [value,isterminal,direction] = EventBin(~,x,dL)
+function [value,isterminal,direction] = EventBin(t,x,dL,massbalTol,O)
 % Event function
 nBins = (length(x)-2)/3;
 
+m = O.init_massmedium+(O.ASprofile(t)-O.ASprofile(0));
+
+N = x(1:nBins); %particle numbers
+y = x(nBins+1:2*nBins); % pivot sizes
 boundaries = x(2*nBins+1:2*nBins+2);
 
 value(1) = dL - boundaries(1); % Detect when first bin becomes too broad (value <= 0)
-value(2) = x(nBins+1); % Detects when first pivot becomes smaller than one
+value(2) = y(1); % Detects when first pivot becomes smaller than one
+value(3) = massbalTol-abs(((O.init_conc*O.init_massmedium+moments(O.init_dist,3)*O.kv*O.rhoc*O.init_massmedium)-(x(end)*m+sum(N(:).*y(:).^3)*O.kv*O.rhoc*m))/(O.init_conc*O.init_massmedium+moments(O.init_dist,3)*O.kv*O.rhoc*O.init_massmedium)); % current massbalance error
 
 value = value(:);
-isterminal = ones(2,1);   % Stop the integration
-direction = -ones(2,1);   % Negative direction only
+isterminal = ones(3,1);   % Stop the integration
+direction = -ones(3,1);   % Negative direction only
 end
 
 %% Ffunction removeBin

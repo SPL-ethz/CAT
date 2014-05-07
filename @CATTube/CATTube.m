@@ -641,7 +641,7 @@ classdef CATTube < CAT
                        valstr = O.gui.source.(fieldnames{i});
                    else
                        valstr = data2str(O.(fieldnames{i}));
-                       if isstr(O.(fieldnames{i}))
+                       if ischar(O.(fieldnames{i}))
                            valstr = ['''',valstr,''''];
                        end
                    end
@@ -668,7 +668,7 @@ classdef CATTube < CAT
                        end
                    end
                    
-                   fprintf(fid,strcat('kitty.init_dist = Distribution(',valstr{1},',',valstr{2},');\n\n\n'))
+                   fprintf(fid,strcat('kitty.init_dist = Distribution(',valstr{1},',',valstr{2},');\n\n\n'));
                end
                 
             end

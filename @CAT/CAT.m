@@ -94,7 +94,7 @@ classdef CAT < hgsetget
         % Property: init_conc
         % Initial concentration.
         % Scalar value, with units of mass per total solvent mass.
-        % Use 'sat' for a saturated solution.
+        % Use 'S=xx' for a solution with a defined Supersaturation.
         % Units must be consistent with those used for:
         %  * Seed mass
         %  * Crystal density
@@ -326,8 +326,13 @@ classdef CAT < hgsetget
             %
             % Getter method for init conc
 
-            if strcmpi('sat',O.init_conc) && ~isempty(O.solubility)
-                O.init_conc = O.solubility(O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium);
+            if ischar(O.init_conc) && ~isempty(strfind(O.init_conc,'S=')) && ~isempty(O.solubility)
+                
+                S0 = str2double(strrep(O.init_conc,'S=',''));
+                if isnan(S0)
+                    S0 = eval(strrep(O.init_conc,'S=','')); % maybe user has written something 'S=2/3'
+                end
+                O.init_conc = O.solubility(O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium)*S0;
             end
             cinit = O.init_conc;
             
@@ -569,7 +574,6 @@ classdef CAT < hgsetget
                         value(1,end) = O.sol_time(end);
                         value(2,end) = value(2,end-1);
                     end
-    %                 O.ASprofile = @(t) interp1(value(1,:),value(2,:),t); %
                     O.ASprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
                     O.tNodes = unique([O.tNodes value(1,:)]);
                 
@@ -605,7 +609,7 @@ classdef CAT < hgsetget
             % SET.tNodes
             %
             % Set time nodes (make sure integrator covers them correctly)
-            if isvector(value) && all(value>=0)
+            if isvector(value) && all(value>=0) || isempty(value)
 
                 O.tNodes = value;
 
