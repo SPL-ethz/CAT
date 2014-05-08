@@ -322,6 +322,10 @@
             end
             set(fhandle,'units','normalized','position',[0.2 0.3 0.5 0.6]);
             set(0,'defaultaxesfontsize','default','defaulttextfontsize','default');
-  
+            
+            % Don't give an output if none is requested
+            if nargout < 1
+                clear PDpl;
+            end % if
             
         end % function
