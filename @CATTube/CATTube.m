@@ -571,8 +571,18 @@ classdef CATTube < CAT
                 'String','Save CAT object',...
                 'Value',0,...
                 'Enable','on',...
-                'Callback',@(hObject,Event) O.saveCAT(O),...
+                'Callback',@(hObject,Event) O.saveCAT,...
                 'Position',[20 10 225 30]...
+                );
+            
+            % Load CAT
+            O.gui.run.import = uicontrol(O.gui.run.panel,...
+                'Style','pushbutton',...
+                'String','Load CAT object',...
+                'Value',0,...
+                'Enable','on',...
+                'Callback',@(hObject,Event) O.load,...
+                'Position',[20 40 225 30]...
                 );
             
             O.gui.source = struct;
@@ -622,6 +632,26 @@ classdef CATTube < CAT
                 
                 kitty.save(CATname);
             end % if
+            
+        end % function
+        
+        %% - load
+        
+        function load(O,fullfile)
+            
+            if nargin < 2 || isempty(fullfile)
+                % Allow an empty filename to get the filename from a GUI
+                % window
+                
+                % Get the file name
+                [FileName,PathName] = uigetfile('*.mat','Load .mat file',pwd);
+                
+                fullfile = [PathName FileName];
+                
+            end % if nargin
+            
+            % Send to CAT version of load
+            load@CAT(O,fullfile)
             
         end % function
 
