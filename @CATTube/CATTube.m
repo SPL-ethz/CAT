@@ -575,6 +575,16 @@ classdef CATTube < CAT
                 'Position',[20 10 225 30]...
                 );
             
+            % Load CAT
+            O.gui.run.import = uicontrol(O.gui.run.panel,...
+                'Style','pushbutton',...
+                'String','Load CAT object',...
+                'Value',0,...
+                'Enable','on',...
+                'Callback',@(hObject,Event) O.load,...
+                'Position',[20 40 225 30]...
+                );
+            
             O.gui.source = struct;
             % Write down sources
             O.gui.run.sources = uicontrol(O.gui.run.panel,...
@@ -621,6 +631,47 @@ classdef CATTube < CAT
                 kitty = O.clone(O);
                 
                 kitty.save(CATname);
+            end % if
+            
+        end % function
+        
+        %% - load
+        
+        function load(O)
+            
+            % Load CAT object from other source (mat-file) into the current
+            % object
+            
+            % Get the file name
+            [FileName,PathName] = uigetfile('*.mat','Load .mat file',pwd);
+            
+            fullfile = [PathName FileName];
+            
+            if exist(fullfile,'file')
+                
+                % Get list of variables in the mat file - look for CAT/CATTube
+                % objects
+                
+                S = whos('-file',fullfile);
+                
+                Ssearch = regexp({S.class},'^CAT');
+                
+                if any([Ssearch{:}])
+                    % At least one CAT object found - load the first one.
+                    % This is maybe not ideal - but it works
+                    
+                    CATfound = S(find(Ssearch{:},1));
+                    
+                    % Get this variable from the file
+                    CATload = load(fullfile,CATfound.name);
+                    CATload = CATload.(CATfound.name);
+                    
+                    O.clone(CATload)
+                    
+                else
+                    warning('The chosen file does not contain any useful data')
+                end % if else
+            
             end % if
             
         end % function
