@@ -39,7 +39,7 @@ tend = O.sol_time(end); % overall end time
 % becomes too big, if dissolution is present, remove bins when
 % necessary
 options = O.sol_options;
-if isempty(O.sol_options)
+if isempty(O.sol_options) || isempty(O.sol_options{1})
     options = odeset('Events',@(t,x) EventBin(t,x,dL,massbalTol,O),'reltol',1e-6);
 else
     options = odeset('Events',@(t,x) EventBin(t,x,dL,massbalTol,O));
@@ -127,8 +127,10 @@ Dy = diff(boundaries);Dy = Dy(:);
 
 if nargin(O.nucleationrate)>2
     dist = Distribution(y,N./Dy,boundaries);
-    J = O.nucleationrate(S,T,dist);
+else
+    dist = [];
 end
+J = O.nucleationrate(S,T,dist);
 
 Gy = O.growthrate(S,T,y); % growth rate for pivots
 Gboundaries = O.growthrate(S,T,boundaries); % growth rate for boundaries
@@ -140,6 +142,7 @@ dcdt = -3*O.rhoc*O.kv*sum(y.^2.*Gy.*N)-c/m*Q-J*y(1)^3*O.kv*O.rhoc;
 
 dxdt = [dNdt; Gy; Gboundaries; dcdt;];
 
+% if GUI is used, update progress bar
 if findall(0,'name','Looking at CATs')
             
     if isempty(O.tNodes)

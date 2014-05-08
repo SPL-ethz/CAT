@@ -21,7 +21,7 @@ else
     massbalTol = 0.05; % massbalance error tolerance
 end
 
-if isempty(O.sol_options{1})
+if isempty(O.sol_options) || isempty(O.sol_options{1})
     options = odeset('Events',@(t,x) Event(t,x,massbalTol,O),'reltol',1e-6);
 end
 
@@ -93,11 +93,13 @@ Fb = F( [1 1:end-2 end-2] );
 % nucleation
 if nargin(O.nucleationrate)>2
     dist = Distribution(y,F,O.init_dist.boundaries);
-    J = O.nucleationrate(S,T,dist);
-    % nucleation
-    Fb(1) = J/G(1);
+else
+    dist = [];
 end
 
+J = O.nucleationrate(S,T,dist);
+    % nucleation
+    Fb(1) = J/G(1);
 
 % Growth derivative
 dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';
@@ -108,6 +110,7 @@ dc = -3*O.kv*O.rhoc*sum(G(:).*F(:).*Dy(:).*y(:).^2)-c/m*Q-J*y(1)^3*O.kv*O.rhoc;
 
 dXdt = [dF(:)-Q*F(:)/m; dc];
 
+% if GUI is activated, update progress bar
 if findall(0,'name','Looking at CATs')
             
     if isempty(O.tNodes)
