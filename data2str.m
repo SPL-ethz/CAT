@@ -18,7 +18,7 @@ switch(class(vdata))
         
     case 'cell'
         
-        outstr = ['{''',strjoin(vdata,''','''),'''}'];
+        outstr = ['{''',implode(vdata,''''),'''}'];
         
     case {'double'}
         

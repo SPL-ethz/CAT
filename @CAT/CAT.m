@@ -672,7 +672,7 @@ classdef CAT < hgsetget
                         % assume size independent function
                         
                         y = strsplit(data2str(value),')');
-                        f = [y{1},',y)',strjoin(y(2:end),')'),'*ones(size(y))'];
+                        f = [y{1},',y)',implode(y(2:end),')'),'*ones(size(y))'];
                         O.growthrate = str2func(f);
 
                     elseif nargin(value) == 2 && length(value(1.1,[1 2]))==2
@@ -682,7 +682,7 @@ classdef CAT < hgsetget
                     elseif nargin(value) == 1
                         % assume growth rate function only depending on S
                         y = strsplit(data2str(value),')');
-                        f = [y{1},',~,y)',strjoin(y(2:end),')'),'*ones(size(y))'];
+                        f = [y{1},',~,y)',implode(y(2:end),')'),'*ones(size(y))'];
                         O.growthrate = str2func(f);
                     else
                         warning('Distribution:setgrowthrate:Wrongnargin',...
