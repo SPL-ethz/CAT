@@ -1,4 +1,4 @@
-classdef Distribution < handle
+classdef Distribution < Easyset
     %% Class Distribution
     %
     %% About Distribution class
@@ -74,7 +74,6 @@ classdef Distribution < handle
         % Real, positive vector
         boundaries
         
-        
     end % properties
     
     properties (Dependent)
@@ -83,11 +82,6 @@ classdef Distribution < handle
         % Values of the particle size distribution
         % Either an anonymous function or a vector
         F = [];
-        
-        % Property: mass
-        % The mass of the distribution
-        % Used to scale distribution according the the defined mass
-        mass
         
     end % properties
     
@@ -141,7 +135,13 @@ classdef Distribution < handle
             
         end % function
         
-        %% - set.y
+        %% Method set.y,
+        
+        % Call the checkPropertyValue() method
+        % Along with the set() method, this function
+        % captures the two ways of setting a property:
+        % D.y = ...
+        % set(D,'y',...)
         
         function set.y(O,value)
             
@@ -153,7 +153,17 @@ classdef Distribution < handle
             % SEE ALSO
             % Distribution
             
-            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
+            % Define properties here
+            O.classes.y = 'numeric';
+            O.attributes.y = {'vector','real','finite','nonnegative'};
+            
+            % Redirect to checkPropertyValue function to do checking
+            O.checkPropertyValue('y',value);
+            
+            % If checks didn't fail, method has not exited, so do extra
+            % checks
+            
+            if length(value) > 1 && ~any(diff(value)<0)
                 O.y = value(:)';
                 
             else
@@ -165,7 +175,13 @@ classdef Distribution < handle
             
         end % function
         
-        %% - set.boundaries
+        %% Method set.boundaries
+        
+        % Call the checkPropertyValue() method
+        % Along with the set() method, this function
+        % captures the two ways of setting a property:
+        % D.y = ...
+        % set(D,'y',...)
         
         function set.boundaries(O,value)
             
@@ -177,7 +193,17 @@ classdef Distribution < handle
             % SEE ALSO
             % Distribution
             
-            if all(value>=0) && all(isfinite(value)) && length(value) > 1 && isvector(value) && ~any(diff(value)<0)
+            % Define properties here
+            O.classes.boundaries = 'numeric';
+            O.attributes.boundaries = {'vector','real','finite','nonnegative'};
+            
+            % Redirect to checkPropertyValue function to do checking
+            O.checkPropertyValue('boundaries',value);
+            
+            % If checks didn't fail, method has not exited, so do extra
+            % checks
+            
+            if length(value) > 1 && ~any(diff(value)<0)
                 O.boundaries = value(:)';
                 
                 if length(O.y) ~= length(value)-1
@@ -202,6 +228,13 @@ classdef Distribution < handle
             %
             % SEE ALSO
             % Distribution
+            
+            % Define properties here
+            O.classes.F = {'function_handle','numeric','cell'};
+            O.attributes.F = {'vector','real'};
+            
+            % Redirect to checkPropertyValue function to do checking
+            O.checkPropertyValue('F',value);
             
             if isa(value,'function_handle')
                 % Value is ok, set
