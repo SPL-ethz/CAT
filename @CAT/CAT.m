@@ -824,8 +824,12 @@ classdef CAT < hgsetget
             
         end % function
         
-        function saveSources(O)
+        function saveSources(O,sourceStruct)
            
+            if nargin<2
+                sourceStruct = [];
+            end
+            
             fieldnames = properties(O);
             fieldnames(strcmp(fieldnames,'gui')) = [];
             fieldnames(~cellfun(@isempty,strfind(fieldnames,'calc'))) = [];
@@ -845,8 +849,8 @@ classdef CAT < hgsetget
                end
                
                if ~strcmp(fieldnames{i},'init_dist')
-                   if isfield(O,'gui') && isfield(O.gui,'source') && isfield(O.gui.source,fieldnames{i})
-                       valstr = O.gui.source.(fieldnames{i});
+                   if ~isempty(sourceStruct)  && isfield(sourceStruct,fieldnames{i})
+                       valstr = sourceStruct.(fieldnames{i});
                    else
                        valstr = data2str(O.(fieldnames{i}));
                        if ischar(O.(fieldnames{i}))
@@ -856,8 +860,8 @@ classdef CAT < hgsetget
 
                    fprintf(fid,strcat('kitty.',fieldnames{i},' = ',valstr,'; \n\n\n'));
                else
-                   if isfield(O,'gui') && isfield(O.gui,'source') && isfield(O.gui.source,'init_dist') && isfield(O.gui.source.init_dist,'y')
-                       valstr{1} = O.gui.source.init_dist.y;
+                   if ~isempty(sourceStruct) && isfield(sourceStruct,'init_dist') && isfield(sourceStruct.init_dist,'y')
+                       valstr{1} = sourceStruct.init_dist.y;
                    else
                        if isa(O.init_dist,'Distribution')
                         valstr{1} = data2str(O.init_dist.y);
@@ -866,8 +870,8 @@ classdef CAT < hgsetget
                        end
                    end
 
-                   if isfield(O,'gui') && isfield(O.gui,'source') && isfield(O.gui.source,'init_dist') && isfield(O.gui.source.init_dist,'F')
-                       valstr{2} = O.gui.source.init_dist.F;
+                   if ~isempty(sourceStruct) && isfield(sourceStruct,'init_dist') && isfield(sourceStruct.init_dist,'F')
+                       valstr{2} = sourceStruct.init_dist.F;
                    else
                        if isa(O.init_dist,'Distribution')
                         valstr{2} = data2str(O.init_dist.F);
