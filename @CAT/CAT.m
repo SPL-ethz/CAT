@@ -93,8 +93,8 @@ classdef CAT < hgsetget
         
         % Property: init_conc
         % Initial concentration.
-        % Scalar value, with units of mass per total solvent mass.
-        % Use 'S=xx' for a solution with a defined Supersaturation.
+        % Scalar value, with units of mass solute per total solvent (continuous
+        % medium) mass. Use 'S=xx' for a solution with a defined Supersaturation.
         % Units must be consistent with those used for:
         %  * Seed mass
         %  * Crystal density
