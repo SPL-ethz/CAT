@@ -571,7 +571,7 @@ classdef CATTube < CAT
                 'String','Save CAT object',...
                 'Value',0,...
                 'Enable','on',...
-                'Callback',@(hObject,Event) saveCAT(O),...
+                'Callback',@(hObject,Event) O.saveCAT(O),...
                 'Position',[20 10 225 30]...
                 );
             
@@ -616,9 +616,12 @@ classdef CATTube < CAT
             
             % dialog box for file name
             CATname = inputdlg('Enter desired file name');
-            kitty = O.clone(O);
             
-            kitty.save(CATname);
+            if ~isempty(CATname)
+                kitty = O.clone(O);
+                
+                kitty.save(CATname);
+            end % if
             
         end % function
 
