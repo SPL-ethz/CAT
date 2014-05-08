@@ -25,7 +25,7 @@ classdef CATTube < CAT
         
         %% - Constructor method
         
-        function O = CATTube(varargin)
+        function O = CATTube()
                         
             % Start constructing GUI
             
