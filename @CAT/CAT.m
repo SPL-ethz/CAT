@@ -786,8 +786,9 @@ classdef CAT < hgsetget
         % This function clones the CAT instance
         function [copyCAT] = clone(O,Original)
             
-            
-            if ~isa(Original,'CAT') && ~isa(Original,'CATTube')
+            % Check for CAT also allows CATTube objects since they are
+            % subclasses of CAT
+            if ~isa(Original,'CAT')
                
                 warning('CAT:clone:notaCAT',...
                     'The object you try to clone must be of class CAT');
