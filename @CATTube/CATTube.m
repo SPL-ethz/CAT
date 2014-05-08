@@ -637,42 +637,21 @@ classdef CATTube < CAT
         
         %% - load
         
-        function load(O)
+        function load(O,fullfile)
             
-            % Load CAT object from other source (mat-file) into the current
-            % object
-            
-            % Get the file name
-            [FileName,PathName] = uigetfile('*.mat','Load .mat file',pwd);
-            
-            fullfile = [PathName FileName];
-            
-            if exist(fullfile,'file')
+            if nargin < 2 || isempty(fullfile)
+                % Allow an empty filename to get the filename from a GUI
+                % window
                 
-                % Get list of variables in the mat file - look for CAT/CATTube
-                % objects
+                % Get the file name
+                [FileName,PathName] = uigetfile('*.mat','Load .mat file',pwd);
                 
-                S = whos('-file',fullfile);
+                fullfile = [PathName FileName];
                 
-                Ssearch = regexp({S.class},'^CAT');
-                
-                if any([Ssearch{:}])
-                    % At least one CAT object found - load the first one.
-                    % This is maybe not ideal - but it works
-                    
-                    CATfound = S(find(Ssearch{:},1));
-                    
-                    % Get this variable from the file
-                    CATload = load(fullfile,CATfound.name);
-                    CATload = CATload.(CATfound.name);
-                    
-                    O.clone(CATload)
-                    
-                else
-                    warning('The chosen file does not contain any useful data')
-                end % if else
+            end % if nargin
             
-            end % if
+            % Send to CAT version of load
+            load@CAT(O,fullfile)
             
         end % function
 
