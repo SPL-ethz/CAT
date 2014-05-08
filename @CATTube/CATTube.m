@@ -26,11 +26,7 @@ classdef CATTube < CAT
         %% - Constructor method
         
         function O = CATTube(varargin)
-            
-            % Call CAT constructor
-            O = O@CAT; % first create an empty object (this will basically draw the GUI). After GUI is finished setting up, we copy the contents of O_original into the GUI
-            O_original = CAT( varargin{:} );
-            
+                        
             % Start constructing GUI
             
             % Initialise the main GUI, define all buttons and graphics
@@ -615,8 +611,6 @@ classdef CATTube < CAT
                     set(O,namestr,str2num(get(hObject,'String')))
                 end
             end
-            
-            O.clone(O_original);
             
         end % function
         
