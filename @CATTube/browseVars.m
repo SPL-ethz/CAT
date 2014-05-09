@@ -289,7 +289,7 @@ glb.refresh = uicontrol(glb.fighandle,...
         % Assign the corresponding CAT variable to the chosen variable
         % Get variable data
         if varnum <= length(glb.Vvis)
-            vardata = evalin('base',[glb.Vvis(varnum).name]);
+            vardata = evalin('base',[glb.Vvis(varnum).name]); %#ok<NASGU>
             if ~isempty(classvarname)
                 eval(['O.',classvarname,'= vardata']);
                 eval(['O.gui.source.',classvarname, '= glb.Vvis(varnum).name']);
