@@ -1,12 +1,12 @@
 %% Method browseVars
 
-function browseVars(O,~,~,classvarname,displayfield,classfilter)
+function browseVars(O,~,~,classvarname,classfilter)
 
 % BrowseVars is a callback function called when a browse button is pressed
 % next to a variable input box. It lists the variables in the workspace and
 % allows the choice of one
 % Assign the chosen variable to the variable in the class
-if nargin < 6 || isempty(classfilter)
+if nargin < 5 || isempty(classfilter)
     classfilter = {};
 else
     % Check if classfilter is char or cell - convert to cell
@@ -289,19 +289,17 @@ glb.refresh = uicontrol(glb.fighandle,...
         % Assign the corresponding CAT variable to the chosen variable
         % Get variable data
         if varnum <= length(glb.Vvis)
-            
+            vardata = evalin('base',[glb.Vvis(varnum).name]);
             if ~isempty(classvarname)
-                vardata = evalin('base',[glb.Vvis(varnum).name]);
                 eval(['O.',classvarname,'= vardata']);
+                eval(['O.gui.source.',classvarname, '= glb.Vvis(varnum).name']);
+            else
+                eval('O.clone(vardata)');
             end % if
             
             % Close the variable list window
             close(get(hObject,'Parent'))
             
-            % Update the field for the current variable
-            set(displayfield,'String',data2str(vardata));
-            
-            eval(['O.gui.source.',classvarname, '= glb.Vvis(varnum).name']);
             uiresume
             
         end % if

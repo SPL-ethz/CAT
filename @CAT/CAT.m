@@ -788,6 +788,10 @@ classdef CAT < hgsetget
         % This function clones the CAT instance
         function [copyCAT] = clone(O,Original)
             
+            if nargin == 1
+                Original = O;
+            end
+            
             % Check for CAT also allows CATTube objects since they are
             % subclasses of CAT
             if ~isa(Original,'CAT')
@@ -800,22 +804,19 @@ classdef CAT < hgsetget
                 if nargout == 0
                     F = O;
                 else
-                    if isa(Original,'CATTube')
-                        F = CATTube('hush','uncloned');
-                    elseif isa(Original,'CAT')
-                        F = CAT('hush');
-                    end
+                    F = CAT;
                 end
                     
                 
                 fieldnames = properties(O);
-                
+                fieldnames(strcmp(fieldnames,'gui')) = [];
+                warning('off','all')
                 for i = 1:length(fieldnames)
                    
                     F.(fieldnames{i}) = Original.(fieldnames{i});
                     
                 end
-                    
+                warning('on','all')
                 if nargout == 1
                     copyCAT = F;
                 else
