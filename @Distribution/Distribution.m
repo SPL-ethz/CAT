@@ -464,7 +464,7 @@ classdef Distribution < Easyset
             Fax(2) = subplot(1,2,2,'Parent',Parent);
             xlabel(Fax(1),'Mean Char. Length')
             xlabel(Fax(2),'Mean Char. Length')
-            ylabel(Fax(1),'Number Distribution')
+            ylabel(Fax(1),'Normalized Number Distribution')
             ylabel(Fax(2),'Normalized Volume Distribution')
             
             box(Fax(1),'on');
