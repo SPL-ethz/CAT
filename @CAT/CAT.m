@@ -788,7 +788,7 @@ classdef CAT < hgsetget
         % This function clones the CAT instance
         function [copyCAT] = clone(O,Original)
             
-            if nargin == 1
+            if nargin == 1 || isempty(Original)
                 Original = O;
             end
             
@@ -949,6 +949,21 @@ classdef CAT < hgsetget
             end
             
             fclose(fid);
+            
+        end
+        
+        %% GUI
+        % This function initializes the GUI using the properties defined in
+        % the current object
+        
+        function GUI(O)
+           
+            if length(O)==1
+                CATTube(O);
+            else
+                warning('CAT:GUI:arrayOfCatsGUI',...
+                    'The GUI method for CAT Objects can currently not handle arrays of CATs');
+            end
             
         end
         

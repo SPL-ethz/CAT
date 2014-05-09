@@ -25,7 +25,7 @@ classdef CATTube < CAT
         
         %% - Constructor method
         
-        function O = CATTube()
+        function O = CATTube(O_original)
                         
             % Start constructing GUI
             
@@ -35,6 +35,11 @@ classdef CATTube < CAT
             %
             % Initialise the GUI
             close all
+            
+            if nargin < 1
+                O_original = O.clone(); % this saves the CAT object as it looked like when CATTube is started
+            end
+            
             % Create the figure handle
             O.gui.fighandle = figure(...
                 'MenuBar','none',...
@@ -508,8 +513,6 @@ classdef CATTube < CAT
                 'Units','pixels',...
                 'Position',[530 20 500 295]);
             
-             O_original = O.clone; % this saves the CAT object as it looked like when CATTube is started
-            
             % Reset button
             O.gui.run.reset = uicontrol(O.gui.run.panel,...
                 'Style','pushbutton',...
@@ -616,7 +619,8 @@ classdef CATTube < CAT
                 end
             end
             
-            O.updateGUI; % all this does is ensure that the onset methods are called in the gui window
+            O.clone(O_original);
+            
             
         end % function
         
