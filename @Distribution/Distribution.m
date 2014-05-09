@@ -243,11 +243,11 @@ classdef Distribution < Easyset
                 O.pF = value(:)'; %make it a row vector
             elseif iscell(value) && length(value)==3
                 if strcmpi(value{1},'normal')
-                    O.pF = @(x) 1./(value{3}*sqrt(2*pi))*exp(-((x-value{2}).^2/(2*value{3}^2)));
+                    O.pF = str2func(['@(x) 1./(',data2str(value{3}),'*sqrt(2*pi))*exp(-((x-',data2str(value{2}),').^2/(2*',data2str(value{3}),'^2)))']);
                     O.mu = value{2};
                     O.sigma = value{3};
                 elseif strcmpi(value{1},'lognormal')
-                    O.pF = @(x) 1./(x*value{3}).*exp(-((log(x)-value{2}).^2/(2*value{3}^2)));
+                    O.pF = str2func(['@(x) 1./(x*',data2str(value{3}),').*exp(-((log(x)-',data2str(value{2}),').^2/(2*',data2str(value{3}),'^2)))']);
                     O.mu = value{2};
                     O.sigma = value{3};
                 end

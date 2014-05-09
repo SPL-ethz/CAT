@@ -10,20 +10,7 @@ if ~isa(O.init_dist,'Distribution')
     O.init_dist = Distribution;
 end
 
-% Calculate settings for currently defined distribution
-if allvaleq( diff( log10(O.init_dist.y) ) )
-    % Log spacing
-    orig_gmin = min(log10(O.init_dist.y));
-    orig_gmax = max(log10(O.init_dist.y));
-    orig_gspacing = mean(diff( log10( O.init_dist.y )));
-else
-    % Linear spacing
-    orig_gmin = min(O.init_dist.y);
-    orig_gmax = max(O.init_dist.y);
-    orig_gspacing = mean(diff( O.init_dist.y ));
-end % if else
 
-orig_gnumpoints = length(O.init_dist.y);
 
 % Get distribution density definition
 orig_densfnc = O.init_dist.getFunction();
@@ -81,10 +68,36 @@ Dgui.grid.spacingtype_lin = uicontrol(Dgui.grid.spacingtype,...
     'Position',[0 20 60 20]);
 
 % Radio button 'logarithmic'
-Dgui.grid.spacingtype_lin = uicontrol(Dgui.grid.spacingtype,...
+Dgui.grid.spacingtype_log = uicontrol(Dgui.grid.spacingtype,...
     'Style','radiobutton',...
     'String','Log10',...
     'Position',[0 0 60 20]);
+
+% Calculate settings for currently defined distribution
+if allvaleq( diff( log10(O.init_dist.y) ) )
+    % Log spacing
+    orig_gmin = min(log10(O.init_dist.y));
+    orig_gmax = max(log10(O.init_dist.y));
+    orig_gspacing = mean(diff( log10( O.init_dist.y )));
+    set(Dgui.grid.spacingtype_log,'value',1)
+elseif allvaleq( diff( O.init_dist.y) ) 
+    % Linear spacing
+    orig_gmin = min(O.init_dist.y);
+    orig_gmax = max(O.init_dist.y);
+    orig_gspacing = mean(diff( O.init_dist.y ));
+    set(Dgui.grid.spacingtype_lin,'value',1)
+else
+    % custom
+    orig_gmin = min(O.init_dist.y);
+    orig_gmax = max(O.init_dist.y);
+    orig_gspacing = mean(diff( O.init_dist.y ));
+    set(Dgui.grid.spacingtype,'selectedobject',[])
+    
+end % if else
+
+orig_gnumpoints = length(O.init_dist.y);
+
+
 
 % Opening bracket
 Dgui.grid.bracket_left = uicontrol(Dgui.grid.panel,...
@@ -171,7 +184,7 @@ Dgui.grid.browse = uicontrol(Dgui.grid.panel,...
     'Style','pushbutton',...
     'String','Browse',...
     'Value',0,...
-    'Callback',@(hObject,eventdata) distBrowse(hObject,eventdata,'init_dist.y',[],'double'),...
+    'Callback',@(hObject,eventdata) distBrowse(hObject,eventdata,'init_dist.y','double'),...
     'Position',[460 10 50 30]...
     );
 
@@ -296,7 +309,7 @@ Dgui.density.browse = uicontrol(Dgui.density.panel,...
     'Style','pushbutton',...
     'String','Browse',...
     'Value',0,...
-    'Callback',@(hObject,eventdata) distBrowse(hObject,eventdata,'init_dist.F',[],'double'),...
+    'Callback',@(hObject,eventdata) distBrowse(hObject,eventdata,'init_dist.F','double'),...
     'Position',[460 50 50 30]...
     );
 
@@ -341,6 +354,8 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
     'Callback',@cancelDgui,...
     'Position',[330 10 100 30]...
     );
+
+plotDist([],[]);
 
 %% % - Subfunctions
 
@@ -395,20 +410,37 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
           
     end % function
 
-    function distBrowse(hObject,Eventdata,classvarname,displayfield,classfilter)
+    function distBrowse(hObject,Eventdata,classvarname,classfilter)
         
-        O.browseVars([],[],classvarname,displayfield,classfilter);
+        O.browseVars([],[],classvarname,classfilter);
         uiwait
         
         if isempty(strfind(get(get(hObject,'parent'),'title'),'density'))
-            set(Dgui.grid.min,'string',num2str(min(O.init_dist.y)));
-            set(Dgui.grid.max,'string',num2str(max(O.init_dist.y)));
-            set(Dgui.grid.numpoints,'string',num2str(numel(O.init_dist.y)));
             
-            set(Dgui.grid.spacingtype,'selectedobject',[])
+            if allvaleq( diff( log10(O.init_dist.y) ) )
+                % Log spacing
+                set(Dgui.grid.min,'string',num2str(min(log10(O.init_dist.y))));
+                set(Dgui.grid.max,'string',num2str(max(log10(O.init_dist.y))));
+                set(Dgui.grid.spacing,'String',mean(diff( log10( O.init_dist.y ))));
+                set(Dgui.grid.spacingtype_log,'value',1)
+            elseif allvaleq( diff( O.init_dist.y) ) 
+                % Linear spacing
+                set(Dgui.grid.min,'string',num2str(min(O.init_dist.y)));
+                set(Dgui.grid.max,'string',num2str(max(O.init_dist.y)));
+                set(Dgui.grid.spacing,'String',mean(diff(  O.init_dist.y )));
+                set(Dgui.grid.spacingtype_lin,'value',1)
+            else
+                % custom
+                set(Dgui.grid.min,'string',num2str(min(O.init_dist.y)));
+                set(Dgui.grid.max,'string',num2str(max(O.init_dist.y)));
+                set(Dgui.grid.spacing,'String',mean(diff(  O.init_dist.y )));
+                set(Dgui.grid.spacingtype,'selectedobject',[])
 
-            newspacing = (max(O.init_dist.y)- min(O.init_dist.y)) / (numel(O.init_dist.y)-1);
-            set(Dgui.grid.spacing,'String',num2str(newspacing));
+            end % if else
+
+            
+            set(Dgui.grid.numpoints,'string',num2str(numel(O.init_dist.y)));
+
             
         else
             
@@ -631,8 +663,10 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
         
         % Create new plot
         [x,f] = getDgui_current('values');
-        
-        Dgui.preview.lines = line(x,f,'marker','o');
+    
+        if ~isempty(f)
+            Dgui.preview.lines = line(x,f,'marker','o');
+        end
         if strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Log10' )
             set(gca,'xscale','log')
         else
