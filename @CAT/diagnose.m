@@ -107,7 +107,7 @@
                     end
                     
                 elseif strcmp(fieldname,'init_conc')
-                    if isempty(value) || (ischar(value) && ~isempty(strfind(O.init_conc,'S='))) || (isscalar(value) && value <= 0 && ~isfinite(value))
+                    if isempty(value) || (ischar(value) && isempty(strfind(value,'S='))) || (isscalar(value) && value <= 0 && ~isfinite(value))
                         if i<=Iquery
                         warning('CAT:SetInit_Conc:WrongType',...
                             'The init_conc property must be a positive, finite scalar (may be zero) or a string ''S=xx'' where xx is replace by an initial supersaturation.');
@@ -152,7 +152,7 @@
                     
                 elseif strcmp(fieldname,'Tprofile')
                     
-                    if  ~isa(value,'function_handle') && ~(isnumeric(value) && isscalar(value)) && ~(~isempty(value) && isnumeric(value) && ismatrix(value) && length(value(:,1)) == 2)
+                    if  (isempty(value) && isempty(O.ASprofile)) && ~isa(value,'function_handle') && ~(isnumeric(value) && isscalar(value)) && ~(~isempty(value) && isnumeric(value) && ismatrix(value) && length(value(:,1)) == 2)
                         if i<=Iquery
                         warning('CAT:SetTprofile:WrongType',...
                             'The Tprofile property must be a positive, finite matrix (may be empty) or a function handle with one input');
@@ -163,7 +163,7 @@
                 elseif strcmp(fieldname,'ASprofile')
                     
                     
-                    if ~isa(value,'function_handle') && ~(isnumeric(value) && isscalar(value)) && ~(~isempty(value) && isnumeric(value) && ismatrix(value) && length(value(:,1)) == 2)
+                    if (isempty(value)&& isempty(O.Tprofile)) && ~isa(value,'function_handle') && ~(isnumeric(value) && isscalar(value)) && ~(~isempty(value) && isnumeric(value) && ismatrix(value) && length(value(:,1)) == 2)
                         if i<=Iquery
                         warning('CAT:SetASprofile:WrongType',...
                             'The ASprofile property must be a positive, finite matrix (may be empty) or a function handle with one input');
