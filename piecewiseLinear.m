@@ -37,6 +37,6 @@ for i = 1:length(t)
 end
 
 I(I==length(ypoints)) = length(ypoints)-1;
-
-y = a(I)+m(I).*t;
+a = a(I);m = m(I);
+y = a(:)+m(:).*t;
 y = reshape(y,size(t));
