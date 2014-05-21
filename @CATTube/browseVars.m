@@ -36,8 +36,7 @@ glb.lbox = uicontrol(glb.fighandle,...
     'Position',[10 10 260 380]);
 
 % Update its contents
-glb.V = getVarList;
-updateVarList();
+refreshList();
 
 % Create import button
 glb.import = uicontrol(glb.fighandle,...
@@ -64,8 +63,17 @@ glb.refresh = uicontrol(glb.fighandle,...
     'Style','pushbutton',...
     'String','Refresh',...
     'Units','pixels',...
-    'Callback',@(hObject,Event)updateVarList(hObject,Event),...
+    'Callback',@(hObject,Event)refreshList(hObject,Event),...
     'Position',[280 260 110 30]);
+
+    function refreshList(~,~)
+        if isfield(glb,'V')
+            glb = rmfield(glb,'V');
+        end
+        glb.V = getVarList;
+        updateVarList();
+        
+    end
 
     function [V,Vvis] = getVarList(~,~,unHideSwitch)
         

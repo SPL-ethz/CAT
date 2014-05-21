@@ -1,20 +1,12 @@
 %% Method editDist
 
-function editDist(O,~,~)
+function edit(O)
 
 % Open new GUI window which lets user define the distribution
 % by choosing a grid and
-
-% Make sure there is a distribution to edit, otherwise, create a new one
-if ~isa(O.init_dist,'Distribution')
-    O.init_dist = Distribution;
-end
-
-
-
 % Get distribution density definition
-orig_densfnc = O.init_dist.getFunction();
-orig_densval = O.init_dist.F;
+orig_densfnc = O.getFunction();
+orig_densval = O.F;
 if ~isempty(orig_densfnc)   
     % Cut @(x) from front of definition
     orig_densfnc = func2str(orig_densfnc);
@@ -24,7 +16,7 @@ if ~isempty(orig_densfnc)
     Dgui.density.activefield = 'function';
 elseif ~isempty(orig_densval)
     orig_densfnc = '';
-    orig_densval = O.init_dist.F;
+    orig_densval = O.F;
     % Set active field
     Dgui.density.activefield = 'values';
 else
@@ -74,28 +66,28 @@ Dgui.grid.spacingtype_log = uicontrol(Dgui.grid.spacingtype,...
     'Position',[0 0 60 20]);
 
 % Calculate settings for currently defined distribution
-if allvaleq( diff( log10(O.init_dist.y) ) )
+if allvaleq( diff( log10(O.y) ) )
     % Log spacing
-    orig_gmin = min(log10(O.init_dist.y));
-    orig_gmax = max(log10(O.init_dist.y));
-    orig_gspacing = mean(diff( log10( O.init_dist.y )));
+    orig_gmin = min(log10(O.y));
+    orig_gmax = max(log10(O.y));
+    orig_gspacing = mean(diff( log10( O.y )));
     set(Dgui.grid.spacingtype_log,'value',1)
-elseif allvaleq( diff( O.init_dist.y) ) 
+elseif allvaleq( diff( O.y) ) 
     % Linear spacing
-    orig_gmin = min(O.init_dist.y);
-    orig_gmax = max(O.init_dist.y);
-    orig_gspacing = mean(diff( O.init_dist.y ));
+    orig_gmin = min(O.y);
+    orig_gmax = max(O.y);
+    orig_gspacing = mean(diff( O.y ));
     set(Dgui.grid.spacingtype_lin,'value',1)
 else
     % custom
-    orig_gmin = min(O.init_dist.y);
-    orig_gmax = max(O.init_dist.y);
-    orig_gspacing = mean(diff( O.init_dist.y ));
+    orig_gmin = min(O.y);
+    orig_gmax = max(O.y);
+    orig_gspacing = mean(diff( O.y ));
     set(Dgui.grid.spacingtype,'selectedobject',[])
     
 end % if else
 
-orig_gnumpoints = length(O.init_dist.y);
+orig_gnumpoints = length(O.y);
 
 
 
@@ -356,17 +348,8 @@ plotDist([],[]);
 
     function changedensity(hObject,~,field)
         
-        % Change background of the field not currently edited
-        % Save active field - function or values
-        
-        % Set both background to default, then change current field to
-        % white
-%         set([Dgui.density.function Dgui.density.values],'BackgroundColor','default');
-%         set(hObject,'BackgroundColor','w')
-        
         % Save active field
         Dgui.density.activefield = field;
-        uiresume
         if strcmp(field,'function') && isempty(get(Dgui.density.ftype,'selectedobject')) || ~isempty(get(Dgui.density.function,'string'))
             [~,f] = getDgui_current('values');
             set(Dgui.density.values,'string',data2str(f));
@@ -403,29 +386,29 @@ plotDist([],[]);
         
         if isempty(strfind(get(get(hObject,'parent'),'title'),'density'))
             
-            if allvaleq( diff( log10(O.init_dist.y) ) )
+            if allvaleq( diff( log10(O.y) ) )
                 % Log spacing
-                set(Dgui.grid.min,'string',num2str(min(log10(O.init_dist.y))));
-                set(Dgui.grid.max,'string',num2str(max(log10(O.init_dist.y))));
-                set(Dgui.grid.spacing,'String',mean(diff( log10( O.init_dist.y ))));
+                set(Dgui.grid.min,'string',num2str(min(log10(O.y))));
+                set(Dgui.grid.max,'string',num2str(max(log10(O.y))));
+                set(Dgui.grid.spacing,'String',mean(diff( log10( O.y ))));
                 set(Dgui.grid.spacingtype_log,'value',1)
-            elseif allvaleq( diff( O.init_dist.y) ) 
+            elseif allvaleq( diff( O.y) ) 
                 % Linear spacing
-                set(Dgui.grid.min,'string',num2str(min(O.init_dist.y)));
-                set(Dgui.grid.max,'string',num2str(max(O.init_dist.y)));
-                set(Dgui.grid.spacing,'String',mean(diff(  O.init_dist.y )));
+                set(Dgui.grid.min,'string',num2str(min(O.y)));
+                set(Dgui.grid.max,'string',num2str(max(O.y)));
+                set(Dgui.grid.spacing,'String',mean(diff(  O.y )));
                 set(Dgui.grid.spacingtype_lin,'value',1)
             else
                 % custom
-                set(Dgui.grid.min,'string',num2str(min(O.init_dist.y)));
-                set(Dgui.grid.max,'string',num2str(max(O.init_dist.y)));
-                set(Dgui.grid.spacing,'String',mean(diff(  O.init_dist.y )));
+                set(Dgui.grid.min,'string',num2str(min(O.y)));
+                set(Dgui.grid.max,'string',num2str(max(O.y)));
+                set(Dgui.grid.spacing,'String',mean(diff(  O.y )));
                 set(Dgui.grid.spacingtype,'selectedobject',[])
 
             end % if else
 
             
-            set(Dgui.grid.numpoints,'string',num2str(numel(O.init_dist.y)));
+            set(Dgui.grid.numpoints,'string',num2str(numel(O.y)));
 
             
         else
@@ -433,7 +416,7 @@ plotDist([],[]);
             fakeEvent.NewValue = '';
             changeftype(hObject,fakeEvent);
             set(Dgui.density.ftype,'selectedobject',[])
-            set(Dgui.density.values,'string',data2str(O.init_dist.F))
+            set(Dgui.density.values,'string',data2str(O.F))
             changedensity(hObject,[],'function')
             
         end
@@ -574,7 +557,7 @@ plotDist([],[]);
         elseif strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Linear' )
             x = linspace(xmin,xmax,xnumpoints);
         else
-            x = O.init_dist.y;
+            x = O.y;
         end % if
         
         % Get currently defined distribution function
@@ -667,11 +650,9 @@ plotDist([],[]);
         % Get currently defined values
         [x,f] = getDgui_current;
         % Set these values
-        O.init_dist = Distribution(x,f);
-        
-        % Update the field for the current variable
-        set(O.gui.init.init_dist,'String',data2str(O.init_dist));
-        
+        O.y = x;
+        O.F = f;
+
         % Close the GUI
         close(Dgui.fighandle)
         

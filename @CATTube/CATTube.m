@@ -86,7 +86,7 @@ classdef CATTube < CAT
                 'Style','pushbutton',...
                 'String','Edit',...
                 'Value',0,...
-                'Callback',@(hObject,eventdata)O.editDist(hObject,eventdata),...
+                'Callback',@(hObject,eventdata) O.editDist(hObject,eventdata),...
                 'Position',[390 85 50 20]...
                 );
             % Browse button
@@ -656,6 +656,19 @@ classdef CATTube < CAT
             
             % Send to CAT version of load
             load@CAT(O,fullfile)
+            
+        end % function
+        
+        function editDist(O,~,~)
+            if isempty(O.init_dist)
+                O.init_dist = Distribution;
+            end
+                
+            O.init_dist.edit;
+            uiwait
+            
+            
+            set(O.gui.init.init_dist,'String',data2str(O.init_dist));
             
         end % function
         
