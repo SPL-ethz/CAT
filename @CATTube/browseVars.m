@@ -299,10 +299,10 @@ glb.refresh = uicontrol(glb.fighandle,...
         if varnum <= length(glb.Vvis)
             vardata = evalin('base',[glb.Vvis(varnum).name]); %#ok<NASGU>
             if ~isempty(classvarname)
-                eval(['O.',classvarname,'= vardata']);
-                eval(['O.gui.source.',classvarname, '= glb.Vvis(varnum).name']);
+                eval(['O.',classvarname,'= vardata;']);
+                eval(['O.gui.source.',classvarname, '= glb.Vvis(varnum).name;']);
             else
-                eval('O.clone(vardata)');
+                eval('O.clone(vardata);');
             end % if
             
             % Close the variable list window
