@@ -636,7 +636,7 @@ classdef CATTube < CAT
             uiwait
             
             
-            set(O.gui.init.init_dist,'String',data2str(O.init_dist));
+            set(O.gui.init.init_dist,'String',dist2str(O.init_dist));
             
         end % function
         
@@ -695,7 +695,7 @@ classdef CATTube < CAT
         function init_dist_onset(O)
             
             % Update the init_dist field
-            set(O.gui.init.init_dist,'String',strrep(data2str(O.init_dist),'[]',''));
+            set(O.gui.init.init_dist,'String',strrep(dist2str(O.init_dist),'[]',''));
             validInput = O.solvableCheck('init_dist');
 
             if validInput

@@ -44,12 +44,9 @@ classdef Distribution < Easyset
     % Moments of Distribution objects can be calculated using the moments
     % method. See the corresponding entry.
     %
-    % Distribution currently contains two additional methods: plot and
-    % dist2str. See the respective entries for details.
-    %
     % SEE ALSO
     % CAT, CATTube, Distribution.moments, Distribution.plot,
-    % Distribution.dist2str
+    % Distribution.dist2str, Distribution.data2str
     
     %% Properties
     
@@ -384,44 +381,15 @@ classdef Distribution < Easyset
             % SEE ALSO
             % Distribution
             
-            fprintf([data2str(O) 10]);
+            fprintf([dist2str(O) 10]);
             
         end % function
         
         %% - data2str
         
-        function string = data2str(O)
+        function outstr = data2str(O)
             
             % Distribution.data2str
-            %
-            % Returns a string representation of the distribution object,
-            % with shorthand notation describing main properties
-            %
-            % This string can not be used to recreate the distribution
-            %
-            % SEE ALSO
-            % Distribution, Distribution.dist2str
-            
-            % Returns a string representation of the distribution
-            if isa(O.pF,'function_handle')
-                type = 'Fnc';
-                string = sprintf('%s; d_10 = %.2g, m_3 = %.2g',...
-                    type,O.moments(1)/O.moments(0),O.moments(3) );
-            elseif isvector(O.pF)
-                type = 'Vec';
-                string = sprintf('%s; d_10 = %.2g, m_3 = %.2g',...
-                    type,O.moments(1)/O.moments(0),O.moments(3) );
-            else
-                string = 'Empty';
-            end % if else
-            
-        end % function data2str
-        
-        %% - dist2str
-        
-        function [outstr] = dist2str(O)
-            
-            % Distribution.dist2str
             %
             % Returns the distribution as a string (useful for a comparison of
             % distributions, which in general can be vectors or function
@@ -430,7 +398,7 @@ classdef Distribution < Easyset
             % This string can be used to recreate the distribution
             %
             % SEE ALSO
-            % Distribution, Distribution.data2str
+            % Distribution, Distribution.dist2str
             
             if isnumeric(O.pF)
                 Fstr = mat2str(O.pF);
@@ -442,6 +410,38 @@ classdef Distribution < Easyset
                 end
             end
             outstr = strcat('Distribution(',data2str(O.y),',',Fstr,',',data2str(O.boundaries),')');
+            
+        end % function data2str
+        
+        %% - dist2str
+        
+        function outstr = dist2str(O)
+            
+            % Distribution.dist2str
+            %
+            % Returns a string representation of the distribution object,
+            % with shorthand notation describing main properties
+            %
+            % This string can not be used to recreate the distribution -
+            % use data2str for this
+            %
+            % SEE ALSO
+            % Distribution, Distribution.data2str
+            
+            % Returns a string representation of the distribution
+            if isa(O.pF,'function_handle')
+                type = 'Fnc';
+                outstr = sprintf('%s; d_10 = %.2g, m_3 = %.2g',...
+                    type,O.moments(1)/O.moments(0),O.moments(3) );
+            elseif isvector(O.pF)
+                type = 'Vec';
+                outstr = sprintf('%s; d_10 = %.2g, m_3 = %.2g',...
+                    type,O.moments(1)/O.moments(0),O.moments(3) );
+            else
+                outstr = 'Empty';
+            end % if else
+            
+            
         end
         
         %% - plot
