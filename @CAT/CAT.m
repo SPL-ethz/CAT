@@ -147,7 +147,7 @@ classdef CAT < hgsetget
         %  * Solubility function
         rhoc
         
-        % Property
+        % Property: kv
         % Shape factor
         % Dimensionless scalar value, between 0 and 1.
         kv
