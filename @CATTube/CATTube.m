@@ -624,21 +624,6 @@ classdef CATTube < CAT
             
         end % function
         
-        %% - save
-        
-        function saveCAT(O)
-            
-            % dialog box for file name
-            CATname = inputdlg('Enter desired file name');
-            
-            if ~isempty(CATname)
-                kitty = O.clone(O);
-                
-                kitty.save(CATname);
-            end % if
-            
-        end % function
-        
         %% - load
         
         function load(O,fullfile)
