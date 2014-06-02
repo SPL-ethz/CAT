@@ -620,8 +620,8 @@ classdef CATTube < CAT
                 end
             end
             
+            % Load the data as defined in the input to the CATTube call
             O.load(O_original);
-            
             
         end % function
 
