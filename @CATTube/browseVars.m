@@ -299,7 +299,7 @@ glb.refresh = uicontrol(glb.fighandle,...
         if varnum <= length(glb.Vvis)
             vardata = evalin('base',[glb.Vvis(varnum).name]);
             if ~isempty(classvarname)
-                O.(classvarname)= vardata;
+                O.(classvarname) = vardata;
                 O.gui.source.(classvarname) = glb.Vvis(varnum).name;
             else
                 O.load(vardata);
