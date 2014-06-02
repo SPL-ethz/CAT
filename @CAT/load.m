@@ -18,7 +18,7 @@ function load(O,source)
 %  - a CAT object is overwritten on top of the current object
 %
 % SEE ALSO
-% CAT, CATTube, CAT.save, CAT.saveSource
+% CAT, CATTube, CAT.save
 
 if nargin < 2 || isempty(source)
     % Allow an empty filename to get the filename from a GUI
