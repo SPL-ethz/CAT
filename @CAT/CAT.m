@@ -71,7 +71,7 @@ classdef CAT < hgsetget
         % Property: init_dist
         % Initial particle size distribution
         % Defined using Distribution class
-        init_dist
+        init_dist = Distribution; % Define this default so that C.init_dist.edit works from start!
         
         % Property: init_seed
         % Initial seed mass.
