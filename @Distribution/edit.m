@@ -1,9 +1,20 @@
-%% Method editDist
+%% Method edit
+% Edit Distribution object in GUI
+%
+% D.edit
+% % or
+% edit(D)
+% opens a new GUI window which lets user define the distribution by
+% choosing a grid and defining a function or giving values. The
+% distribution is displayed in a plot in the GUI window.
+%
+% This function is used by the CAT GUI
+%
+% SEE ALSO
+% CAT, CATTube, Distribution
 
 function edit(O)
 
-% Open new GUI window which lets user define the distribution
-% by choosing a grid and
 % Get distribution density definition
 orig_densfnc = O.getFunction();
 orig_densval = O.F;
