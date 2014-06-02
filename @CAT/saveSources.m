@@ -1,6 +1,15 @@
-%% -- saveSources
-
 function saveSources(O,sourceStruct)
+
+% saveSources
+%
+% Function which creates a MATLAB script to recreate a CAT object
+% programmatically.
+%
+% This script can be used as a basis for a more complicated analysis, or
+% for using CAT as part of another script (eg in optimisation).
+%
+% SEE ALSO
+% CAT, CATTube, CAT.save, CAT.load
 
 if nargin<2
     sourceStruct = [];

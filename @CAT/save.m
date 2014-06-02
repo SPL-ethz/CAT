@@ -9,7 +9,7 @@ function outputfilename = save(O,outputfilename,CATname)
 % object and the current date and time
 %
 % SEE ALSO
-% CAT, CATTube, CAT.load
+% CAT, CATTube, CAT.load, CAT.saveSources
 
 if nargin < 3 || isempty(CATname)
     CATname = inputname(1);
