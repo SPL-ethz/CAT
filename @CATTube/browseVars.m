@@ -302,7 +302,7 @@ glb.refresh = uicontrol(glb.fighandle,...
                 eval(['O.',classvarname,'= vardata;']);
                 eval(['O.gui.source.',classvarname, '= glb.Vvis(varnum).name;']);
             else
-                eval('O.clone(vardata);');
+                eval('O.load(vardata);');
             end % if
             
             % Close the variable list window
