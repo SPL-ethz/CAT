@@ -49,6 +49,10 @@ classdef CATTube < CAT
                 'Position',[200 200 1050 445],...
                 'Resize','off');
             
+            % Create source structure which keeps list of which variable
+            % was imported into each property
+            O.gui.source = struct;
+            
             % Create GUI ui controls
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

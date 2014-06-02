@@ -1,4 +1,4 @@
-function outputfilename = save(O,outputfilename,CATname)
+function outputfilename = save(O,outputfilename,CATname,sourcestruct)
 
 % CAT.save
 %
@@ -14,6 +14,11 @@ function outputfilename = save(O,outputfilename,CATname)
 %
 % SEE ALSO
 % CAT, CATTube, CAT.load
+
+if nargin < 4
+    % Define as empty structure
+    sourcestruct = struct;
+end % if
 
 if nargin < 3 || isempty(CATname)
     CATname = inputname(1);
@@ -31,7 +36,7 @@ end % if
 % Check for .m file ending - this means that user wants to write a script
 % file
 if regexp(outputfilename,'\.m$')
-    saveSource(O,outputfilename,CATname);
+    saveSource(O,outputfilename,CATname,sourcestruct);
 else
     % Default is to assume a .mat-file is to be written
     
@@ -70,7 +75,7 @@ end % saveMAT
 
 %% Function saveSource
 
-function saveSource(O,outputfilename,CATname)
+function saveSource(O,outputfilename,CATname,sourcestruct)
 
 % saveSource
 %
@@ -133,9 +138,36 @@ for iv = 1:length(O)
         % each line
         helpstr = strrep(['%' helpstr(1:end-1)],char(10),[10 '%']);
         
+        % Check for existence of variable in source structure - use this
+        % name in that case
+        if isfield(sourcestruct,fieldnames{i}) && ~isempty(sourcestruct.(fieldnames{i}))
+            
+            if strcmp(fieldnames{i},'init_dist')
+                % For init_dist, the definition can be made on the
+                % distribution or on the properties y and/or F - check
+                % which is the case
+                
+                if isstruct(sourcestruct.init_dist) && ...
+                        isfield(sourcestruct.init_dist,'y') && ...
+                        isfield(sourcestruct.init_dist,'F')
+                    
+                    % There are separate definitions for y and F
+                    
+                    outdata = sprintf('Distribution(%s,%s)',...
+                        sourcestruct.init_dist.y,sourcestruct.init_dist.F);
+                else
+                    outdata = sourcestruct.(fieldnames{i});
+                end % if
+            else
+                outdata = sourcestruct.(fieldnames{i});
+            end % if
+        else
+            outdata = data2str(O(iv).(fieldnames{i}));
+        end % if else
+        
         % Print the output for this property
         fprintf(fid,'%s\n%s.%s = %s;\n\n',...
-            helpstr,CATnamevec,fieldnames{i},data2str(O(iv).(fieldnames{i}))...
+            helpstr,CATnamevec,fieldnames{i},outdata...
             );
         
     end % for

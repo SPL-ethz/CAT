@@ -1,16 +1,18 @@
-function outputfilename = save(O,CATname)
+function outputfilename = save(O,outputfilename,CATname)
 
-if nargin < 2 || isempty(CATname)
+if nargin < 3 || isempty(CATname)
     % CATname is the name of the object in the workspace
     CATname = inputname(1);
 end % if
 
-% Get the file name
-[FileName,PathName] = uiputfile({'*.mat','MAT file (*.mat)';'*.m','Script (*.m)'},'Save .mat or .m file',pwd);
-outputfilename = [PathName FileName];
+if nargin < 2 || isempty(outputfilename)
+    % Get the file name
+    [FileName,PathName] = uiputfile({'*.mat','MAT file (*.mat)';'*.m','Script (*.m)'},'Save .mat or .m file',pwd);
+    outputfilename = [PathName FileName];
+end % if
 
 if ~isempty(outputfilename) && ~isequal(outputfilename,[0 0])
-    outputfilename = save@CAT(O,outputfilename,CATname);
+    outputfilename = save@CAT(O,outputfilename,CATname,O.gui.source);
     
     % Show a window
     helpdlg(sprintf('Saved file to %s\n',outputfilename),'CAT file saved');
