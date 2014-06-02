@@ -34,7 +34,7 @@ classdef CATTube < CAT
             
             %
             % Initialise the GUI
-            close all
+            %
             
             if nargin < 1
                 O_original = O.clone(); % this saves the CAT object as it looked like when CATTube is started
