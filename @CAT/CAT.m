@@ -807,63 +807,6 @@ classdef CAT < hgsetget
             
         end % function
         
-        %% -- load
-        
-        function load(O,fullfile)
-            
-            % CAT.load
-            %
-            % Load a CAT object from a mat file and import its settings
-            % into this instance of the file.
-            %
-            % If no filename is given, the user is asked for a filename on
-            % the command line. If a file is given, it is searched for any
-            % CAT* objects. The first one found is written into the current
-            % instance of CAT.
-            %
-            % SEE ALSO
-            % CAT, CATTube, CAT.save
-            
-            if nargin < 2 || isempty(fullfile)
-                % Allow an empty filename to get the filename from a GUI
-                % window
-                
-                % Get the file name
-                fullfile = input('Enter the name of the .mat file to load: ','s');
-                
-            end % if nargin
-            
-            if ~isempty(fullfile) && ~isequal(fullfile,[0 0]) && exist(fullfile,'file')
-                
-                % Get list of variables in the mat file - look for CAT/CATTube
-                % objects
-                
-                S = whos('-file',fullfile);
-                
-                Ssearch = regexp({S.class},'^CAT');
-                
-                if any([Ssearch{:}])
-                    % At least one CAT object found - load the first one.
-                    % This is maybe not ideal - but it works
-                    
-                    CATfound = S(find(Ssearch{:},1));
-                    
-                    % Get this variable from the file
-                    CATload = load(fullfile,CATfound.name);
-                    CATload = CATload.(CATfound.name);
-                    
-                    O.clone(CATload);
-                    
-                else
-                    warning('CAT:load:nodata','The chosen file does not contain any useful data')
-                end % if else
-            
-            else
-                warning('CAT:load:nofile','The given file does not exist')
-            end % if
-            
-        end % function load
-        
         %% -- saveSources
         
         function saveSources(O,sourceStruct)
