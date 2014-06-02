@@ -38,7 +38,7 @@ classdef CATTube < CAT
             
             if nargin < 1
                 % The original is an empty CAT object
-                O_original = load(CAT);
+                O_original = CAT;
             end
             
             % Create the figure handle
