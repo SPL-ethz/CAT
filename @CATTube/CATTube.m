@@ -623,26 +623,8 @@ classdef CATTube < CAT
             
             
         end % function
-        
-        %% - load
-        
-        function load(O,fullfile)
-            
-            if nargin < 2 || isempty(fullfile)
-                % Allow an empty filename to get the filename from a GUI
-                % window
-                
-                % Get the file name
-                [FileName,PathName] = uigetfile('*.mat','Load .mat file',pwd);
-                
-                fullfile = [PathName FileName];
-                
-            end % if nargin
-            
-            % Send to CAT version of load
-            load@CAT(O,fullfile)
-            
-        end % function
+
+        %% - editDist
         
         function editDist(O,~,~)
             if isempty(O.init_dist)
