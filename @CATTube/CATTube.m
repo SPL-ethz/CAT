@@ -37,7 +37,8 @@ classdef CATTube < CAT
             %
             
             if nargin < 1
-                O_original = O.clone(); % this saves the CAT object as it looked like when CATTube is started
+                % The original is an empty CAT object
+                O_original = load(CAT);
             end
             
             % Create the figure handle
