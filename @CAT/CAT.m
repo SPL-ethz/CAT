@@ -762,27 +762,6 @@ classdef CAT < hgsetget
             
             PDma = 100*((mass_solute + mass_crystals)/(mass_solute(1)+mass_crystals(1))-1);     % mass balance error   
         end % function
-        
-        %%  -- save
-        
-        function save(O,CATname)
-            
-            % This function saves the CAT instance in a mat file
-            
-            if nargin<2 || isempty(CATname{1})
-                namestr = 'kitten';
-            else
-                namestr = CATname{1};
-            end
-            
-            namestr = strcat(namestr,'_',datestr(now,'YYYYmmdd_HHMMSS'),'.mat');
- 
-            superCAT.kitty = O; %#ok<STRNU>
-            save(namestr,'-struct','superCAT')
-            disp(strcat({'Saved file to '},namestr))
-            clear superCAT n
-        end % function
-        
             
         %% -- clone
         % This function clones the CAT instance
