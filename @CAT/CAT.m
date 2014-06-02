@@ -762,50 +762,6 @@ classdef CAT < hgsetget
             
             PDma = 100*((mass_solute + mass_crystals)/(mass_solute(1)+mass_crystals(1))-1);     % mass balance error   
         end % function
-            
-        %% -- clone
-        % This function clones the CAT instance
-        function [copyCAT] = clone(O,Original)
-            
-            if nargin == 1 || isempty(Original)
-                Original = O;
-            end
-            
-            % Check for CAT also allows CATTube objects since they are
-            % subclasses of CAT
-            if ~isa(Original,'CAT')
-               
-                warning('CAT:clone:notaCAT',...
-                    'The object you try to clone must be of class CAT');
-                
-            else
-                
-                if nargout == 0
-                    F = O;
-                else
-                    F = CAT;
-                end
-                    
-                
-                fieldnames = properties(O);
-                fieldnames(strcmp(fieldnames,'gui')) = [];
-                warning('off','all')
-                for i = 1:length(fieldnames)
-                   
-                    F.(fieldnames{i}) = Original.(fieldnames{i});
-                    
-                end
-                warning('on','all')
-                if nargout == 1
-                    copyCAT = F;
-                else
-                    copyCAT = [];
-                end
-                
-            end
-            
-            
-        end % function
         
         %% -- saveSources
         
