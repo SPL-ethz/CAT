@@ -1,4 +1,4 @@
-function saveSources(O,sourceStruct)
+function saveSource(O,sourceStruct)
 
 % saveSources
 %
