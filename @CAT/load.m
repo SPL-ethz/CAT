@@ -36,7 +36,7 @@ if ~isempty(source)
         % Get list of variables in the mat file - look for CAT/CATTube
         % objects
         
-        S = whos('-file',fullfile);
+        S = whos('-file',source);
         
         Ssearch = regexp({S.class},'^CAT');
         
@@ -45,10 +45,11 @@ if ~isempty(source)
             % This is maybe not ideal - but it works
             
             CATinput = S(find(Ssearch{:},1));
+            Cname = CATinput.name;
             
             % Get this variable from the file
-            CATinput = load(fullfile,CATinput.name);
-            CATinput = CATinput.(CATinput.name);
+            CATinput = load(source,Cname);
+            CATinput = CATinput.(Cname);
             
         else
             warning('CAT:load:nodata','The chosen file does not contain any useful data')
