@@ -952,21 +952,6 @@ classdef CAT < hgsetget
             
         end
         
-        %% GUI
-        % This function initializes the GUI using the properties defined in
-        % the current object
-        
-        function GUI(O)
-           
-            if length(O)==1
-                CATTube(O);
-            else
-                warning('CAT:GUI:arrayOfCatsGUI',...
-                    'The GUI method for CAT Objects can currently not handle arrays of CATs');
-            end
-            
-        end
-        
     end % methods
     
     %% Hidden methods
