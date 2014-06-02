@@ -66,9 +66,15 @@ if ~isempty(source)
     % object
     fieldnames = properties(O);
     
+    % TEMP FIX - turn warnings off to avoid warnings for empty fields
+    warning('off','all')
+    
     for i = 1:length(fieldnames)
         O.(fieldnames{i}) = CATinput.(fieldnames{i});
     end
+    
+    % TEMP FIX - turn warnings back on
+    warning('on','all')
     
 end % if - n warning needed here
 
