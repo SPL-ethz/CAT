@@ -14,6 +14,9 @@ if ~isempty(outputfilename) && ~isequal(outputfilename,[0 0])
     outputfilename = save@CAT(O,outputfilename,CATname);
 end % if
 
+% Show a window
+helpdlg(sprintf('Saved file to %s\n',outputfilename),'CAT File saved');
+
 % Clear outputfilename if no output requested
 if nargout < 1
     clear outputfilename

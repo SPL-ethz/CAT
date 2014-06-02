@@ -32,12 +32,11 @@ end % if
 superCAT.(CATname) = O; %#ok<STRNU>
 save(outputfilename,'-struct','superCAT')
 
-% Acknlowdge saving
-fprintf('Saved file to %s\n',outputfilename);
-
 % Clear outputfilename if no output requested
 if nargout < 1
     clear outputfilename
+    % Acknowledge saving
+    fprintf('Saved file to %s\n',outputfilename);
 end % if
 
 end % function
