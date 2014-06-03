@@ -18,7 +18,7 @@ for ii = 1:length(O)
     
     
     O(ii).calc_dist = Distribution;
-    if ~isempty(O(ii).init_seed)
+    if ~isempty(O(ii).init_seed) && O(ii).init_seed > 0
         O(ii).init_dist.F = O(ii).init_dist.F*O(ii).init_seed/(moments(O(ii).init_dist,3)*O(ii).kv*O(ii).rhoc*O(ii).init_massmedium);
     end
 
