@@ -361,45 +361,32 @@ classdef CAT < hgsetget
             
             % SET.solubility
             %
-            %  Setter method for solubility Must be a function handle with
-            %  1 or 2 inputs
-            
-%             % check if the value can be easily calculated to a number (a
-%             % number may come in form of a string from the GUI)
-%             try %#ok<TRYNC>
-%                 value = str2num(value); %#ok<*ST2NM>
-%             end
+            % Setter method for solubility
+            % Checks for values or functions - makes function out of value
             
             % Check for number - convert to constant function
             if isempty(value) || O.diagnose('solubility',value)
                 if isnumeric(value) && length(value) == 1
                     O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
                 elseif ischar(value)
-                    % Check for string 
+                    % Check for string
                     if isempty(strfind(value,'@'))
                         O.solubility = str2func(['@(T,xm)' value '*ones(size(T))']);
                     else
                         O.solubility = str2func([value '*ones(size(T))']);
                     end
                 elseif isa(value,'function_handle') || isempty(value)
-% 
-%                     if isa(value,'function_handle') && nargin(value) < 2
-%                         % This is too few, the function needs to accept two
-%                         % inputs (even if the second isn't used)
-%                         O.solubility = str2func(['@(T,xm)' anonfunc2str(value)]);
-%                     else
-%                         % If the function is defined with more inputs, there is
-%                         % no problem as long as the other values are not
-%                         % needed. This will give an error later
-                        O.solubility = value;
-%                     end % if elseif
-%                 
+                    
+                    % Assign the value - the number of inputs is checked on
+                    % calling and does not need to be checked here.
+                    O.solubility = value;
+                    
                 end % if else
-% 
+                
             end
             
             % Extra function - overwritable in subclasses
-                O.solubility_onset;
+            O.solubility_onset;
             
         end % function
         
