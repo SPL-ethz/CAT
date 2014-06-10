@@ -517,9 +517,18 @@ classdef CAT < hgsetget
                     
                     O.Tprofile = value;
                     
+                elseif ischar(value)
+                    
+                    % Check for string
+                    if isempty(strfind(value,'@'))
+                        O.Tprofile = str2func(['@(t)' value]);
+                    else
+                        O.Tprofile = str2func(value);
+                    end
+                    
                 elseif isnumeric(value) && isscalar(value)
                     
-                    O.Tprofile =  str2func(['@(t) ', data2str(value)]);
+                    O.Tprofile = str2func(['@(t) ' data2str(value)]);
                     
                 end % if else
             
@@ -558,9 +567,18 @@ classdef CAT < hgsetget
                     
                     O.ASprofile = value;
                     
+                elseif ischar(value)
+                    
+                    % Check for string
+                    if isempty(strfind(value,'@'))
+                        O.ASprofile = str2func(['@(t)' value]);
+                    else
+                        O.ASprofile = str2func(value);
+                    end
+                    
                 elseif isnumeric(value) && isscalar(value)
                     
-                    O.ASprofile =  str2func(['@(t) ', data2str(value)]);
+                    O.ASprofile =  str2func(['@(t) ' data2str(value)]);
                     
                 elseif isempty(value)
                     
