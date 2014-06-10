@@ -82,12 +82,12 @@ if isnan(Q)
 end
 
 %% Growth rate evaluation
-G = evalanonfunc(O.growthrate,S,T,y(:));
+G = evalanonfunc(O.growthrate, S, T, y(:), t );
 
-Ga = evalanonfunc(O.growthrate,S, T, ya );
+Ga = evalanonfunc(O.growthrate, S, T, ya, t );
 Fa = F( [2:end end] );
 
-Gb = evalanonfunc(O.growthrate,S, T, yb );
+Gb = evalanonfunc(O.growthrate, S, T, yb, t );
 Fb = F( [1 1:end-2 end-2] );
 
 % nucleation

@@ -132,8 +132,8 @@ else
 end
 J = O.nucleationrate(S,T,dist);
 
-Gy = evalanonfunc(O.growthrate,S,T,y); % growth rate for pivots
-Gboundaries = evalanonfunc(O.growthrate,S,T,boundaries); % growth rate for boundaries
+Gy = evalanonfunc(O.growthrate, S, T, y, t ); % growth rate for pivots
+Gboundaries = evalanonfunc(O.growthrate, S, T, boundaries, t ); % growth rate for boundaries
 
 Gboundaries(boundaries<0) = 0;
 

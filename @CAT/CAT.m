@@ -153,8 +153,9 @@ classdef CAT < hgsetget
         kv
         
         % Property: growthrate
-        % Growth rate as a function of supersaturation (S), temperature (T) and size (y).
-        % Defined as an anon. function with up to 3 inputs (S,T,y)
+        % Growth rate as a function of supersaturation (S), temperature (T),
+        % size (y), and time (t).
+        % Defined as an anon. function with up to 4 inputs (S,T,y,t)
         % Units must be consistent with those used for:
         %  * Initial distribution
         %  * Temperature profile
