@@ -38,7 +38,7 @@ m = O.init_massmedium+O.ASprofile(TIME)-O.ASprofile(0);
 xm = O.ASprofile(TIME)/m;
 
 % Initial supersaturation
-cs = O.solubility(T,xm);
+cs = evalanonfunc(O.solubility,T,xm);
 
 % Initial supersaturation
 S = c/cs;
@@ -90,11 +90,16 @@ end
 while t<O.sol_time(end)
        % Growth rate
     if S>=1
-        G = O.growthrate(S,T,O.init_dist.boundaries(2:end)); % in the high resolution method, the growth rate is evaluated AT THE BOUNDARIES of the bins
+        G = evalanonfunc(O.growthrate, S, T, O.init_dist.boundaries(2:end), t ); % in the high resolution method, the growth rate is evaluated AT THE BOUNDARIES of the bins
     else % dissolution (evaluate at lower boundaries)
-        G = O.growthrate(S,T,O.init_dist.boundaries(1:end-1)); 
+        G = evalanonfunc(O.growthrate, S, T, O.init_dist.boundaries(1:end-1), t ); 
     end
-
+    
+    if isscalar(G)
+        G = G*ones(size(O.init_dist.boundaries));
+    end % if
+    
+    
     % Autotimestepsizer based on CFL condition (eq. 24 in Gunawan 2004)
     if flagdt==0
         GI          =   boundingBoxFinder(F_dummy(3:end-1),mlim); % set of indices encapsulating 1-mlim of the distribution
@@ -132,12 +137,14 @@ while t<O.sol_time(end)
     
     %% Nucleation
     if  c>cs % nucleation can never occur for S<=1
-        if nargin(O.nucleationrate) > 2 % case where nucleation depends on a moment
+        if nargin(O.nucleationrate)>2
             dist = Distribution(y,F_dummy(3:end-1));
-            J = O.nucleationrate(S,T,dist);
-        else % nucleation depends only on S and T
-            J = O.nucleationrate(S,T);
+        else
+            dist = [];
         end
+        
+        J = evalanonfunc(O.nucleationrate, S, T, dist, t );
+        
         F_dummy(3)  = F_dummy(3) + J/Dy(1)*Dt; 
     end
 
@@ -153,7 +160,7 @@ while t<O.sol_time(end)
    
     T_dummy    =    O.Tprofile(t); % next temperature
     xm_dummy   =    O.ASprofile(t)/m; % next mass fraction antisolvent
-    cs_dummy   =    O.solubility(T_dummy,xm_dummy);     %Solubility
+    cs_dummy   =    evalanonfunc(O.solubility,T_dummy,xm_dummy);     %Solubility
     
     %% Calculate relative and absolute changes    
     DeltaS      =   c_dummy./cs_dummy-c./cs;

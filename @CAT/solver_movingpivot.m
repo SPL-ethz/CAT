@@ -111,7 +111,7 @@ xm = O.ASprofile(t)/m;
 T = O.Tprofile(t);
 
 % Current supersaturation
-S = c/O.solubility(T,xm);
+S = c/evalanonfunc(O.solubility,T,xm);
 
 % Current mass flow rate antisolvent (evaluated using simplistic FD)
 Q = (O.ASprofile(t+1e-6)-O.ASprofile(t))/1e-6;
@@ -130,12 +130,21 @@ if nargin(O.nucleationrate)>2
 else
     dist = [];
 end
-J = O.nucleationrate(S,T,dist);
 
-Gy = O.growthrate(S,T,y); % growth rate for pivots
-Gboundaries = O.growthrate(S,T,boundaries); % growth rate for boundaries
+J = evalanonfunc(O.nucleationrate, S, T, dist, t );
+
+Gy = evalanonfunc(O.growthrate, S, T, y, t ); % growth rate for pivots
+Gboundaries = evalanonfunc(O.growthrate, S, T, boundaries, t ); % growth rate for boundaries
 
 Gboundaries(boundaries<0) = 0;
+
+% Check size of Gy and Gboundaries
+if isscalar(Gy)
+    Gy = Gy*ones(size(y));
+end % if
+if isscalar(Gboundaries)
+    Gboundaries = Gboundaries*ones(size(boundaries));
+end % if
 
 dNdt = [J; zeros(nBins-1,1)]-N(1:nBins)/m*Q; % change in number (per mass medium): nucleation - dilution
 dcdt = -3*O.rhoc*O.kv*sum(y.^2.*Gy.*N)-c/m*Q-J*y(1)^3*O.kv*O.rhoc;

@@ -8,7 +8,7 @@ if ~any(strcmp(varargin,'emptyonly')) || isempty(O.init_dist)
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.Tprofile)
-    O.Tprofile = @(t) 25*ones(size(t));
+    O.Tprofile = @(t) 25;
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.ASprofile)
@@ -20,15 +20,15 @@ if ~any(strcmp(varargin,'emptyonly')) || isempty(O.init_conc)
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.solubility)
-    O.solubility = @(T,xm) 1;
+    O.solubility = @(T) 1;
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.growthrate)
-    O.growthrate = @(S,T,y) (S-1)*ones(size(y));
+    O.growthrate = @(S) (S-1);
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.nucleationrate)
-    O.nucleationrate = @(S,T,m) 0;
+    O.nucleationrate = @(S) 0;
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.init_seed)
@@ -56,7 +56,7 @@ if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_method)
 end
 
 if ~any(strcmp(varargin,'emptyonly')) || isempty(O.sol_time)
-    O.sol_time = [0:100:10000];
+    O.sol_time = 0:100:10000;
 end
 
 end

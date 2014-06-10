@@ -73,7 +73,7 @@ c = X(end); % concentration
 T = O.Tprofile(t);
 
 % Current supersaturation
-S = c/O.solubility(T,xm);
+S = c/evalanonfunc(O.solubility,T,xm);
 
 % Current mass flow rate antisolvent (evaluated using simplistic FFD)
 Q = (O.ASprofile(t+1e-6)-O.ASprofile(t))/1e-6;
@@ -82,12 +82,12 @@ if isnan(Q)
 end
 
 %% Growth rate evaluation
-G = O.growthrate(S,T,y(:));
+G = evalanonfunc(O.growthrate, S, T, y(:), t );
 
-Ga = O.growthrate(S, T, ya );
+Ga = evalanonfunc(O.growthrate, S, T, ya, t );
 Fa = F( [2:end end] );
 
-Gb = O.growthrate(S, T, yb );
+Gb = evalanonfunc(O.growthrate, S, T, yb, t );
 Fb = F( [1 1:end-2 end-2] );
 
 % nucleation
@@ -97,9 +97,10 @@ else
     dist = [];
 end
 
-J = O.nucleationrate(S,T,dist);
-    % nucleation
-    Fb(1) = J/G(1);
+J = evalanonfunc(O.nucleationrate, S, T, dist, t );
+
+% nucleation
+Fb(1) = J/G(1);
 
 % Growth derivative
 dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';

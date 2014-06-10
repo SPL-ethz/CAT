@@ -129,7 +129,7 @@ classdef CAT < hgsetget
         
         % Property: solubility
         % Solubility function as a function of temperature (T) and antisolvent mass fraction (xm).
-        % Can be an anon. function (Defined as: @(T,xm) or a scalar.
+        % Can be an anon. function with up to 2 inputs (T,xm) or a scalar.
         % Units must be mass solute per total solvent mass and consistent with:
         %  * Seed mass
         %  * Crystal density
@@ -153,8 +153,9 @@ classdef CAT < hgsetget
         kv
         
         % Property: growthrate
-        % Growth rate as a function of supersaturation (S), temperature (T) and size (y).
-        % Defined as an anon. function: @(S,T,y)
+        % Growth rate as a function of supersaturation (S), temperature (T),
+        % size (y), and time (t).
+        % Defined as an anon. function with up to 4 inputs (S,T,y,t)
         % Units must be consistent with those used for:
         %  * Initial distribution
         %  * Temperature profile
@@ -166,9 +167,9 @@ classdef CAT < hgsetget
         growthrate
         
         % Property: nucleationrate
-        % Nucleation rate function
-        % Nucleation rate as a function of supersaturation (S), temperature (T) or (moments of) the distribution F.
-        % Defined as an anon. function: @(S,T,F)
+        % Nucleation rate as a function of supersaturation (S), temperature (T),
+        % (moments of) the distribution F and time (t).
+        % Defined as an anon. function with up to 4 inputs (S,T,F,t)
         % Units must be consistent with those used for:
         %  * Initial distribution
         %  * Temperature profile
@@ -333,7 +334,7 @@ classdef CAT < hgsetget
                     S0 = eval(strrep(O.init_conc,'S=','')); % maybe user has written something 'S=2/3'
                 end
                 if ~isempty(O.solubility) && ~isempty(O.sol_time(1)) && ~isempty(O.Tprofile) && ~isempty(O.ASprofile) && ~isempty(O.init_massmedium) && isa(O.solubility,'function_handle')
-                    O.init_conc = O.solubility(O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium)*S0;
+                    O.init_conc = evalanonfunc(O.solubility,O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium)*S0;
                 end
             end
             cinit = O.init_conc;
@@ -361,45 +362,32 @@ classdef CAT < hgsetget
             
             % SET.solubility
             %
-            %  Setter method for solubility Must be a function handle with
-            %  1 or 2 inputs
-            
-            % check if the value can be easily calculated to a number (a
-            % number may come in form of a string from the GUI)
-            try %#ok<TRYNC>
-                value = str2num(value); %#ok<*ST2NM>
-            end
+            % Setter method for solubility
+            % Checks for values or functions - makes function out of value
             
             % Check for number - convert to constant function
             if isempty(value) || O.diagnose('solubility',value)
                 if isnumeric(value) && length(value) == 1
-                    O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
+                    O.solubility = str2func(['@(T)' num2str(value)]);
                 elseif ischar(value)
-                    % Check for string 
+                    % Check for string
                     if isempty(strfind(value,'@'))
-                        O.solubility = str2func(['@(T,xm)' value '*ones(size(T))']);
+                        O.solubility = str2func(['@(T)' value]);
                     else
-                        O.solubility = str2func([value '*ones(size(T))']);
+                        O.solubility = str2func(value);
                     end
                 elseif isa(value,'function_handle') || isempty(value)
-
-                    if isa(value,'function_handle') && nargin(value) < 2
-                        % This is too few, the function needs to accept two
-                        % inputs (even if the second isn't used)
-                        O.solubility = str2func(['@(T,xm)' anonfunc2str(value)]);
-                    else
-                        % If the function is defined with more inputs, there is
-                        % no problem as long as the other values are not
-                        % needed. This will give an error later
-                        O.solubility = value;
-                    end % if elseif
-                
+                    
+                    % Assign the value - the number of inputs is checked on
+                    % calling and does not need to be checked here.
+                    O.solubility = value;
+                    
                 end % if else
-
+                
             end
             
             % Extra function - overwritable in subclasses
-                O.solubility_onset;
+            O.solubility_onset;
             
         end % function
         
@@ -629,74 +617,32 @@ classdef CAT < hgsetget
             
             % SET.GROWTHRATE
             %
-            % Check the growth rate: should be a function handle, accept 3
-            % arguments: S (scalar), T (temperature), and y (vector). The output should be
-            % the same size as y
+            % Check the growth rate: should be a value (will be converted)
+            % or a function handle
             
-            % If the growth rate is not given as a function, make best
-            % choice to convert it into 
-            
-            % check if the value can be easily calculated to a number (a
-            % number may come in form of a string from the GUI)
-            try %#ok<TRYNC>
-                value = str2num(value);
-            end
-            
+            % Check for number - convert to constant function
             if isempty(value) || O.diagnose('growthrate',value)
                 if isnumeric(value) && length(value) == 1
-                    O.growthrate = str2func(['@(S,T,y)' num2str(value) '*ones(size(y))']);
-                elseif isempty(value)
-                    O.growthrate = value;
+                    O.growthrate = str2func(['@(S)' num2str(value)]);
                 elseif ischar(value)
+                    % Check for string
                     if isempty(strfind(value,'@'))
-                        O.growthrate = str2func(['@(S,T,y)' value]);
+                        O.growthrate = str2func(['@(S)' value]);
                     else
                         O.growthrate = str2func(value);
                     end
-                elseif isa(value,'function_handle')
-
-                    % Check the number of inputs
-                    if nargin(value) == 3
-
-                        % Check the output using 2 example values
-                        out = value(1.1,1,linspace(0.1,1,10));
-
-                        % Check size
-                        if any( size(out) ~= [1 10] )
-                            % Size of output wrong
-                            warning('Distribution:setgrowthrate:Wrongsize',...
-                                'The growth rate function returns a vector which is not the same size as the input vector');
-                        end
-                        % Set the growthrate anyway
-                        O.growthrate = value;
-
-                    elseif nargin(value) == 2 && length(value(1.1,1))==1
-                        % assume size independent function
-                        
-                        y = strsplit(data2str(value),')');
-                        f = [y{1},',y)',implode(y(2:end),')'),'*ones(size(y))'];
-                        O.growthrate = str2func(f);
-
-                    elseif nargin(value) == 2 && length(value(1.1,[1 2]))==2
-                        % assume temperature independent function
-                        O.growthrate = @(S,~,y) value(S,y);
-
-                    elseif nargin(value) == 1
-                        % assume growth rate function only depending on S
-                        y = strsplit(data2str(value),')');
-                        f = [y{1},',~,y)',implode(y(2:end),')'),'*ones(size(y))'];
-                        O.growthrate = str2func(f);
-                    else
-                        warning('Distribution:setgrowthrate:Wrongnargin',...
-                            'The growth rate function must have 3 input arguments (supersaturation, temperature, sizes) or 2 input arguments (S,T) or (S,y)');
-                    end % if
-                
-                end %if
+                elseif isa(value,'function_handle') || isempty(value)
+                    
+                    % Assign the value - the number of inputs is checked on
+                    % calling and does not need to be checked here.
+                    O.growthrate = value;
+                    
+                end % if else
                 
             end
             
             % Extra function - overwritable in subclasses
-                O.growthrate_onset;
+            O.growthrate_onset;
             
         end % function
         
@@ -707,38 +653,32 @@ classdef CAT < hgsetget
             
             % SET.nucleationrate
             %
-            % Check the nucleationrate rate: should be a function handle,
-            % accept max. 3 arguments: S (supersaturation), T (temperature), F (distribution). The output should be
-            % a scalar
-            if O.diagnose('nucleationrate',value)
+            % Check the nucleationrate rate: should be a value (will be
+            % converted) or a function handle
+            
+            % Check for number - convert to constant function
+            if isempty(value) || O.diagnose('nucleationrate',value)
                 if isnumeric(value) && length(value) == 1
-                    O.nucleationrate = str2func(['@(S,T,F)' num2str(value) '*ones(size(S))']);
+                    O.nucleationrate = str2func(['@(S)' num2str(value)]);
                 elseif ischar(value)
-                    if isempty(strfind(value,'@')) % check whether string is already in complete an. function form
-                        O.nucleationrate = str2func(['@(S,T,F)' value]);
+                    % Check for string
+                    if isempty(strfind(value,'@'))
+                        O.nucleationrate = str2func(['@(S)' value]);
                     else
                         O.nucleationrate = str2func(value);
                     end
-
-                elseif isa(value,'function_handle')
-                    if nargin(value) == 1
-                        O.nucleationrate = str2func(['@(S,~,~)' anonfunc2str(value)]);
-                    elseif nargin(value) == 2
-                        O.nucleationrate = str2func(['@(S,T,~)' anonfunc2str(value)]);
-                    else
-                        O.nucleationrate = value;
-                    end
-
-                elseif isempty(value)
+                elseif isa(value,'function_handle') || isempty(value)
+                    
+                    % Assign the value - the number of inputs is checked on
+                    % calling and does not need to be checked here.
                     O.nucleationrate = value;
-
-                end %if
-
-            
+                    
+                end % if else
+                
             end
             
             % Extra function - overwritable in subclasses
-                O.nucleationrate_onset;
+            O.nucleationrate_onset;
             
         end % function
 
