@@ -192,7 +192,7 @@ classdef Distribution < Easyset
             
             % Define properties here
             O.classes.boundaries = 'numeric';
-            O.attributes.boundaries = {'vector','real','finite','nonnegative'};
+            O.attributes.boundaries = {'vector','real','finite'};
             
             % Redirect to checkPropertyValue function to do checking
             O.checkPropertyValue('boundaries',value);
