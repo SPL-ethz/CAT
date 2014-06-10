@@ -129,7 +129,7 @@ classdef CAT < hgsetget
         
         % Property: solubility
         % Solubility function as a function of temperature (T) and antisolvent mass fraction (xm).
-        % Can be an anon. function (Defined as: @(T,xm) or a scalar.
+        % Can be an anon. function with up to 2 inputs (T,xm) or a scalar.
         % Units must be mass solute per total solvent mass and consistent with:
         %  * Seed mass
         %  * Crystal density
