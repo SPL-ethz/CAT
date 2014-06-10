@@ -133,7 +133,7 @@ while t<O.sol_time(end)
     %% Nucleation
     if  c>cs % nucleation can never occur for S<=1
         if nargin(O.nucleationrate)>2
-            dist = Distribution(y,N./Dy,boundaries);
+            dist = Distribution(y,F_dummy(3:end-1));
         else
             dist = [];
         end
