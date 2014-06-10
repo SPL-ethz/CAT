@@ -382,6 +382,8 @@ classdef CAT < hgsetget
                     % calling and does not need to be checked here.
                     O.solubility = value;
                     
+                elseif isempty(value)
+                    O.solubility = [];
                 end % if else
                 
             end
@@ -637,6 +639,8 @@ classdef CAT < hgsetget
                     % calling and does not need to be checked here.
                     O.growthrate = value;
                     
+                elseif isempty(value)
+                    O.growthrate = [];
                 end % if else
                 
             end
@@ -673,6 +677,8 @@ classdef CAT < hgsetget
                     % calling and does not need to be checked here.
                     O.nucleationrate = value;
                     
+                elseif isempty(value)
+                    O.nucleationrate = [];
                 end % if else
                 
             end
