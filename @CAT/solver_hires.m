@@ -90,9 +90,9 @@ end
 while t<O.sol_time(end)
        % Growth rate
     if S>=1
-        G = O.growthrate(S,T,O.init_dist.boundaries(2:end)); % in the high resolution method, the growth rate is evaluated AT THE BOUNDARIES of the bins
+        G = evalanonfunc(O.growthrate,S,T,O.init_dist.boundaries(2:end)); % in the high resolution method, the growth rate is evaluated AT THE BOUNDARIES of the bins
     else % dissolution (evaluate at lower boundaries)
-        G = O.growthrate(S,T,O.init_dist.boundaries(1:end-1)); 
+        G = evalanonfunc(O.growthrate,S,T,O.init_dist.boundaries(1:end-1)); 
     end
 
     % Autotimestepsizer based on CFL condition (eq. 24 in Gunawan 2004)
