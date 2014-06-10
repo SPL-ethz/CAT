@@ -154,7 +154,7 @@ classdef CAT < hgsetget
         
         % Property: growthrate
         % Growth rate as a function of supersaturation (S), temperature (T) and size (y).
-        % Defined as an anon. function: @(S,T,y)
+        % Defined as an anon. function with up to 3 inputs (S,T,y)
         % Units must be consistent with those used for:
         %  * Initial distribution
         %  * Temperature profile
@@ -616,74 +616,31 @@ classdef CAT < hgsetget
             
             % SET.GROWTHRATE
             %
-            % Check the growth rate: should be a function handle, accept 3
-            % arguments: S (scalar), T (temperature), and y (vector). The output should be
-            % the same size as y
+            % Check the growth rate: should be a value (converted) or a function handle
             
-            % If the growth rate is not given as a function, make best
-            % choice to convert it into 
-            
-            % check if the value can be easily calculated to a number (a
-            % number may come in form of a string from the GUI)
-            try %#ok<TRYNC>
-                value = str2num(value);
-            end
-            
-            if isempty(value) || O.diagnose('growthrate',value)
+            % Check for number - convert to constant function
+            if isempty(value) || O.diagnose('solubility',value)
                 if isnumeric(value) && length(value) == 1
-                    O.growthrate = str2func(['@(S,T,y)' num2str(value) '*ones(size(y))']);
-                elseif isempty(value)
-                    O.growthrate = value;
+                    O.growthrate = str2func(['@(S)' num2str(value)]);
                 elseif ischar(value)
+                    % Check for string
                     if isempty(strfind(value,'@'))
-                        O.growthrate = str2func(['@(S,T,y)' value]);
+                        O.growthrate = str2func(['@(S)' value]);
                     else
                         O.growthrate = str2func(value);
                     end
-                elseif isa(value,'function_handle')
-
-                    % Check the number of inputs
-                    if nargin(value) == 3
-
-                        % Check the output using 2 example values
-                        out = value(1.1,1,linspace(0.1,1,10));
-
-                        % Check size
-                        if any( size(out) ~= [1 10] )
-                            % Size of output wrong
-                            warning('Distribution:setgrowthrate:Wrongsize',...
-                                'The growth rate function returns a vector which is not the same size as the input vector');
-                        end
-                        % Set the growthrate anyway
-                        O.growthrate = value;
-
-                    elseif nargin(value) == 2 && length(value(1.1,1))==1
-                        % assume size independent function
-                        
-                        y = strsplit(data2str(value),')');
-                        f = [y{1},',y)',implode(y(2:end),')'),'*ones(size(y))'];
-                        O.growthrate = str2func(f);
-
-                    elseif nargin(value) == 2 && length(value(1.1,[1 2]))==2
-                        % assume temperature independent function
-                        O.growthrate = @(S,~,y) value(S,y);
-
-                    elseif nargin(value) == 1
-                        % assume growth rate function only depending on S
-                        y = strsplit(data2str(value),')');
-                        f = [y{1},',~,y)',implode(y(2:end),')'),'*ones(size(y))'];
-                        O.growthrate = str2func(f);
-                    else
-                        warning('Distribution:setgrowthrate:Wrongnargin',...
-                            'The growth rate function must have 3 input arguments (supersaturation, temperature, sizes) or 2 input arguments (S,T) or (S,y)');
-                    end % if
-                
-                end %if
+                elseif isa(value,'function_handle') || isempty(value)
+                    
+                    % Assign the value - the number of inputs is checked on
+                    % calling and does not need to be checked here.
+                    O.growthrate = value;
+                    
+                end % if else
                 
             end
             
             % Extra function - overwritable in subclasses
-                O.growthrate_onset;
+            O.growthrate_onset;
             
         end % function
         
