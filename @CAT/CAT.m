@@ -333,7 +333,7 @@ classdef CAT < hgsetget
                     S0 = eval(strrep(O.init_conc,'S=','')); % maybe user has written something 'S=2/3'
                 end
                 if ~isempty(O.solubility) && ~isempty(O.sol_time(1)) && ~isempty(O.Tprofile) && ~isempty(O.ASprofile) && ~isempty(O.init_massmedium) && isa(O.solubility,'function_handle')
-                    O.init_conc = O.solubility(O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium)*S0;
+                    O.init_conc = evalanonfunc(O.solubility,O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium)*S0;
                 end
             end
             cinit = O.init_conc;

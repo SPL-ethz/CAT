@@ -38,7 +38,7 @@ m = O.init_massmedium+O.ASprofile(TIME)-O.ASprofile(0);
 xm = O.ASprofile(TIME)/m;
 
 % Initial supersaturation
-cs = O.solubility(T,xm);
+cs = evalanonfunc(O.solubility,T,xm);
 
 % Initial supersaturation
 S = c/cs;
@@ -153,7 +153,7 @@ while t<O.sol_time(end)
    
     T_dummy    =    O.Tprofile(t); % next temperature
     xm_dummy   =    O.ASprofile(t)/m; % next mass fraction antisolvent
-    cs_dummy   =    O.solubility(T_dummy,xm_dummy);     %Solubility
+    cs_dummy   =    evalanonfunc(O.solubility,T_dummy,xm_dummy);     %Solubility
     
     %% Calculate relative and absolute changes    
     DeltaS      =   c_dummy./cs_dummy-c./cs;

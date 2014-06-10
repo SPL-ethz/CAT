@@ -73,7 +73,7 @@ c = X(end); % concentration
 T = O.Tprofile(t);
 
 % Current supersaturation
-S = c/O.solubility(T,xm);
+S = c/evalanonfunc(O.solubility,T,xm);
 
 % Current mass flow rate antisolvent (evaluated using simplistic FFD)
 Q = (O.ASprofile(t+1e-6)-O.ASprofile(t))/1e-6;
