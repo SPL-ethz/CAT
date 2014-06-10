@@ -492,18 +492,12 @@ classdef CAT < hgsetget
             % Check the Temperature profile. It must be a matrix with
             % positive, finite elements. The first row indicates the times
             % of the nodes whereas the second row indicates Temp's
-
-            % check if the value can be easily calculated to a number (a
-            % number may come in form of a string from the GUI)
-            try %#ok<TRYNC>
-                value = str2num(value);
-            end
             
             if isempty(value) || O.diagnose('Tprofile',value)
                 if ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
-
-                    if isempty(O.sol_time)
-                        O.sol_time = value(1,end);
+                    
+                    if isempty(O.Tprofile)
+                        O.Tprofile = value(1,end);
                     end
                     
                     if value(1,end)<O.sol_time(end)
@@ -511,33 +505,28 @@ classdef CAT < hgsetget
                         value(1,end) = O.sol_time(end);
                         value(2,end) = value(2,end-1);
                     end
-    
+                    
                     O.Tprofile = str2func(strcat('@(t) piecewiseLinear(',data2str(value(1,:)),',',data2str(value(2,:)),',t)')); %
                     O.tNodes = unique([O.tNodes value(1,:)]);
-                
+                    
                 elseif isempty(value)
+                    
                     O.Tprofile = value;
-
-                elseif isa(value,'function_handle') && nargin(value)==1
-
-                    if length(value([0 10]))==1
-                        O.Tprofile = @(t) value(t)*ones(size(t)); % output should be a vector of same size as input
-                    else
-                        O.Tprofile = value;
-                    end
-
+                    
+                elseif isa(value,'function_handle')
+                    
+                    O.Tprofile = value;
+                    
                 elseif isnumeric(value) && isscalar(value)
-                    O.Tprofile =  str2func(strcat('@(t)', data2str(value),'*ones(size(t))'));
-
-                
-
+                    
+                    O.Tprofile =  str2func(['@(t) ', data2str(value)]);
+                    
                 end % if else
-
             
             end
             
             % Extra function - overwritable in subclasses
-                O.Tprofile_onset;
+            O.Tprofile_onset;
             
         end % function
         
@@ -550,15 +539,9 @@ classdef CAT < hgsetget
             % Check the time profile (for added AS profiles). It must be
             % a strictly increasing(!), positive vector
             
-            % check if the value can be easily calculated to a number (a
-            % number may come in form of a string from the GUI)
-            try %#ok<TRYNC>
-                value = str2num(value);
-            end
-            
             if isempty(value) || O.diagnose('ASprofile',value)
                 if ~isempty(value) &&  ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
-
+                    
                     if value(1,end)<O.sol_time(end)
                         value = [value [0;0]];
                         value(1,end) = O.sol_time(end);
@@ -566,29 +549,33 @@ classdef CAT < hgsetget
                     end
                     O.ASprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
                     O.tNodes = unique([O.tNodes value(1,:)]);
-                
+                    
                 elseif isempty(value)
+                    
                     O.ASprofile = value;
-
-                elseif isa(value,'function_handle') && nargin(value)==1
+                    
+                elseif isa(value,'function_handle')
+                    
                     O.ASprofile = value;
                     
                 elseif isnumeric(value) && isscalar(value)
-                    O.ASprofile =  str2func(strcat('@(t)', data2str(value),'*ones(size(t))'));
-
+                    
+                    O.ASprofile =  str2func(['@(t) ', data2str(value)]);
+                    
                 elseif isempty(value)
+                    
                     O.ASprofile = value;
+                    
                 else
                     warning('CAT:SetTprofile:WrongType',...
                         'The ASprofile property must be a positive, finite matrix (may be zero) or a function handle with one input');
-
+                    
                 end % if else
-
                 
             end
             
             % Extra function - overwritable in subclasses
-                O.ASprofile_onset;
+            O.ASprofile_onset;
             
         end % function
         
