@@ -367,13 +367,13 @@ classdef CAT < hgsetget
             % Check for number - convert to constant function
             if isempty(value) || O.diagnose('solubility',value)
                 if isnumeric(value) && length(value) == 1
-                    O.solubility = str2func(['@(T,xm)' num2str(value) '*ones(size(T))']);
+                    O.solubility = str2func(['@(T)' num2str(value)]);
                 elseif ischar(value)
                     % Check for string
                     if isempty(strfind(value,'@'))
-                        O.solubility = str2func(['@(T,xm)' value '*ones(size(T))']);
+                        O.solubility = str2func(['@(T)' value]);
                     else
-                        O.solubility = str2func([value '*ones(size(T))']);
+                        O.solubility = str2func(value);
                     end
                 elseif isa(value,'function_handle') || isempty(value)
                     
