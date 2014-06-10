@@ -94,7 +94,12 @@ while t<O.sol_time(end)
     else % dissolution (evaluate at lower boundaries)
         G = evalanonfunc(O.growthrate, S, T, O.init_dist.boundaries(1:end-1), t ); 
     end
-
+    
+    if isscalar(G)
+        G = G*ones(size(O.init_dist.boundaries));
+    end % if
+    
+    
     % Autotimestepsizer based on CFL condition (eq. 24 in Gunawan 2004)
     if flagdt==0
         GI          =   boundingBoxFinder(F_dummy(3:end-1),mlim); % set of indices encapsulating 1-mlim of the distribution
