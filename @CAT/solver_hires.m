@@ -132,12 +132,14 @@ while t<O.sol_time(end)
     
     %% Nucleation
     if  c>cs % nucleation can never occur for S<=1
-        if nargin(O.nucleationrate) > 2 % case where nucleation depends on a moment
-            dist = Distribution(y,F_dummy(3:end-1));
-            J = O.nucleationrate(S,T,dist);
-        else % nucleation depends only on S and T
-            J = O.nucleationrate(S,T);
+        if nargin(O.nucleationrate)>2
+            dist = Distribution(y,N./Dy,boundaries);
+        else
+            dist = [];
         end
+        
+        J = evalanonfunc(O.nucleationrate, S, T, dist, t );
+        
         F_dummy(3)  = F_dummy(3) + J/Dy(1)*Dt; 
     end
 

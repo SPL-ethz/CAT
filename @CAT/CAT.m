@@ -167,9 +167,9 @@ classdef CAT < hgsetget
         growthrate
         
         % Property: nucleationrate
-        % Nucleation rate function
-        % Nucleation rate as a function of supersaturation (S), temperature (T) or (moments of) the distribution F.
-        % Defined as an anon. function: @(S,T,F)
+        % Nucleation rate as a function of supersaturation (S), temperature (T),
+        % (moments of) the distribution F and time (t).
+        % Defined as an anon. function with up to 4 inputs (S,T,F,t)
         % Units must be consistent with those used for:
         %  * Initial distribution
         %  * Temperature profile
@@ -617,10 +617,11 @@ classdef CAT < hgsetget
             
             % SET.GROWTHRATE
             %
-            % Check the growth rate: should be a value (converted) or a function handle
+            % Check the growth rate: should be a value (will be converted)
+            % or a function handle
             
             % Check for number - convert to constant function
-            if isempty(value) || O.diagnose('solubility',value)
+            if isempty(value) || O.diagnose('growthrate',value)
                 if isnumeric(value) && length(value) == 1
                     O.growthrate = str2func(['@(S)' num2str(value)]);
                 elseif ischar(value)
@@ -652,38 +653,32 @@ classdef CAT < hgsetget
             
             % SET.nucleationrate
             %
-            % Check the nucleationrate rate: should be a function handle,
-            % accept max. 3 arguments: S (supersaturation), T (temperature), F (distribution). The output should be
-            % a scalar
-            if O.diagnose('nucleationrate',value)
+            % Check the nucleationrate rate: should be a value (will be
+            % converted) or a function handle
+            
+            % Check for number - convert to constant function
+            if isempty(value) || O.diagnose('nucleationrate',value)
                 if isnumeric(value) && length(value) == 1
-                    O.nucleationrate = str2func(['@(S,T,F)' num2str(value) '*ones(size(S))']);
+                    O.nucleationrate = str2func(['@(S)' num2str(value)]);
                 elseif ischar(value)
-                    if isempty(strfind(value,'@')) % check whether string is already in complete an. function form
-                        O.nucleationrate = str2func(['@(S,T,F)' value]);
+                    % Check for string
+                    if isempty(strfind(value,'@'))
+                        O.nucleationrate = str2func(['@(S)' value]);
                     else
                         O.nucleationrate = str2func(value);
                     end
-
-                elseif isa(value,'function_handle')
-                    if nargin(value) == 1
-                        O.nucleationrate = str2func(['@(S,~,~)' anonfunc2str(value)]);
-                    elseif nargin(value) == 2
-                        O.nucleationrate = str2func(['@(S,T,~)' anonfunc2str(value)]);
-                    else
-                        O.nucleationrate = value;
-                    end
-
-                elseif isempty(value)
+                elseif isa(value,'function_handle') || isempty(value)
+                    
+                    % Assign the value - the number of inputs is checked on
+                    % calling and does not need to be checked here.
                     O.nucleationrate = value;
-
-                end %if
-
-            
+                    
+                end % if else
+                
             end
             
             % Extra function - overwritable in subclasses
-                O.nucleationrate_onset;
+            O.nucleationrate_onset;
             
         end % function
 

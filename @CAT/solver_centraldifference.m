@@ -97,9 +97,10 @@ else
     dist = [];
 end
 
-J = O.nucleationrate(S,T,dist);
-    % nucleation
-    Fb(1) = J/G(1);
+J = evalanonfunc(O.nucleationrate, S, T, dist, t );
+
+% nucleation
+Fb(1) = J/G(1);
 
 % Growth derivative
 dF = -( ( Ga.*Fa - Gb.*Fb )./ (ya - yb ) )';

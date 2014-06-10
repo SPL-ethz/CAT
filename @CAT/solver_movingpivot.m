@@ -130,7 +130,8 @@ if nargin(O.nucleationrate)>2
 else
     dist = [];
 end
-J = O.nucleationrate(S,T,dist);
+
+J = evalanonfunc(O.nucleationrate, S, T, dist, t );
 
 Gy = evalanonfunc(O.growthrate, S, T, y, t ); % growth rate for pivots
 Gboundaries = evalanonfunc(O.growthrate, S, T, boundaries, t ); % growth rate for boundaries
