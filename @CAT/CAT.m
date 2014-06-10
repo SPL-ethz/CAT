@@ -364,11 +364,11 @@ classdef CAT < hgsetget
             %  Setter method for solubility Must be a function handle with
             %  1 or 2 inputs
             
-            % check if the value can be easily calculated to a number (a
-            % number may come in form of a string from the GUI)
-            try %#ok<TRYNC>
-                value = str2num(value); %#ok<*ST2NM>
-            end
+%             % check if the value can be easily calculated to a number (a
+%             % number may come in form of a string from the GUI)
+%             try %#ok<TRYNC>
+%                 value = str2num(value); %#ok<*ST2NM>
+%             end
             
             % Check for number - convert to constant function
             if isempty(value) || O.diagnose('solubility',value)
@@ -382,20 +382,20 @@ classdef CAT < hgsetget
                         O.solubility = str2func([value '*ones(size(T))']);
                     end
                 elseif isa(value,'function_handle') || isempty(value)
-
-                    if isa(value,'function_handle') && nargin(value) < 2
-                        % This is too few, the function needs to accept two
-                        % inputs (even if the second isn't used)
-                        O.solubility = str2func(['@(T,xm)' anonfunc2str(value)]);
-                    else
-                        % If the function is defined with more inputs, there is
-                        % no problem as long as the other values are not
-                        % needed. This will give an error later
+% 
+%                     if isa(value,'function_handle') && nargin(value) < 2
+%                         % This is too few, the function needs to accept two
+%                         % inputs (even if the second isn't used)
+%                         O.solubility = str2func(['@(T,xm)' anonfunc2str(value)]);
+%                     else
+%                         % If the function is defined with more inputs, there is
+%                         % no problem as long as the other values are not
+%                         % needed. This will give an error later
                         O.solubility = value;
-                    end % if elseif
-                
+%                     end % if elseif
+%                 
                 end % if else
-
+% 
             end
             
             % Extra function - overwritable in subclasses
