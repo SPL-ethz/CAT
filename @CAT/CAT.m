@@ -496,8 +496,8 @@ classdef CAT < hgsetget
             if isempty(value) || O.diagnose('Tprofile',value)
                 if ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
                     
-                    if isempty(O.Tprofile)
-                        O.Tprofile = value(1,end);
+                    if isempty(O.sol_time)
+                        O.sol_time = value(1,end);
                     end
                     
                     if value(1,end)<O.sol_time(end)
