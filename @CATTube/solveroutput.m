@@ -11,7 +11,7 @@ if isequal(flag,'init')
     FINAL_TIME = t(end);
     
     % Create the wait bar
-    HANDLE = waitbar(0,sprintf('%-10.8g - %10.8g',START_TIME,FINAL_TIME),...
+    HANDLE = waitbar(0,sprintf('Solving. Times: %g - %g',START_TIME,FINAL_TIME),...
     'CreateCancelBtn',@cancelintegration);
     
     % No cancelling
