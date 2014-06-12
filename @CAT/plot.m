@@ -1,6 +1,6 @@
 %% Method plot
 
-function plot(O,plotwhat,varargin)
+function plot(O,varargin)
 
 % Plot function for the results
 %
@@ -38,17 +38,93 @@ function plot(O,plotwhat,varargin)
 % Graphs can currently not be plotted in existing figures !!
 %
 
-set(0,'defaultaxesfontsize',14,'defaulttextfontsize',16);
+%% Define list of available plots
 
-if nargin == 1
-    plotwhat = 'detailed_results';
-end
+available_plots = {...
+    'PSD_3D',... Three dimensional plots of particle size distributions vs time
+    'PSD_cumul',... Cumulative properties (moments) of PSDs vs time
+    'proc_var',... Process variables vs time: concentration, supersaturation, temperature, total solvent mass
+    'operating',... Operating diagram: concentration vs temperature
+    'massbal'... Mass balance
+    };
 
-% Check if requesting to close all plotted figures
-if isequal(plotwhat,'close')
-    close(O.children(ishandle(O.children)));
+%% Figure out what to plot
+
+% Check for existing plots
+if isempty(O.handles)
+    existing_plots = false(size(available_plots));
+else
+    existing_plots = ishandle(O.handles);
+end % if
+
+% Check inputs
+if iscell(varargin{1})
+    varargin = [varargin{1} varargin{2:end}];
+end % if
+
+% Check if requesting to close all plotted figures - close all figures,
+% reset handles structure to empty
+if any(strcmpi(varargin,'close'))
+    close(O.handles.figures(ishandle(O.handles.figures)));
+    O.handles = [];
     return
 end % if
+
+% Check for calculated data
+if isempty(O(1).calc_time)
+    error('CAT:plot:noCalcs',...
+        'No calculation results available')
+end % if
+
+% Extract names of plots from varargin - these are plotwhat
+plotwhat = intersect(lower(varargin),lower(available_plots));
+
+% Keep rest for varargin
+varargin = setdiff(lower(varargin),lower(available_plots));
+
+if nargin == 1 || isempty(plotwhat)
+    
+    % If no specific plots are mentioned, replot those which are existing -
+    % unless none exist, in which case all figures should be plotted
+    %
+    % This way figures are created the first time plot is called, and any
+    % remaining figures are updated the next time plot is called.
+    %
+    % New plots can be forced by calling C.plot('plotname')
+    
+    if all(existing_plots == 0)
+        requested_plots = true(size(available_plots));
+    else
+        requested_plots = existing_plots;
+    end % if else
+    
+elseif ischar(plotwhat) && any(strcmpi(plotwhat,{'detailed_results','all'}))
+    
+    % All the plots are chosen explicitly
+    requested_plots = true(size(available_plots));
+
+elseif iscell(plotwhat)
+    
+    % A specific list of plots was requested - add these to the list of
+    % existing plots
+    
+    requested_plots = existing_plots;
+    
+    % Go through cell list of what to plot - add each requested one to the
+    % list
+    for i = 1:length(plotwhat)
+        requested_plots = requested_plots | strcmpi(plotwhat{i},available_plots);
+    end
+    
+else
+    error('CAT:plot:wronginput','The input given to plot is misformed. See the help for information')
+end % if
+
+
+%%
+
+set(0,'defaultaxesfontsize',14,'defaulttextfontsize',16);
+
 
 if ishandle(21)
     h = get(21,'children');
