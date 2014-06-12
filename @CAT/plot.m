@@ -46,7 +46,7 @@
             
             % Check if requesting to close all plotted figures
             if isequal(plotwhat,'close')
-                close(O.children);
+                close(O.children(ishandle(O.children)));
                 return
             end % if
             
