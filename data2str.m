@@ -9,8 +9,8 @@ function outstr = data2str(vdata)
 switch(class(vdata))
     
     case 'char' 
-        % Do nothing to str inputs - already formatted
-        outstr = vdata;
+        % Add apostrophe around character arrays in output
+        outstr = sprintf('''%s''',vdata);
         
     case 'function_handle'
         
