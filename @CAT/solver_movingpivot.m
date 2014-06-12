@@ -40,14 +40,20 @@ tend = O.sol_time(end); % overall end time
 % necessary
 options = O.sol_options;
 if isempty(O.sol_options) || isempty(O.sol_options{1})
-    options = odeset('Events',@(t,x) EventBin(t,x,dL,massbalTol,O),'reltol',1e-6);
+    options = odeset('Events',@(t,x) EventBin(t,x,dL,massbalTol,O),'reltol',1e-6,...
+        'OutputFcn',@solveroutput_wrapper);
 else
-    options = odeset('Events',@(t,x) EventBin(t,x,dL,massbalTol,O));
+    options = odeset('Events',@(t,x) EventBin(t,x,dL,massbalTol,O),...
+        'OutputFcn',@solveroutput_wrapper);
 end
 
 
 SolutionTimes = []; SolutionConc = [];
 s=0;
+
+% Call solveroutput function - initialise
+O.solveroutput([tstart tend],[],'init');
+
 while tstart<tend
     ts = O.sol_time(O.sol_time > tstart & O.sol_time < tend);
     
@@ -82,12 +88,30 @@ while tstart<tend
     else
         mbflag = 0;
     end
-
+    
 end %while
+
+% Call solveroutput function - final
+O.solveroutput([],[],'done');
 
 O.calc_time = SolutionTimes;
 O.calc_dist = SolutionDists;
 O.calc_conc = SolutionConc;
+
+    function status = solveroutput_wrapper(t,~,flag)
+        
+        % This function is used as outputfcn in the ODEs - the init and
+        % final steps are called manually before and after solution, to
+        % avoid calling them many times as the solver is restarted
+        
+        if isempty(flag)
+            % Only call solveroutput via ODE for intermediate values
+            O.solveroutput(t,[],[]);
+        end % if
+        
+        status = 0;
+        
+    end % function
 
 end % function movingpivot
 
@@ -150,23 +174,6 @@ dNdt = [J; zeros(nBins-1,1)]-N(1:nBins)/m*Q; % change in number (per mass medium
 dcdt = -3*O.rhoc*O.kv*sum(y.^2.*Gy.*N)-c/m*Q-J*y(1)^3*O.kv*O.rhoc;
 
 dxdt = [dNdt; Gy; Gboundaries; dcdt;];
-
-% if GUI is used, update progress bar
-if findall(0,'name','Looking at CATs')
-            
-    if isempty(O.tNodes)
-        tFinal = O.sol_time(end);
-    else
-        tFinal = O.tNodes(end);
-    end
-    if floor(t/tFinal/0.05)>str2num(get(gca,'tag'))
-        fill([0 t/tFinal t/tFinal 0],[0 0 1 1],'c','edgecolor','none')
-        delete(findall(gcf,'type','text'))
-        text(0.44,0.5,[num2str(floor(t/tFinal*100),'%2d'),'%'])
-        set(gca,'tag',num2str(floor(t/tFinal/0.05)))
-        drawnow
-    end
-end
 
 end
 

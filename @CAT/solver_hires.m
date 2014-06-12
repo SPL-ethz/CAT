@@ -87,6 +87,9 @@ else
     tFinal = O.tNodes(end);
 end
 
+% Call solveroutput function - initialise
+O.solveroutput(O.sol_time([1 end]),[],'init');
+
 while t<O.sol_time(end)
        % Growth rate
     if S>=1
@@ -192,16 +195,8 @@ while t<O.sol_time(end)
         F = arrayCrop(F_dummy,[3;length(F_dummy)-1])';
         Y(end+1,:) = [F(:)' c];
         
-        if findall(0,'name','Looking at CATs')
-
-            if floor(t/tFinal/0.05)>str2num(get(gca,'tag'))
-                fill([0 t/tFinal t/tFinal 0],[0 0 1 1],'c','edgecolor','none')
-                delete(findall(gcf,'type','text'))
-                text(0.44,0.5,[num2str(floor(t/tFinal*100),'%2d'),'%'])
-                set(gca,'tag',num2str(floor(t/tFinal/0.05)))
-                drawnow
-            end
-        end
+        % Call solveroutput function
+        O.solveroutput(t,[],[]);
 
     else % results violate tolerances and conditions
         % Use a smaller timestep and repeat everything
@@ -214,6 +209,9 @@ while t<O.sol_time(end)
 mbflag = 0;
 
 end
+
+% Call solveroutput function - done
+O.solveroutput([],[],'done');
 
 %% Assign output
 

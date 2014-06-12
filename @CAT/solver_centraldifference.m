@@ -22,7 +22,8 @@ else
 end
 
 if isempty(O.sol_options) || isempty(O.sol_options{1})
-    options = odeset('Events',@(t,x) Event(t,x,massbalTol,O),'reltol',1e-6);
+    options = odeset('Events',@(t,x) Event(t,x,massbalTol,O),'reltol',1e-6,...
+        'OutputFcn',@O.solveroutput);
 end
 
 X0 = [O.init_dist.F, O.init_conc];
