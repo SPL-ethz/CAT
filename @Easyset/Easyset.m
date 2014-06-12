@@ -43,15 +43,23 @@ classdef Easyset < hgsetget
     % Instead of defining the property structure at the beginning of the
     % set method, the method configureproperties can be defined to take
     % care of this. This can be useful when many properties share the same
-    % definition, for example VAR and VAR2 in this example:
+    % definition, as with VAR and VAR2 in this example:
     %
     %     function configureproperties(O)
     %
-    %         % In this case, VAR and boundaries have the same restrictions
+    %         % In this case, VAR and VAR2 have the same restrictions
     %         [O.classes.VAR,O.classes.VAR2] = deal({'numeric'});
     %         [O.attributes.VAR,O.attributes.VAR2] = deal({'vector','real','finite','nonnegative'});
     %
     %     end % function
+    %
+    %% WARNING
+    %
+    % Using the syntax
+    %     set(O,'VAR')
+    % only works if the properties attributes are defined within
+    % configureproperties! Otherwise, this special case will not work -
+    % however, checking upon setting a value will still work.
     %
     %% SEE ALSO
     % Easyset.choices, Easyset.classes, Easyset.attributes,
