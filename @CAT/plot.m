@@ -1,6 +1,6 @@
 %% Method plot
 
-function plot(O,varargin)
+function out = plot(O,varargin)
 
 % Plot function for the results
 %
@@ -50,6 +50,19 @@ available_plots = {...
 
 %% Figure out what to plot
 
+% Check if requesting list of available figures - this returns cell
+% available_plots and exits
+if any(strcmpi(varargin,'available_plots'))
+    out = available_plots;
+    return
+end % if
+
+% Check for calculated data
+if isempty(O(1).calc_time)
+    error('CAT:plot:noCalcs',...
+        'No calculation results available')
+end % if
+
 % Check for existing plots
 if isempty(O.handles)
     existing_plots = false(size(available_plots));
@@ -70,11 +83,6 @@ if any(strcmpi(varargin,'close'))
     return
 end % if
 
-% Check for calculated data
-if isempty(O(1).calc_time)
-    error('CAT:plot:noCalcs',...
-        'No calculation results available')
-end % if
 
 % Extract names of plots from varargin - these are plotwhat
 plotwhat = intersect(lower(varargin),lower(available_plots));
