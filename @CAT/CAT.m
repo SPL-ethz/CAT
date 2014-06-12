@@ -54,6 +54,9 @@ classdef CAT < hgsetget
         % Time nodes for non-smooth input profiles
         tNodes = [];
         
+        % Children - list of handles to plots created by the plot function
+        children
+        
     end
     
     properties

@@ -24,11 +24,17 @@
             % 
             % and any combination thereof.
             %
-            % PLOT returns the handles to the plot objects created. (If
+            % The syntax
+            %   pl = plot(PD,plotwhat)
+            % returns the handles to the plot objects created. (If
             % several plots are created the sequence of handles is the
             % following: PSDs overlapping, PSDs3D, cumulative properties
             % (moments), process variables (temperature, concentration)
             %
+            % To close all the plots created by this plotting function,
+            % use:
+            %   plot(PD,'close')
+            % 
             % Graphs can currently not be plotted in existing figures !!
             %
             
@@ -37,6 +43,12 @@
             if nargin == 1
                 plotwhat = 'detailed_results';
             end
+            
+            % Check if requesting to close all plotted figures
+            if isequal(plotwhat,'close')
+                close(O.children);
+                return
+            end % if
             
             if ishandle(21)
                 h = get(21,'children');
@@ -322,6 +334,10 @@
             end
             set(fhandle,'units','normalized','position',[0.2 0.3 0.5 0.6]);
             set(0,'defaultaxesfontsize','default','defaulttextfontsize','default');
+            
+            % Save the list of plots - allows them to be closed
+            % programmatically later
+            O.children = fhandle;
             
             % Don't give an output if none is requested
             if nargout < 1
