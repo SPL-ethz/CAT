@@ -21,25 +21,21 @@ elseif isempty(flag)
     % Print a number of dots depending on how far in time the solver has
     % reached
     
-    for i = 1:length(t)
-        
-        % Calculate a percentage, rounded to the nearest 2 percent (50 dots
-        % in total).
-        progress = (t(i)-START_TIME)/(FINAL_TIME-START_TIME);
-        
-        % Calculate the total number of dots which should be printed up to
-        % this time
-        ndots = round(progress*50);
-        
-        if ndots > NUM_DOTS
-            % Print the number of dots which are missing
-            fprintf('%s',repmat('.',1,ndots-NUM_DOTS));
-        end % if
-        
-        % Update the number of existing dots
-        NUM_DOTS = ndots;
-        
-    end % for
+    % Calculate a percentage, rounded to the nearest 2 percent (50 dots
+    % in total).
+    progress = (max(t)-START_TIME)/(FINAL_TIME-START_TIME);
+    
+    % Calculate the total number of dots which should be printed up to
+    % this time
+    ndots = round(progress*50);
+    
+    if ndots > NUM_DOTS
+        % Print the number of dots which are missing
+        fprintf('%s',repmat('.',1,ndots-NUM_DOTS));
+    end % if
+    
+    % Update the number of existing dots
+    NUM_DOTS = ndots;
     
 elseif isequal(flag,'done')
     
