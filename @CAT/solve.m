@@ -96,10 +96,5 @@ for ii = 1:length(O)
         O(ii).calc_dist = O(ii).calc_dist(I);
         O(ii).calc_conc = O(ii).calc_conc(I);
     end
-
-    % if solver is run from command window, display the end of the solving
-    % process
-    if numel(dbstack) == 1
-       disp('Problem Solved.') 
-    end
+    
 end
