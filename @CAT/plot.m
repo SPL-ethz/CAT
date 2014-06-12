@@ -1,6 +1,6 @@
 %% Method plot
 
-function PDpl = plot(O,plotwhat,varargin)
+function [fighandles,plothandles] = plot(O,plotwhat,varargin)
 
 % Plot function for the results
 %
@@ -60,8 +60,8 @@ end
 serLen = length(O); % series length
 lineProps = {'b-','k--','g-d','m-s','c-o','r+'}; % line properties for series
 
-PDpl = [];
-fhandle = [];
+plothandles = [];
+fighandles = [];
 
 if ~isempty(O(1).calc_time)
     % 3D plot of distributions over time
@@ -77,7 +77,7 @@ if ~isempty(O(1).calc_time)
         end % for
         
         figure(12)
-        fhandle = [fhandle 12];
+        fighandles = [fighandles 12];
         set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
         
         % Handles for plots
@@ -99,7 +99,7 @@ if ~isempty(O(1).calc_time)
         xlabel('Time')
         zlabel('Normalized Volume Distribution')
         
-        PDpl = [PDpl; PDpl_local];
+        plothandles = [plothandles; PDpl_local];
         
     elseif serLen==1 &&(~isempty(find(strcmp(plotwhat,'distributions'), 1)) ...
             || ~isempty(find(strcmp(plotwhat,'dist3D'), 1)) ...
@@ -109,7 +109,7 @@ if ~isempty(O(1).calc_time)
             && serLen==1)
         
         figure(12)
-        fhandle = [fhandle 12];
+        fighandles = [fighandles 12];
         set(gcf,'numbertitle','off','name','PSDs (3D time evolution)')
         
         % Handles for plots
@@ -141,7 +141,7 @@ if ~isempty(O(1).calc_time)
         xlabel('Time')
         zlabel('Normalized Volume Distribution')
         set(PDpl_local,'linewidth',1.5,'color','k')
-        PDpl = [PDpl; PDpl_local];
+        plothandles = [plothandles; PDpl_local];
         
     end % if
     
@@ -152,7 +152,7 @@ if ~isempty(O(1).calc_time)
                 ~isempty(find(strcmp(plotwhat,'cumprop'), 1)))
             
             figure(21)
-            fhandle = [fhandle 21];
+            fighandles = [fighandles 21];
             set(gcf,'numbertitle','off','name','PSD cumulative properties')
             
             % Handles for plots
@@ -179,12 +179,12 @@ if ~isempty(O(1).calc_time)
             xlabel('Time')
             grid on
             hold off
-            PDpl = [PDpl; PDpl_local];
+            plothandles = [plothandles; PDpl_local];
         elseif (~isempty(find(strcmp(plotwhat,'detailed_results'), 1)) || ...
                 ~isempty(find(strcmp(plotwhat,'moments'), 1)))
             
             figure(22)
-            fhandle = [fhandle 22];
+            fighandles = [fighandles 22];
             set(gcf,'numbertitle','off','name','Moments Only')
             PDpl_local = zeros(4,1);
             
@@ -227,7 +227,7 @@ if ~isempty(O(1).calc_time)
                 ~isempty(find(strcmp(plotwhat,'process'), 1)))
             
             figure(31)
-            fhandle = [fhandle 31];
+            fighandles = [fighandles 31];
             set(gcf,'numbertitle','off','name','Process Variables (I)')
             
             % Handles for plots
@@ -243,7 +243,7 @@ if ~isempty(O(1).calc_time)
                 xlabel('Time')
                 ylabel('Concentration')
                 grid on
-                PDpl = [PDpl; PDpl_local];
+                plothandles = [plothandles; PDpl_local];
                 
                 nopvit = nopvit + 1;
                 hold off
@@ -257,7 +257,7 @@ if ~isempty(O(1).calc_time)
                 xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
                 ylabel('Supersaturation [-]')
                 grid on
-                PDpl = [PDpl; PDpl_local(:)];
+                plothandles = [plothandles; PDpl_local(:)];
                 hold off
                 nopvit = nopvit + 1;
             end % if
@@ -269,7 +269,7 @@ if ~isempty(O(1).calc_time)
             xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
             ylabel('Temperature')
             grid on
-            PDpl = [PDpl; PDpl_local(:)];
+            plothandles = [plothandles; PDpl_local(:)];
             hold off
             nopvit = nopvit + 1;
             
@@ -281,7 +281,7 @@ if ~isempty(O(1).calc_time)
             xlim([min(O(ii).calc_time) max(O(ii).calc_time)])
             ylabel('Total mass Solvent + Antisolvent')
             grid on
-            PDpl = [PDpl; PDpl_local(:)];
+            plothandles = [plothandles; PDpl_local(:)];
             
             nopvit = nopvit + 1;
             hold off
@@ -292,7 +292,7 @@ if ~isempty(O(1).calc_time)
                 PDpl_local = zeros(1,1);
                 
                 figure(32)
-                fhandle = [fhandle 32];
+                fighandles = [fighandles 32];
                 hold on
                 set(gcf,'numbertitle','off','name','Process Variables (II)')
                 Tvec = linspace(min(O(ii).Tprofile(O(ii).calc_time))-5,max(O(ii).Tprofile(O(ii).calc_time))+5);
@@ -302,7 +302,7 @@ if ~isempty(O(1).calc_time)
                 xlabel('Temperature')
                 ylabel('Concentration')
                 grid on
-                PDpl = [PDpl; PDpl_local(:)];
+                plothandles = [plothandles; PDpl_local(:)];
                 hold off
             end
             
@@ -313,7 +313,7 @@ if ~isempty(O(1).calc_time)
             
             if ~isempty(O(ii).calc_conc)
                 figure(41)
-                fhandle = [fhandle 41];
+                fighandles = [fighandles 41];
                 hold on
                 set(gcf,'numbertitle','off','name',...
                     'Details from Integration')
@@ -321,7 +321,7 @@ if ~isempty(O(1).calc_time)
                 xlabel('Time')
                 ylabel('Mass balance [% error]')
                 grid on
-                PDpl = [PDpl; PDpl_local];
+                plothandles = [plothandles; PDpl_local];
                 hold off
             end % if
             
@@ -332,16 +332,16 @@ else
     warning('CAT:plot:noCalcs',...
         'Simulations haven''t run yet, there is nothing to plot');
 end
-set(fhandle,'units','normalized','position',[0.2 0.3 0.5 0.6]);
+set(fighandles,'units','normalized','position',[0.2 0.3 0.5 0.6]);
 set(0,'defaultaxesfontsize','default','defaulttextfontsize','default');
 
 % Save the list of plots - allows them to be closed
 % programmatically later
-O.children = fhandle;
+O.children = fighandles;
 
 % Don't give an output if none is requested
 if nargout < 1
-    clear PDpl;
+    clear fighandles;
 end % if
 
 end % function
