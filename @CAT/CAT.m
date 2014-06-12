@@ -54,11 +54,7 @@ classdef CAT < hgsetget
         % Time nodes for non-smooth input profiles
         tNodes = [];
         
-    end % properties
-    
-    properties (GetAccess = 'public', SetAccess = 'protected')
-        
-        handles
+        handles_structure
         
     end % properties
     
@@ -231,7 +227,7 @@ classdef CAT < hgsetget
     methods
 
         %% - Set and Get methods
-
+        
         %% -- set.rhoc
         
         function set.rhoc(O,value)
@@ -724,11 +720,19 @@ classdef CAT < hgsetget
     
     %% Hidden methods
     
-    %% - All onset methods
-    % Do nothing - no function in this class, merely something to
-    % be overwritten by subclass
     methods (Hidden)
         
+        %% handles - function to return function,axes,object handles
+        
+        function out = handles(O,varargin)
+            
+            keyboard
+            
+        end % function
+        
+        %% - All onset methods
+        % Do nothing - no function in this class, merely something to
+        % be overwritten by subclass
         function init_dist_onset(O) %#ok<*MANU>
             
         end % function
