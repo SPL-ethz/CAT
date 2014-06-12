@@ -806,4 +806,12 @@ classdef CAT < hgsetget
         
     end
     
+    %% Static, protected methods
+    
+    methods(Static,Access=protected)
+        
+        status = solveroutput(t,y,flag);
+        
+    end % methods
+    
 end % classdef
