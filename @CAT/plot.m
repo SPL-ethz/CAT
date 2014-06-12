@@ -1,6 +1,6 @@
 %% Method plot
 
-function [fighandles,plothandles] = plot(O,plotwhat,varargin)
+function plot(O,plotwhat,varargin)
 
 % Plot function for the results
 %
@@ -334,14 +334,5 @@ else
 end
 set(fighandles,'units','normalized','position',[0.2 0.3 0.5 0.6]);
 set(0,'defaultaxesfontsize','default','defaulttextfontsize','default');
-
-% Save the list of plots - allows them to be closed
-% programmatically later
-O.children = fighandles;
-
-% Don't give an output if none is requested
-if nargout < 1
-    clear fighandles;
-end % if
 
 end % function
