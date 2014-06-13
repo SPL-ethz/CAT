@@ -54,11 +54,13 @@ classdef CAT < hgsetget
         % Time nodes for non-smooth input profiles
         tNodes = [];
         
-        handles_structure
+        
         
     end % properties
     
     properties
+        
+        handles_structure
         
         % The comments before each property are what appear as help, and
         % they also appear in the GUI. Adhere to the following general
@@ -721,14 +723,6 @@ classdef CAT < hgsetget
     %% Hidden methods
     
     methods (Hidden)
-        
-        %% handles - function to return function,axes,object handles
-        
-        function out = handles(O,varargin)
-            
-            keyboard
-            
-        end % function
         
         %% - All onset methods
         % Do nothing - no function in this class, merely something to
