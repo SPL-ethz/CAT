@@ -60,7 +60,9 @@ classdef CAT < hgsetget
     
     properties
         
-        handles_structure
+        handles_figures
+        handles_axes
+        handles_objects
         
         % The comments before each property are what appear as help, and
         % they also appear in the GUI. Adhere to the following general
