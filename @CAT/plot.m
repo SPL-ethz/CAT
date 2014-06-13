@@ -58,9 +58,17 @@ if any(strcmpi(varargin,'available_plots'))
 end % if
 
 % Check for calculated data
-if isempty(O(1).calc_time)
+noresults = 0;
+for i = 1:length(O)
+    if isempty(O(i).calc_time)
+        warning('CAT:plot:noCalcs',...
+            'No calculation results available in entry %i',i)
+        noresults = noresults + 1;
+    end % if
+end % if
+if noresults == length(O)
     error('CAT:plot:noCalcs',...
-        'No calculation results available')
+        'No calculation results available to plot')
 end % if
 
 % Check for existing plots
