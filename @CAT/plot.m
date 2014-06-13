@@ -1,6 +1,6 @@
 %% Method plot
 
-function out = plot(O,varargin)
+function out = plot(Oin,varargin)
 
 % Plot function for the results
 %
@@ -57,6 +57,15 @@ if any(strcmpi(varargin,'available_plots'))
     return
 end % if
 
+% Check if requesting to close all plotted figures - close all figures,
+% reset handles structure to empty
+if any(strcmpi(varargin,'close'))
+    all_handles = [Oin.handles_figures];
+    close( all_handles( ishandle(all_handles) ) );
+    [O.handles_figures] = deal([]);
+    return
+end % if
+
 % Check for calculated data
 noresults = 0;
 for i = 1:length(O)
@@ -83,13 +92,6 @@ if iscell(varargin{1})
     varargin = [varargin{1} varargin{2:end}];
 end % if
 
-% Check if requesting to close all plotted figures - close all figures,
-% reset handles structure to empty
-if any(strcmpi(varargin,'close'))
-    close(O.handles.figures(ishandle(O.handles.figures)));
-    O.handles = [];
-    return
-end % if
 
 
 % Extract names of plots from varargin - these are plotwhat
