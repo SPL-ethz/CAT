@@ -1,5 +1,3 @@
-%% Method plot
-
 function out = plot(Oin,varargin)
 
 % Plot function for the results
@@ -38,6 +36,13 @@ function out = plot(Oin,varargin)
 % Graphs can currently not be plotted in existing figures !!
 %
 
+%% Define persistent variable(s)
+persistent effective_series
+
+if isempty(effective_series)
+    effective_series = 0;
+end % if
+
 %% Define list of available plots
 
 available_plots = {...
@@ -60,9 +65,16 @@ end % if
 % Check if requesting to close all plotted figures - close all figures,
 % reset handles structure to empty
 if any(strcmpi(varargin,'close'))
+    % Close all figures
     all_handles = [Oin.handles_figures];
     close( all_handles( ishandle(all_handles) ) );
-    [O.handles_figures] = deal([]);
+    
+    % Reset all handles
+    [Oin.handles_figures Oin.handles_axes Oin.handles_objects] = deal([]);
+    
+    % Reset the number of effective series
+    effective_series = 0;
+    
     return
 end % if
 
@@ -102,19 +114,54 @@ plotwhat = intersect(lower(varargin),lower(available_plots));
 % Keep rest for varargin - are these really used?
 varargin = setdiff(lower(varargin),lower(available_plots));
 
+% Look through varargin for any other meaningful input
+if any(strcmpi(varargin,'add'))
+    delete_old_obj = false;
+elseif any(strcmpi(varargin,'replace'))
+    delete_old_obj = true;
+else
+    delete_old_obj = true;
+end % if elseif else
+
+% Make sure effective_series is defined properly - zero if all to be
+% deleted or if not defined yet
+if ~exist('effective_series','var') || isempty(effective_series) || delete_old_obj
+    effective_series = 0;
+end % if else
+
 % Find which figures already exist
 % Set empty handles_figures vectors to NaN
 for O = Oin
-    if isempty(O.handles_figures)
+    if isempty(O.handles_figures) || all(~ishandle(O.handles_figures))
         O.handles_figures = NaN(1,length(available_plots));
+        % Reset the number of effective series - must be zero since there
+        % are no figures
+        effective_series = 0;
+    else
+        % Reset to NaN where there is no handle - otherwise an old handle
+        % may be recreated by a new figure and then used in the wrong place
+        O.handles_figures(~ishandle(O.handles_figures)) = NaN;
+        [O.handles_axes{~ishandle(O.handles_figures)}] = deal([]);
+        [O.handles_objects{~ishandle(O.handles_figures)}] = deal([]);
     end % if
 end % for
-existing_plots = ishandle( ...
-    reshape([Oin(:).handles_figures]',length(available_plots),length(Oin))' ...
-    );
 
-% Count how many series have existing plots
-existing_plots_series = any(existing_plots,2);
+% We also need to check if the series shame the same figures or not
+plot_handles = reshape([Oin(:).handles_figures]',length(available_plots),length(Oin))';
+existing_plots = ishandle( plot_handles );
+if length(Oin) > 1 && ~all(isnan([Oin.handles_figures])) && isequalwithequalnans(Oin.handles_figures)
+    % All the plot handles are equal for all the series - keep only the
+    % first row of plot_handles
+    existing_plots_series = false(length(Oin),1);
+    existing_plots_series(1) = true;
+else
+    % Not all series share the same figures
+    % Count how many series have existing plots
+    existing_plots_series = any(existing_plots,2);
+end % if
+
+% Unfortunately, unique doesn't work above since NaN are not recognized as
+% equal with unique
 
 switch sum(existing_plots_series)
     % Do different things depending on how many series have available plots
@@ -137,6 +184,23 @@ switch sum(existing_plots_series)
             end
         end % if
         
+        % Set the figure handle for all Oin to new figures, according to
+        % the number of figures requested
+        newfigs = eval( strcat('[', repmat('figure ',1,sum(requested_plots) ), ']' ) );
+        
+        % Save these handles in the right place
+        for O = Oin
+            O.handles_figures(requested_plots) = newfigs;
+            % Set empty handles for axes and objects to make sure new ones
+            % are created in the right places
+            if ~isempty(O.handles_axes)
+                [O.handles_axes{requested_plots}] = deal([]);
+            end % if
+            if ~isempty(O.handles_objects)
+                [O.handles_objects{requested_plots}] = deal([]);
+            end % if
+        end % for
+        
     case 1
         % Plots exist for one series - all series should be plotted into
         % the existing figures.
@@ -149,6 +213,9 @@ switch sum(existing_plots_series)
         % Apply the handles of the existing series to all the input series
         [Oin.handles_figures] = deal(Oin(existing_plots_series == 1).handles_figures);
         
+        % Check for any new plots to create
+        new_plots = false(1,length(available_plots));
+        
         if exist('plotwhat','var') && iscell(plotwhat)
             
             % A specific list of plots was requested - add these to the list of
@@ -157,10 +224,32 @@ switch sum(existing_plots_series)
             % Go through cell list of what to plot - add each requested one to the
             % list
             for j = 1:length(plotwhat)
-                requested_plots = requested_plots | strcmpi(plotwhat{j},available_plots);
+                new_plots = (new_plots | strcmpi(plotwhat{j},available_plots)) & ~requested_plots;
             end
             
         end % if
+        
+        % Make new figures - one for each plot, as series are shared
+        
+        % Set the figure handle for all Oin to new figures, according to
+        % the number of figures requested
+        newfigs = eval( strcat('[', repmat('figure ',1,sum(new_plots) ), ']' ) );
+        
+        % Save these handles in the right place
+        for O = Oin
+            O.handles_figures(new_plots) = newfigs;
+            % Set empty handles for axes and objects to make sure new ones
+            % are created in the right places
+            if ~isempty(O.handles_axes)
+                [O.handles_axes{new_plots}] = deal([]);
+            end % if
+            if ~isempty(O.handles_objects)
+                [O.handles_objects{new_plots}] = deal([]);
+            end % if
+        end % for
+        
+        % Add the new plots to the list of requested plots
+        requested_plots = requested_plots | new_plots;
         
     otherwise
         % Plots exist for 2 or more series - each series should be plotted
@@ -187,8 +276,6 @@ switch sum(existing_plots_series)
                 end % for
             end % for
             
-            keyboard
-            
         end % if
         
         if exist('plotwhat','var') && iscell(plotwhat)
@@ -199,7 +286,7 @@ switch sum(existing_plots_series)
             % Go through cell list of what to plot - add each requested one to the
             % list
             for j = 1:length(plotwhat)
-                requested_plots = requested_plots | strcmpi(plotwhat{j},repmat(available_plots,length(Oin),1));
+                requested_plots = requested_plots | strcmpi(plotwhat{j},available_plots);
             end
             
         end % if
@@ -208,7 +295,7 @@ end % switch
 
 % The existing_plots variable is no longer needed, as it will be checked
 % agains the actual figure handles later
-clear existing_plots
+clear existing_plots existing_plots_series
 
 % requested_plots now has one row
 %
@@ -245,8 +332,27 @@ end % for
         % the number
         whichplot = available_plots{p};
         
+        % Define line styles which will be applied to the series being plotted
+        series_colors = {'b','k','r',[0 0.5 0],'m','c'};
+        series_linestyles = {'-','--','-','-','-','none'};
+        series_markerstyles = {'none','none','d','s','o','+'};
+        
         % Loop on O
-        for O = Oin %#ok<FXUP>
+        for indO = 1:length(Oin)
+            
+            O = Oin(indO);
+            
+            % Check how to format the series based on the number of series
+            % and effective series
+            serind = rem( indO+effective_series , length(series_colors) );
+            if serind == 0
+                serind = length(series_colors);
+            end % if
+            serind
+            % The formatting to used is determined by the series index
+            color = series_colors{serind};
+            linestyle = series_linestyles{serind};
+            markerstyle = series_markerstyles{serind};
             
             % Check for existance of figure - or create it
             if ~ishandle(O.handles_figures(p))
@@ -266,7 +372,7 @@ end % for
                     
                     % Extract handles for simplicity
                     figh = O.handles_figures(p);
-                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p
+                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p && ~isempty(O.handles_axes{p})
                         axh = O.handles_axes{p};
                     else
                         % Use NaN here - subplot checks for existance of
@@ -332,12 +438,16 @@ end % for
                         time = O.calc_time;
                         y = O.calc_dist(1).y;
                         
+                        % Delete the old objects
+                        if delete_old_obj
+                            try %#ok<TRYNC> % Just try this - no errors needed
+                                delete(O.handles_objects{p});
+                            end % try
+                        end % if
+                        
                         % Make the plots - use surface, not surf, as this does
                         % not affect the existing axes
-                        %
-                        % If plots are to be replaced, the old objects should
-                        % be deleted before plotting the new ones
-                        O.handles_objects{p} = {...
+                        O.handles_objects{p} = [...
                             surface(...
                             time,...
                             y,...
@@ -348,7 +458,7 @@ end % for
                             y,...
                             FmatV',...
                             'Parent',axh(2))...
-                            };
+                            ];
                         
                     else
                         % The size vectors are not equal - surf will not
@@ -378,14 +488,18 @@ end % for
                             
                         end % for
                         
+                        % Delete the old objects
+                        if delete_old_obj
+                            try %#ok<TRYNC> % Just try this - no errors needed
+                                delete(O.handles_objects{p});
+                            end % try
+                        end % if
+                        
                         % Make the plots
                         % Use line instead of plot3 because this does not
                         % affect the axes (which have been changed outside
                         % of CAT manually).
-                        %
-                        % If plots are to be replaced, the old objects should
-                        % be deleted before plotting the new ones
-                        O.handles_objects{p} = {...
+                        O.handles_objects{p} = [...
                             line(...
                             time,...
                             y,...
@@ -396,7 +510,7 @@ end % for
                             y,...
                             FmatV,...
                             'Parent',axh(2))...
-                            };
+                            ];
                         
                     end % if else
                     
@@ -407,7 +521,7 @@ end % for
                     
                     % Extract handles for simplicity
                     figh = O.handles_figures(p);
-                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p
+                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p && ~isempty(O.handles_axes{p})
                         axh = O.handles_axes{p};
                     else
                         % Use NaN here - subplot checks for existance of
@@ -461,14 +575,26 @@ end % for
                     % zoom/pan
                     linkaxes(axh,'x')
                     
+                    % Delete the old objects
+                    if delete_old_obj
+                        try %#ok<TRYNC> % Just try this - no errors needed
+                            delete(O.handles_objects{p});
+                        end % try
+                    end % if
+                    
                     % Make the plots
                     %
-                    % Delete current objects first?
-                    O.handles_objects{p} = {...
-                        line(O.calc_time,moments(O.calc_dist,0),'Parent',axh(1)),...
-                        line(O.calc_time,moments(O.calc_dist,3),'Parent',axh(2)),...
-                        line(O.calc_time,moments(O.calc_dist,4)./moments(O.calc_dist,3),'Parent',axh(3))...
-                        };
+                    O.handles_objects{p} = [...
+                        line(O.calc_time,moments(O.calc_dist,0),...
+                            'Color',color,'LineStyle',linestyle,'Marker',markerstyle,...
+                            'Parent',axh(1)),...
+                        line(O.calc_time,moments(O.calc_dist,3),...
+                            'Color',color,'LineStyle',linestyle,'Marker',markerstyle,...
+                            'Parent',axh(2)),...
+                        line(O.calc_time,moments(O.calc_dist,4)./moments(O.calc_dist,3),...
+                            'Color',color,'LineStyle',linestyle,'Marker',markerstyle,...
+                            'Parent',axh(3))...
+                        ];
                     
                     % Update the limits - use maximum of current limit or
                     % x/y values
@@ -506,7 +632,7 @@ end % for
                     
                     % Extract handles for simplicity
                     figh = O.handles_figures(p);
-                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p
+                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p && ~isempty(O.handles_axes{p})
                         axh = O.handles_axes{p};
                     else
                         % Use NaN here - subplot checks for existance of
@@ -582,15 +708,28 @@ end % for
                         Tprof = Tprof*ones(size(O.calc_time));
                     end % if
                     
+                    % Delete the old objects
+                    if delete_old_obj
+                        try %#ok<TRYNC> % Just try this - no errors needed
+                            delete(O.handles_objects{p});
+                        end % try
+                    end % if
+                    
                     % Make the plots
-                    %
-                    % Delete current objects first?
-                    O.handles_objects{p} = {...
-                        line(O.calc_time,O.calc_conc,'Parent',axh(1)),...
-                        line(O.calc_time,O.calc_conc./evalanonfunc(O.solubility,evalanonfunc(O.Tprofile,O.calc_time),O.massmedium),'Parent',axh(2)),...
-                        line(O.calc_time,Tprof,'Parent',axh(3))...
-                        line(O.calc_time,O.massmedium,'Parent',axh(4))...
-                        };
+                    O.handles_objects{p} = [...
+                        line(O.calc_time,O.calc_conc,...
+                            'Color',color,'LineStyle',linestyle,'Marker',markerstyle,...
+                            'Parent',axh(1)),...
+                        line(O.calc_time,O.calc_conc./evalanonfunc(O.solubility,evalanonfunc(O.Tprofile,O.calc_time),O.massmedium),...
+                            'Color',color,'LineStyle',linestyle,'Marker',markerstyle,...
+                            'Parent',axh(2)),...
+                        line(O.calc_time,Tprof,...
+                            'Color',color,'LineStyle',linestyle,'Marker',markerstyle,...
+                            'Parent',axh(3))...
+                        line(O.calc_time,O.massmedium,...
+                            'Color',color,'LineStyle',linestyle,'Marker',markerstyle,...
+                            'Parent',axh(4))...
+                        ];
                     
                     % Since axes are linked, only do this for the first x
                     % axes, but for all y axes
@@ -631,7 +770,7 @@ end % for
                     
                     % Extract handles for simplicity
                     figh = O.handles_figures(p);
-                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p
+                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p && ~isempty(O.handles_axes{p})
                         axh = O.handles_axes{p};
                     else
                         % Use NaN here - subplot checks for existance of
@@ -645,7 +784,11 @@ end % for
                     % Check for axes - create and change them only if they
                     % don't exist
                     if ~ishandle(axh(1))
-                        axh(1) = axes('Parent',figh);
+                        % Use subplot to make a new axes as this checks for
+                        % the existance of this axes before creating a new
+                        % one - it returns the corresponding axes handle if
+                        % it already exists
+                        axh(1) = subplot(1,1,1,'Parent',figh);
                         
                         % Grid
                         grid(axh(1),'on')
@@ -654,9 +797,6 @@ end % for
                         % Axes labels
                         xlabel(axh(1),'Temperature')
                         ylabel(axh(1),'Concentration')
-                        
-                        % Setup the legend
-                        legend(axh(1),'hide','Location','NorthWest')
                         
                     end % if
                     
@@ -677,16 +817,39 @@ end % for
                         sol = sol*ones(size(Tvec));
                     end % if
                     
+                    % Delete the old objects
+                    if delete_old_obj
+                        try %#ok<TRYNC> % Just try this - no errors needed
+                            delete(O.handles_objects{p});
+                        end % try
+                    end % if
+                    
                     % Make the plots
-                    %
-                    % Delete current objects first?
-                    O.handles_objects{p} = {...
-                        line(Tvec,sol,'Displayname','Solubility','Parent',axh(1)),...
-                        line(Tprof,O.calc_conc,'Parent',axh(1))...
-                        };
+                    O.handles_objects{p} = [...
+                        line(Tvec,sol,...
+                            'Displayname','Solubility',...
+                            'Color','k',... % Make the color black always for the solubility
+                            'LineStyle',linestyle,'Marker',markerstyle,...
+                            'LineWidth',2,...
+                            'Parent',axh(1)),...
+                        line(Tprof,O.calc_conc,...
+                            'Displayname','Concentration',...
+                            'Color',color,'LineStyle',linestyle,'Marker',markerstyle,...
+                            'Parent',axh(1)),...
+                        line(Tprof(1),O.calc_conc(1),...
+                            'Displayname','c_0',...
+                            'LineStyle','none',...
+                            'Marker','o',...
+                            'Parent',axh(1)),...
+                        line(Tprof(end),O.calc_conc(end),...
+                            'Displayname','c_{end}',...
+                            'LineStyle','none',...
+                            'Marker','x',...
+                            'Parent',axh(1))...
+                        ];
                     
                     % Turn the legend on
-                    legend(O.handles_objects{p}{1})
+                    legend(O.handles_objects{p})
                     
                 case 'massbal'
                     
@@ -695,7 +858,7 @@ end % for
                     
                     % Extract handles for simplicity
                     figh = O.handles_figures(p);
-                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p
+                    if ~isempty(O.handles_axes) && length(O.handles_axes) >= p && ~isempty(O.handles_axes{p})
                         axh = O.handles_axes{p};
                     else
                         % Use NaN here - subplot checks for existance of
@@ -709,7 +872,11 @@ end % for
                     % Check for axes - create and change them only if they
                     % don't exist
                     if ~ishandle(axh(1))
-                        axh(1) = axes('Parent',figh);
+                        % Use subplot to make a new axes as this checks for
+                        % the existance of this axes before creating a new
+                        % one - it returns the corresponding axes handle if
+                        % it already exists
+                        axh(1) = subplot(1,1,1,'Parent',figh);
                         
                         % Grid
                         grid(axh(1),'on')
@@ -717,7 +884,7 @@ end % for
                         
                         % Axes labels
                         xlabel(axh(1),'Time')
-                        ylabel(axh(1),'Mass balance [% error]')
+                        ylabel(axh(1),'Abs. Mass balance [% error]')
                         
                         % Set Yscale to log
                         set(axh(1),'YScale','log');
@@ -727,13 +894,18 @@ end % for
                     % Save these handles
                     O.handles_axes{p} = axh;
                     
-                    % Make the plots
-                    %
-                    % Delete current objects first?
-                    O.handles_objects{p} = {...
-                        line(O.calc_time,O.massbal,'Parent',axh(1))...
-                        };
+                    % Delete the old objects
+                    if delete_old_obj
+                        try %#ok<TRYNC> % Just try this - no errors needed
+                            delete(O.handles_objects{p});
+                        end % try
+                    end % if
                     
+                    % Make the plots
+                    O.handles_objects{p} = ...
+                        line(O.calc_time,abs(O.massbal),...
+                        'Color',color,'LineStyle',linestyle,'Marker',markerstyle,...
+                        'Parent',axh(1));
                     
                 otherwise
                     % This point should never be reached, unless
@@ -745,12 +917,15 @@ end % for
             
         end % for
         
+        % Add one to the number of effective series - unless objects
+        % are deleted again
+        if ~delete_old_obj
+            effective_series = effective_series + 1;
+        end % if
+        
         % Reset the default text sizes
         set(0,'defaultaxesfontsize','default','defaulttextfontsize','default');
         
     end % function
 
 end % function plot
-
-% lineProps = {'b-','k--','g-d','m-s','c-o','r+'}; % line properties for series
-% 
