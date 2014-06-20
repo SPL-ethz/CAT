@@ -54,15 +54,20 @@ classdef CAT < hgsetget
         % Time nodes for non-smooth input profiles
         tNodes = [];
         
+    end % properties
+    
+    properties ( GetAccess = public , SetAccess = protected, Transient)
         
+        % Read-only, Transient means these are not saved to file
+        
+        % Figure, axes and figure objects
+        handles_figures
+        handles_axes
+        handles_objects
         
     end % properties
     
     properties
-        
-        handles_figures
-        handles_axes
-        handles_objects
         
         % The comments before each property are what appear as help, and
         % they also appear in the GUI. Adhere to the following general
