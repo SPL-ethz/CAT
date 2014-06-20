@@ -59,6 +59,27 @@ classdef CAT < hgsetget
         
     end
     
+    properties ( GetAccess = public , SetAccess = protected )
+        
+        %
+        % Results properties - these are read-only as they are only set by
+        % the solver
+        %
+        
+        % Property: calc_time
+        % Vector of actual times returned by solver
+        calc_time
+        
+        % Property: calc_dist
+        % Distributions for each time step
+        calc_dist
+        
+        % Property: calc_conc
+        % Vector of solution concentrations for times given in calc_time
+        calc_conc
+        
+    end % properties
+    
     properties
         
         % The comments before each property are what appear as help, and
@@ -204,22 +225,6 @@ classdef CAT < hgsetget
         % Property: sol_options
         % Solver options
         sol_options = [];
-        
-        %
-        % Results properties
-        %
-        
-        % Property: calc_time
-        % Vector of actual times returned by solver
-        calc_time
-        
-        % Property: calc_dist
-        % Distributions for each time step
-        calc_dist
-        
-        % Property: calc_conc
-        % Vector of solution concentrations for times given in calc_time
-        calc_conc
   
     end % properties
     
