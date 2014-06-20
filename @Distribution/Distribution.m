@@ -486,6 +486,8 @@ classdef Distribution < Easyset
             
         end % function
         
+        %% - isnan
+        
         function no = isnan(O)
             
             % Distribution.isnan
