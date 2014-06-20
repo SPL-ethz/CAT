@@ -1,40 +1,58 @@
 function out = plot(Oin,varargin)
 
-% Plot function for the results
+% Plot function for CAT
 %
-% Use plot(PD,plotwhat) to plot the results of the
-% simulation. plotwhat is a string that defines what exactly
-% should be plotted. Possible input:
-% 'results'         -   plot everything
-% 'detailed_results'-   plot everything and more
+% The plot function creates standardised plots for the information in CAT.
+% The basic usage is:
 %
-% plotted using results
-% 'distributions'   -   plot distributions
-% 'distoverlap'     -   only plot overlapping distributions (2D)
-% 'dist3D'          -   only plot 3D surf plot of distributions
-% 'cumprop'         -   plot cumulative properties (moments)
-% 'process'         -   plot process variables (T, conc)
+%   >> C.plot
 %
-% additionally plotted in detailed mode
-% 'moments'         -   plots of the first four moments
-% 'integration'     -   details from the integration
-% (massbalance over time,...)
+% This creates the default plots (all available plots) for all the series
+% in C (ie. if C is multi-dimensional, it plots solutions for every part of
+% C), with automatic formatting
 %
-% and any combination thereof.
 %
-% The syntax
-%   pl = plot(PD,plotwhat)
-% returns the handles to the plot objects created. (If
-% several plots are created the sequence of handles is the
-% following: PSDs overlapping, PSDs3D, cumulative properties
-% (moments), process variables (temperature, concentration)
+% The list of available plots can be obtained by the following command:
 %
-% To close all the plots created by this plotting function,
+%   >> C.plot('available_plots');
+%
+% To make only one plot (or to add it to the existing collection of plots),
 % use:
-%   plot(PD,'close')
 %
-% Graphs can currently not be plotted in existing figures !!
+%   >> C.plot('name-of-plot');
 %
+% where name-of-plot is one of the plots named in the list.
+%
+% If there are existing plots, these are updated. No new ones are added,
+% unless specifically requested. By default, all series are plotted into
+% the same figure. However, this can be avoided by calling plot separately,
+% e.g:
+%
+%   >> C(1).plot('operating')
+%   >> C(2).plot('operating')
+%   >> C(3).plot('operating')
+%
+% This creates separate operating diagrams for all the three series. When
+% plot is called again, the existing figures are used and updated - ie.
+% from now one, series are kept separate until the plots are closed. If new
+% plots are requested, the new plots are also created for each series
+% separately.
+%
+% By default, any old data is overwritten when plot is called for existing
+% figures. To add the current data to old data, use the keyword 'add':
+%
+%   >> C.plot('add');
+%
+% To close the plot for a specific series, use:
+%
+%   >> C(3).plot('close');
+%
+% To close all plots, use:
+%
+%   >> C.plot('close');
+%
+% SEE ALSO
+% CAT, CATTube
 
 %% Define persistent variable(s)
 persistent effective_series
@@ -53,12 +71,39 @@ available_plots = {...
     'massbal'... Mass balance
     };
 
+available_plot_descriptions = {...
+    'Three dimensional plots of particle size distributions vs time',...
+    'Cumulative properties (moments) of PSDs vs time',...
+    'Process variables vs time: concentration, supersaturation, temperature, total solvent mass',...
+    'Operating diagram: concentration vs temperature',...
+    'Mass balance'...
+    };
+
 %% Figure out what to plot
 
 % Check if requesting list of available figures - this returns cell
 % available_plots and exits
 if any(strcmpi(varargin,'available_plots'))
-    out = available_plots;
+    
+    if nargout == 0
+        % Print text if no output is requested
+        fprintf('The following plots are available. Use the keyword to plot them.\n\n')
+        
+        width_firstfield = max(arrayfun(@(a)length(a{:}),available_plots))+1; % Width of the keywords field determined on-the-fly
+        
+        fprintf('  %-*s- \t%s\n\n',width_firstfield,'Keyword','Description')
+                
+        for i = 1:length(available_plots)
+            fprintf('  %-*s:\t%s\n',...
+                width_firstfield,...
+                available_plots{i},...
+                available_plot_descriptions{i})
+        end % for
+        
+    else
+        out = available_plots;
+    end % if
+    
     return
 end % if
 
