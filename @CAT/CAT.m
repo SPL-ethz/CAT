@@ -54,10 +54,18 @@ classdef CAT < hgsetget
         % Time nodes for non-smooth input profiles
         tNodes = [];
         
-        % Children - list of handles to plots created by the plot function
-        children
+    end % properties
+    
+    properties ( GetAccess = public , SetAccess = protected, Transient)
         
-    end
+        % Read-only, Transient means these are not saved to file
+        
+        % Figure, axes and figure objects
+        handles_figures
+        handles_axes
+        handles_objects
+        
+    end % properties
     
     properties ( GetAccess = public , SetAccess = protected )
         
@@ -233,7 +241,7 @@ classdef CAT < hgsetget
     methods
 
         %% - Set and Get methods
-
+        
         %% -- set.rhoc
         
         function set.rhoc(O,value)
@@ -726,11 +734,11 @@ classdef CAT < hgsetget
     
     %% Hidden methods
     
-    %% - All onset methods
-    % Do nothing - no function in this class, merely something to
-    % be overwritten by subclass
     methods (Hidden)
         
+        %% - All onset methods
+        % Do nothing - no function in this class, merely something to
+        % be overwritten by subclass
         function init_dist_onset(O) %#ok<*MANU>
             
         end % function

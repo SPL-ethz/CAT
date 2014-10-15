@@ -267,7 +267,7 @@ if length(unique(G))==1 % size independent growth
             ((F(3:end-1)-F(2:end-2)).*Phi(1:end-1)-(F(4:end)-F(3:end-1)).*Phi(2:end));     
     end
 
-elseif length(unique(G))>1 % size depenent growth
+elseif length(unique(G))>1 % size dependent growth
 
     Gloc = [0;0;G(:); 0];Gloc = Gloc(FI(1):FI(2));Gloc=Gloc(:);
 
