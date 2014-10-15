@@ -370,8 +370,9 @@ end % for
         % For each series, the plot is put into the given figure handle, if
         % it exists, otherwise, a new one is created
         
-        % Increase default text sizes
-        set(0,'defaultaxesfontsize',14,'defaulttextfontsize',16);
+        % Temporarily Change Figure Defaults
+        set(0,'defaultaxesfontsize',14,'defaulttextfontsize',16,'defaultaxesfontname','helvetica','defaulttextfontname','helvetica',...
+        'defaultlinelinewidth',2);
         
         % Identify which plot to make by the list of available plots and
         % the number
@@ -393,7 +394,7 @@ end % for
             if serind == 0
                 serind = length(series_colors);
             end % if
-            serind
+            
             % The formatting to used is determined by the series index
             color = series_colors{serind};
             linestyle = series_linestyles{serind};
@@ -417,6 +418,9 @@ end % for
                     
                     % Extract handles for simplicity
                     figh = O.handles_figures(p);
+                    % set the size of the figure window
+                    set(figh,'position',[50 300 1200 650])
+                    
                     if ~isempty(O.handles_axes) && length(O.handles_axes) >= p && ~isempty(O.handles_axes{p})
                         axh = O.handles_axes{p};
                     else
@@ -497,12 +501,14 @@ end % for
                             time,...
                             y,...
                             Fmat',...
-                            'Parent',axh(1)),...
+                            'Parent',axh(1),...
+                            'edgecolor','none'),...
                             surface(...
                             time,...
                             y,...
                             FmatV',...
-                            'Parent',axh(2))...
+                            'Parent',axh(2),...
+                            'edgecolor','none')...
                             ];
                         
                     else
@@ -559,6 +565,8 @@ end % for
                         
                     end % if else
                     
+                    
+                    
                 case 'PSD_cumul'
                     
                     %% Plot: PSD_cumul
@@ -576,6 +584,8 @@ end % for
                     
                     % Setup the figure title
                     set(figh,'numbertitle','off','name','PSD cumulative properties');
+                    % set the size of the figure window
+                    set(figh,'position',[50 300 860 650])
                     
                     % Check for axes - create and change them only if they
                     % don't exist
@@ -610,7 +620,7 @@ end % for
                         
                         % Axes labels
                         xlabel(axh(3),'Time')
-                        ylabel(axh(3),'Weight average length')
+                        ylabel(axh(3),'Vollume average length')
                         
                     end % if
                     % Save these handles
@@ -687,6 +697,8 @@ end % for
                     
                     % Setup the figure title
                     set(figh,'numbertitle','off','name','Process Variables');
+                    % set the size of the figure window
+                    set(figh,'position',[50 300 1200 650])
                     
                     % Check for axes - create and change them only if they
                     % don't exist
@@ -825,6 +837,8 @@ end % for
                     
                     % Setup the figure title
                     set(figh,'numbertitle','off','name','Operating diagram');
+                    % set the size of the figure window
+                    set(figh,'position',[50 300 700 500])
                     
                     % Check for axes - create and change them only if they
                     % don't exist
@@ -851,7 +865,9 @@ end % for
                     % Calculate some extra stuff
                     Tprof = evalanonfunc(O.Tprofile,O.calc_time);
                     Tvec = linspace(min(Tprof)-5,max(Tprof)+5);
-                    sol = evalanonfunc(O.solubility,Tvec);
+                    xmprof = O.ASprofile(O.sol_time(1))/O.init_massmedium;
+                    xmvec = linspace(min(xmprof)*0.95,max(xmprof)*1.05);
+                    sol = evalanonfunc(O.solubility,Tvec,xmvec);
                     
                     % Make sure Tprof is a vector for a proper plot
                     if length(Tprof) == 1
@@ -889,12 +905,12 @@ end % for
                         line(Tprof(end),O.calc_conc(end),...
                             'Displayname','c_{end}',...
                             'LineStyle','none',...
-                            'Marker','x',...
+                            'Marker','+',...
                             'Parent',axh(1))...
                         ];
                     
                     % Turn the legend on
-                    legend(O.handles_objects{p})
+                    legend(O.handles_objects{p},'location','northwest')
                     
                 case 'massbal'
                     
@@ -969,7 +985,9 @@ end % for
         end % if
         
         % Reset the default text sizes
-        set(0,'defaultaxesfontsize','default','defaulttextfontsize','default');
+        set(0,'defaultaxesfontsize','default','defaulttextfontsize','default',...
+            'defaultaxesfontname','default','defaulttextfontname','default',...
+            'defaultlinelinewidth','default');
         
     end % function
 

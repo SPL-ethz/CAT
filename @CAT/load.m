@@ -71,7 +71,13 @@ if ~isempty(source)
     warning('off','all')
     
     for i = 1:length(fieldnames)
-        O.(fieldnames{i}) = CATinput.(fieldnames{i});
+        if isempty(strfind(fieldnames{i},'handles'))
+            O.(fieldnames{i}) = CATinput.(fieldnames{i});
+        else
+            % We would like to keep the handles that were generated using
+            % plot
+            O.(fieldnames{i}) = O.(fieldnames{i});
+        end
     end
     
     % TEMP FIX - turn warnings back on
