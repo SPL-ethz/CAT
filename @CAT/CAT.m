@@ -327,7 +327,10 @@ classdef CAT < hgsetget
             %
             % Check the initial concentration, it must be a positive,
             % finite scalar (can be zero)
+            
+            
             if isempty(value) || O.diagnose('init_conc',value)
+                
                 O.init_conc = value;
                 
             end
@@ -343,9 +346,9 @@ classdef CAT < hgsetget
             %
             % Getter method for init conc
 
-            if ischar(O.init_conc) && ~isempty(strfind(O.init_conc,'S=')) && ~isempty(O.solubility)
+            if ischar(O.init_conc) && ~isempty(strfind(strrep(O.init_conc,' ',''),'S=')) && ~isempty(O.solubility)
                 
-                S0 = str2double(strrep(O.init_conc,'S=',''));
+                S0 = str2double(strrep(strrep(O.init_conc,' ',''),'S=',''));
                 if isnan(S0)
                     S0 = eval(strrep(O.init_conc,'S=','')); % maybe user has written something 'S=2/3'
                 end
