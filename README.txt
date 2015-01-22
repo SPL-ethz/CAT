@@ -29,7 +29,7 @@ Features supported by all solvers
 - Nucleation (homogeneous/heterogeneous)
 - Growth (size dependent/independent)
 - Dissolution (only size independent verified)
-- Antisolvent und Temperature profiles in form of anonymous functions or piecewise-linear functions
+- Antisolvent and Temperature profiles in form of anonymous functions or piecewise-linear functions
 - Arbitrary grid sizing
 
 Features that are currently planned for the future
