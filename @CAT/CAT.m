@@ -250,6 +250,12 @@ classdef CAT < hgsetget
             %
             % Check the crystal density. It must be a scalar
             
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
+            
             if isempty(value) || O.diagnose('rhoc',value)
             
                 O.rhoc = value;
@@ -267,6 +273,12 @@ classdef CAT < hgsetget
             % SET.kv
             %
             % Check the shape factor. It must be a scalar
+            
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
             
             if isempty(value) || O.diagnose('kv',value) 
             
@@ -286,6 +298,12 @@ classdef CAT < hgsetget
             %
             % Check the initial distribution, it must be a distribution
             % class object
+            
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
             
             if isempty(value) || O.diagnose('init_dist',value) 
             
@@ -308,6 +326,12 @@ classdef CAT < hgsetget
             %
             % Set mass of seeds
             
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
+            
             if isempty(value) || O.diagnose('init_seed',value)
                 
                 O.init_seed = value;
@@ -327,6 +351,12 @@ classdef CAT < hgsetget
             %
             % Check the initial concentration, it must be a positive,
             % finite scalar (can be zero)
+            
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
             
             if ischar(value) && ~isempty(strfind(strrep(value,' ',''),'S='))
                 value = strrep(value,' ','');
@@ -357,6 +387,8 @@ classdef CAT < hgsetget
                 if isnan(S0)
                     S0 = eval(strrep(O.init_conc,'S=','')); % maybe user has written something 'S=2/3'
                 end
+                
+                
                 if ~isempty(O.solubility) && ~isempty(O.sol_time(1)) && ~isempty(O.Tprofile) && ~isempty(O.ASprofile) && ~isempty(O.init_massmedium) && isa(O.solubility,'function_handle')
                     O.init_conc = evalanonfunc(O.solubility,O.Tprofile(O.sol_time(1)),O.ASprofile(O.sol_time(1))/O.init_massmedium)*S0;
                 end
@@ -368,6 +400,12 @@ classdef CAT < hgsetget
         %% -- set.init_massmedium
         
         function set.init_massmedium(O,value)
+            
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
             
             if isempty(value) || O.diagnose('init_massmedium',value)
                 
@@ -388,6 +426,12 @@ classdef CAT < hgsetget
             %
             % Setter method for solubility
             % Checks for values or functions - makes function out of value
+            
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
             
             % Check for number - convert to constant function
             if isempty(value) || O.diagnose('solubility',value)
@@ -425,6 +469,12 @@ classdef CAT < hgsetget
             %
             % Check the solution time vector. This should be a vector of
             % monotonically increasing values
+            
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
             
             if isempty(value) || O.diagnose('sol_time',value)
             
@@ -519,6 +569,12 @@ classdef CAT < hgsetget
             % positive, finite elements. The first row indicates the times
             % of the nodes whereas the second row indicates Temp's
             
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
+
             if isempty(value) || O.diagnose('Tprofile',value)
                 if ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
                     
@@ -532,7 +588,7 @@ classdef CAT < hgsetget
                         value(2,end) = value(2,end-1);
                     end
                     
-                    O.Tprofile = str2func(strcat('@(t) piecewiseLinear(',data2str(value(1,:)),',',data2str(value(2,:)),',t)')); %
+                    O.Tprofile = str2func(['@(t) piecewiseLinear(',data2str(value(1,:)),',',data2str(value(2,:)),',t)']); %
                     O.tNodes = unique([O.tNodes value(1,:)]);
                     
                 elseif isempty(value)
@@ -573,6 +629,12 @@ classdef CAT < hgsetget
             %
             % Check the time profile (for added AS profiles). It must be
             % a strictly increasing(!), positive vector
+            
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
             
             if isempty(value) || O.diagnose('ASprofile',value)
                 if ~isempty(value) &&  ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
@@ -651,6 +713,12 @@ classdef CAT < hgsetget
             % Check the growth rate: should be a value (will be converted)
             % or a function handle
             
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
+            
             % Check for number - convert to constant function
             if isempty(value) || O.diagnose('growthrate',value)
                 if isnumeric(value) && length(value) == 1
@@ -688,6 +756,12 @@ classdef CAT < hgsetget
             %
             % Check the nucleationrate rate: should be a value (will be
             % converted) or a function handle
+            
+            % Value might come in as a string (e.g., from the GUI)
+            % Strings are, however, not valid inputs for almost all states.
+            if ischar(value)
+                value = eval(value);
+            end
             
             % Check for number - convert to constant function
             if isempty(value) || O.diagnose('nucleationrate',value)
