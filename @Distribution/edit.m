@@ -19,7 +19,7 @@ function edit(O)
 orig_densfnc = O.getFunction();
 orig_densval = O.F;
 if ~isempty(orig_densfnc)   
-    % Cut @(x) from front of definition
+    % Cut @(y) from front of definition
     orig_densfnc = func2str(orig_densfnc);
     orig_densfnc = orig_densfnc(5:end);
     orig_densval = [];
@@ -64,43 +64,48 @@ Dgui.grid.spacingtype = uibuttongroup('Parent',Dgui.grid.panel,...
     'Position',[10 10 100 40],...
     'SelectionChangeFcn',@(hObject,Eventdata)changegridtype(hObject,Eventdata));
 
-% Radio button 'linear'
-Dgui.grid.spacingtype_lin = uicontrol(Dgui.grid.spacingtype,...
-    'Style','radiobutton',...
-    'String','Linear',...
-    'Position',[0 20 60 20]);
-
 % Radio button 'logarithmic'
 Dgui.grid.spacingtype_log = uicontrol(Dgui.grid.spacingtype,...
     'Style','radiobutton',...
     'String','Log10',...
     'Position',[0 0 60 20]);
 
+% Radio button 'linear'
+Dgui.grid.spacingtype_lin = uicontrol(Dgui.grid.spacingtype,...
+    'Style','radiobutton',...
+    'String','Linear',...
+    'Position',[0 20 60 20]);
+
+
 % Calculate settings for currently defined distribution
-if allvaleq( diff( log10(O.y) ) )
+if isempty(O.boundaries)
+    % Make linear spacing default if empty
+    orig_gmin = [];
+    orig_gmax = [];
+    orig_gspacing = []; 
+    Dgui.grid.spacingtype.SelectedObject = Dgui.grid.spacingtype_lin;
+elseif allvaleq( diff( log10(O.boundaries) ) )
     % Log spacing
-    orig_gmin = min(log10(O.y));
-    orig_gmax = max(log10(O.y));
-    orig_gspacing = mean(diff( log10( O.y )));
+    orig_gmin = min(log10(O.boundaries));
+    orig_gmax = max(log10(O.boundaries));
+    orig_gspacing = mean(diff( log10( O.boundaries )));
     set(Dgui.grid.spacingtype_log,'value',1)
 elseif allvaleq( diff( O.y) ) 
     % Linear spacing
-    orig_gmin = min(O.y);
-    orig_gmax = max(O.y);
-    orig_gspacing = mean(diff( O.y ));
+    orig_gmin = min(O.boundaries);
+    orig_gmax = max(O.boundaries);
+    orig_gspacing = mean(diff( O.boundaries ));
     set(Dgui.grid.spacingtype_lin,'value',1)
 else
     % custom
-    orig_gmin = min(O.y);
-    orig_gmax = max(O.y);
-    orig_gspacing = mean(diff( O.y ));
+    orig_gmin = min(O.boundaries);
+    orig_gmax = max(O.boundaries);
+    orig_gspacing = mean(diff( O.boundaries ));
     set(Dgui.grid.spacingtype,'selectedobject',[])
     
 end % if else
 
 orig_gnumpoints = length(O.y);
-
-
 
 
 % Min field
@@ -183,19 +188,21 @@ Dgui.density.panel = uipanel('Parent',Dgui.fighandle,...
     'Title','Population density',...
     'Units','pixels',...
     'Position',[20 275 520 160]);
+
+
 % Button group for the radio buttons
 Dgui.density.ftype = uibuttongroup('Parent',Dgui.density.panel,...
     'Title','',...
     'Units','pixels',...
     'BorderType','none',...
-    'Position',[10 10 100 40],...
+    'Position',[10 10 100 120],...
     'SelectionChangeFcn',@(hObject,Eventdata)changeftype(hObject,Eventdata));
 
 % Radio button 'normal'
 Dgui.density.ftype_nor = uicontrol(Dgui.density.ftype,...
     'Style','radiobutton',...
     'String','Normal',...
-    'Position',[0 90 80 20]);
+    'Position',[0 87 80 20]);
 
 Dgui.density.function_mu = uicontrol(Dgui.density.panel,...
     'Style','text',...
@@ -231,7 +238,7 @@ Dgui.density.function_nor_sigma = uicontrol(Dgui.density.panel,...
 Dgui.density.ftype_lognor = uicontrol(Dgui.density.ftype,...
     'Style','radiobutton',...
     'String','Lognormal',...
-    'Position',[0 50 80 20]);
+    'Position',[0 47 80 20]);
 
 Dgui.density.function_lognor_mu = uicontrol(Dgui.density.panel,...
     'Style','edit',...
@@ -254,12 +261,12 @@ Dgui.density.ftype_custom = uicontrol(Dgui.density.ftype,...
     'Style','radiobutton',...
     'String','Custom',...
     'value',1,...
-    'Position',[0 10 60 20]);
+    'Position',[0 7 60 20]);
 
-% @(x) label
+% @(y) label
 Dgui.density.function_text2 = uicontrol(Dgui.density.panel,...
     'Style','text',...
-    'String','@(x)',...
+    'String','@(y)',...
     'Units','pixels',...
     'Position',[80 10 30 20]);
 Dgui.density.function = uicontrol(Dgui.density.panel,...
@@ -381,10 +388,10 @@ plotDist([],[]);
         % Set both background to default, then change current field to
         % white
         if strcmp(ftype,'normal') && ~isempty(str2num(get(Dgui.density.function_nor_sigma,'string'))) && ~isempty(str2num(get(Dgui.density.function_nor_mu,'string'))) 
-            set(Dgui.density.function,'string',['1./',get(Dgui.density.function_nor_sigma,'string'),'*exp(-(x-',get(Dgui.density.function_nor_mu,'string'),').^2./(2*',get(Dgui.density.function_nor_sigma,'string'),'.^2))'])
+            set(Dgui.density.function,'string',['1./',get(Dgui.density.function_nor_sigma,'string'),'*exp(-(y-',get(Dgui.density.function_nor_mu,'string'),').^2./(2*',get(Dgui.density.function_nor_sigma,'string'),'.^2))'])
             changedensity(hObject,[],'function')
         elseif strcmp(ftype,'lognormal') && ~isempty(str2num(get(Dgui.density.function_lognor_sigma,'string'))) && ~isempty(str2num(get(Dgui.density.function_lognor_mu,'string'))) 
-            set(Dgui.density.function,'string',['1./(x','.*',get(Dgui.density.function_lognor_sigma,'string'),')*exp(-(log(x)-',get(Dgui.density.function_lognor_mu,'string'),').^2./(2*',get(Dgui.density.function_lognor_sigma,'string'),'.^2))'])
+            set(Dgui.density.function,'string',['1./(y','.*',get(Dgui.density.function_lognor_sigma,'string'),')*exp(-(log(y)-',get(Dgui.density.function_lognor_mu,'string'),').^2./(2*',get(Dgui.density.function_lognor_sigma,'string'),'.^2))'])
             changedensity(hObject,[],'function')
         end
           
@@ -541,22 +548,23 @@ plotDist([],[]);
     end % function
 %% Function getDgui_current
 
-    function [x,f] = getDgui_current(type)
+    function [xb,f,y] = getDgui_current(type)
         
-        % Return currently defined x vector and f values or function, if
+        % Return currently defined xb vector and f values or function, if
         % defined.
         %
-        % [x,f] = getDgui_current('func')
+        % [xb,f] = getDgui_current('func')
         % returns f as a function, if defined (default)
         %
-        % [x,f] = getDgui_current('values')
-        % returns f as values evaluated at x
+        % [xb,f] = getDgui_current('values')
+        % returns f as values evaluated at y (lies in arithmetic mean of
+        % boundary points defined in xb)
         
         if nargin < 1 || isempty(type)
             type = 'func';
         end % if
         
-        % Get currently defined x value
+        % Get currently defined xb value
         % Use min:spacing:max, assume that number of gridpoints has been
         % calculated correctly
         xmin = str2double( get(Dgui.grid.min,'String') );
@@ -564,12 +572,15 @@ plotDist([],[]);
         xnumpoints = str2double( get( Dgui.grid.numpoints,'String') );
         
         if strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Log10' )
-            x = logspace(xmin,xmax,xnumpoints);
+            xb = logspace(xmin,xmax,xnumpoints);
         elseif strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Linear' )
-            x = linspace(xmin,xmax,xnumpoints);
+            xb = linspace(xmin,xmax,xnumpoints);
         else
-            x = O.y;
+            xb = O.boundaries;
         end % if
+        
+        % Calculate pivot points
+        y = (xb(1:end-1)+xb(2:end))/2;
         
         % Get currently defined distribution function
         
@@ -587,7 +598,7 @@ plotDist([],[]);
             if strcmpi(type,'values')
                 try
                     if isa(f,'function_handle')
-                        f = f(x);
+                        f = f(y);
                     end
                         
                 catch ME
@@ -604,10 +615,10 @@ plotDist([],[]);
             
             try
                 f = evalin('base',[ '[' vals ']' ]);
-                if length(f) ~= length(x)
+                if length(f) ~= length(y)
                     warndlg('Vector of values must have the right number of entries',...
                     'Error using given values','modal');
-                    f = zeros(size(x));
+                    f = zeros(size(y));
                 end % if
             catch ME
                 warndlg(...
@@ -627,8 +638,8 @@ plotDist([],[]);
         if ~isfield(Dgui.preview,'axes') || ~ishandle(Dgui.preview.axes)
             Dgui.preview.axes = axes('Parent',Dgui.preview.panel,...
                 'Position',[0.13 0.19 0.75 0.73]);
-            xlabel(Dgui.preview.axes,'x')
-            ylabel(Dgui.preview.axes,'f(x)')
+            xlabel(Dgui.preview.axes,'y')
+            ylabel(Dgui.preview.axes,'f(y)')
             box(Dgui.preview.axes,'on')
         else
             % If axes exists, clear any previous plots
@@ -638,10 +649,10 @@ plotDist([],[]);
         end % if
         
         % Create new plot
-        [x,f] = getDgui_current('values');
+        [xb,f,y] = getDgui_current('values');
     
         if ~isempty(f)
-            Dgui.preview.lines = line(x,f,'marker','o');
+            Dgui.preview.lines = line(y,f,'marker','o');
         end
         if strcmp( get(get(Dgui.grid.spacingtype,'SelectedObject'),'String') , 'Log10' )
             set(gca,'xscale','log')
@@ -659,9 +670,9 @@ plotDist([],[]);
         % Set values to distribution, close GUI
         
         % Get currently defined values
-        [x,f] = getDgui_current;
+        [xb,f] = getDgui_current;
         % Set these values
-        O.y = x;
+        O.boundaries = xb;
         O.F = f;
 
         % Close the GUI
