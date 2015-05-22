@@ -152,7 +152,7 @@ classdef Distribution < Easyset
             
             % Define properties here
             O.classes.y = 'numeric';
-            O.attributes.y = {'vector','real','finite','nonnegative'};
+            O.attributes.y = {'vector','real','finite','nonnegative','nondecreasing'};
             
             % Redirect to checkPropertyValue function to do checking
             O.checkPropertyValue('y',value);
@@ -160,15 +160,10 @@ classdef Distribution < Easyset
             % If checks didn't fail, method has not exited, so do extra
             % checks
             
-            if length(value) > 1 && ~any(diff(value)<0)
-                O.y = value(:)';
+
+            O.y = value(:)';
                 
-            else
-                value = sort(value(:));
-                O.y = value(:)';
-                warning('Distribution:SetY:WrongValue',...
-                    'The property y must be a vector of positive values, in increasing order (duplicates allowed)');
-            end % if
+
             
         end % function
         
@@ -192,7 +187,7 @@ classdef Distribution < Easyset
             
             % Define properties here
             O.classes.boundaries = 'numeric';
-            O.attributes.boundaries = {'vector','real','finite'};
+            O.attributes.boundaries = {'vector','real','finite','nondecreasing','nonnegative'};
             
             % Redirect to checkPropertyValue function to do checking
             O.checkPropertyValue('boundaries',value);
@@ -200,17 +195,19 @@ classdef Distribution < Easyset
             % If checks didn't fail, method has not exited, so do extra
             % checks
             
-            if length(value) > 1 && ~any(diff(value)<0)
+            if length(value) > 1 
                 O.boundaries = value(:)';
                 
                 if length(O.y) ~= length(value)-1
                     O.y = (O.boundaries(1:end-1)+O.boundaries(2:end))/2;
+%                     warning('Distribution:setboundaries:yAndBoundariesConsistency',...
+%                         'Numel of property boundaries inconsistent with property y. Reset y as arithmetic means of boundaries.');
                 end
+
             else
-                value = sort(value(:));
-                O.boundaries = value(:)';
-                warning('Distribution:SetBoundaries:WrongValue',...
-                    'The property boundaries must be a vector of positive values, in increasing order (duplicates allowed)');
+                warning('Distribution:setboundaries:yIsScalar',...
+                    'Property boundaries must be a vector with at least two elements');
+
             end % if
             
         end % function

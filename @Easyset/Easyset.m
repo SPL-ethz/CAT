@@ -63,7 +63,7 @@ classdef Easyset < hgsetget
     %
     %% SEE ALSO
     % Easyset.choices, Easyset.classes, Easyset.attributes,
-    % Easyset.configureproperties
+    % Easyset.configureproperties, validateattributes
 
     %% Easyset properties
     

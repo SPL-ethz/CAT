@@ -1,12 +1,12 @@
 %% Method browseVars
 
-function browseVars(O,~,~,classvarname,classfilter)
+function [vardata,varname] = browseVars(classfilter)
 
 % BrowseVars is a callback function called when a browse button is pressed
 % next to a variable input box. It lists the variables in the workspace and
 % allows the choice of one
 % Assign the chosen variable to the variable in the class
-if nargin < 5 || isempty(classfilter)
+if nargin == 0 || isempty(classfilter)
     classfilter = {};
 else
     % Check if classfilter is char or cell - convert to cell
@@ -65,6 +65,8 @@ glb.refresh = uicontrol(glb.fighandle,...
     'Units','pixels',...
     'Callback',@(hObject,Event)refreshList(hObject,Event),...
     'Position',[280 260 110 30]);
+
+uiwait
 
     function refreshList(~,~)
         if isfield(glb,'V')
@@ -126,7 +128,7 @@ glb.refresh = uicontrol(glb.fighandle,...
         else
             Vname = cell(0);Vidparent = zeros(0,2);
             for j = 1:length(varList(:,1))
-                Vname = [Vname;[varList{2,j},varList{1,j}]];
+                Vname = [Vname;[varList{j,2},varList{j,1}]];
                 Vidparent = [Vidparent; varList{j,3} varList{j,4}];
             end
         end % if
@@ -298,17 +300,11 @@ glb.refresh = uicontrol(glb.fighandle,...
         % Get variable data
         if varnum <= length(glb.Vvis)
             vardata = evalin('base',[glb.Vvis(varnum).name]);
-            if ~isempty(classvarname)
-                O.(classvarname) = vardata;
-                O.gui.source.(classvarname) = glb.Vvis(varnum).name;
-            else
-                O.load(vardata);
-            end % if
+            varname = glb.Vvis(varnum).name;
             
             % Close the variable list window
             close(get(hObject,'Parent'))
             
-            uiresume
             
         end % if
         

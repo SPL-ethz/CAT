@@ -105,7 +105,7 @@ else
     
 end % if else
 
-orig_gnumpoints = length(O.y);
+orig_gnumpoints = length(O.boundaries);
 
 
 % Min field
@@ -175,7 +175,7 @@ Dgui.grid.browse = uicontrol(Dgui.grid.panel,...
     'Style','pushbutton',...
     'String','Browse',...
     'Value',0,...
-    'Callback',@(hObject,eventdata) distBrowse(hObject,eventdata,'init_dist.y','double'),...
+    'Callback',@(hObject,eventdata) distBrowse(hObject,eventdata,'boundaries','double'),...
     'Position',[460 10 50 30]...
     );
 
@@ -222,6 +222,7 @@ Dgui.density.function_nor_mu = uicontrol(Dgui.density.panel,...
     'Style','edit',...
     'String','',...
     'TooltipString','Mean',...
+    'enable','off',...
     'Units','pixels',...
     'Callback',@(hObject,Eventdata)changeparam(hObject,Eventdata,'normal'),...
     'Position',[85 90 100 30]);
@@ -230,6 +231,7 @@ Dgui.density.function_nor_sigma = uicontrol(Dgui.density.panel,...
     'Style','edit',...
     'String','',...
     'TooltipString','Variance',...
+    'enable','off',...
     'Units','pixels',...
     'Callback',@(hObject,Eventdata)changeparam(hObject,Eventdata,'normal'),...
     'Position',[190 90 100 30]);
@@ -244,6 +246,7 @@ Dgui.density.function_lognor_mu = uicontrol(Dgui.density.panel,...
     'Style','edit',...
     'String','',...
     'TooltipString','Mean',...
+    'enable','off',...
     'Units','pixels',...
     'Callback',@(hObject,Eventdata)changeparam(hObject,Eventdata,'lognormal'),...
     'Position',[85 50 100 30]);
@@ -252,6 +255,7 @@ Dgui.density.function_lognor_sigma = uicontrol(Dgui.density.panel,...
     'Style','edit',...
     'String','',...
     'TooltipString','Variance',...
+    'enable','off',...
     'Units','pixels',...
     'Callback',@(hObject,Eventdata)changeparam(hObject,Eventdata,'lognormal'),...
     'Position',[190 50 100 30]);
@@ -301,7 +305,7 @@ Dgui.density.browse = uicontrol(Dgui.density.panel,...
     'Style','pushbutton',...
     'String','Browse',...
     'Value',0,...
-    'Callback',@(hObject,eventdata) distBrowse(hObject,eventdata,'init_dist.F','double'),...
+    'Callback',@(hObject,eventdata) distBrowse(hObject,eventdata,'F','double'),...
     'Position',[460 50 50 30]...
     );
 
@@ -348,7 +352,7 @@ Dgui.buttons.ok = uicontrol(Dgui.fighandle,...
     );
 
 plotDist([],[]);
-
+uiwait;
 %% % - Subfunctions
 
 %% Function cancelDgui
@@ -368,16 +372,18 @@ plotDist([],[]);
         
         % Save active field
         Dgui.density.activefield = field;
-        if strcmp(field,'function') && isempty(get(Dgui.density.ftype,'selectedobject')) || ~isempty(get(Dgui.density.function,'string'))
-            [~,f] = getDgui_current('values');
-            set(Dgui.density.values,'string',data2str(f));
-            plotDist
-        elseif strcmp(field,'values')
-            [~,f] = getDgui_current('values');
-            set(Dgui.density.values,'string',data2str(f));
-            plotDist
+
+        [~,f] = getDgui_current('values');
+        set(Dgui.density.values,'string',data2str(f));
+        
+        if strcmp(field,'values')
+             Dgui.density.ftype.SelectedObject = Dgui.density.ftype_custom;
+            fakeEvent.NewValue = '';
+            changeftype(hObject,fakeEvent);
         end
         
+        plotDist
+
     end % function
 
     function changeparam(hObject,~,ftype)
@@ -391,42 +397,47 @@ plotDist([],[]);
             set(Dgui.density.function,'string',['1./',get(Dgui.density.function_nor_sigma,'string'),'*exp(-(y-',get(Dgui.density.function_nor_mu,'string'),').^2./(2*',get(Dgui.density.function_nor_sigma,'string'),'.^2))'])
             changedensity(hObject,[],'function')
         elseif strcmp(ftype,'lognormal') && ~isempty(str2num(get(Dgui.density.function_lognor_sigma,'string'))) && ~isempty(str2num(get(Dgui.density.function_lognor_mu,'string'))) 
-            set(Dgui.density.function,'string',['1./(y','.*',get(Dgui.density.function_lognor_sigma,'string'),')*exp(-(log(y)-',get(Dgui.density.function_lognor_mu,'string'),').^2./(2*',get(Dgui.density.function_lognor_sigma,'string'),'.^2))'])
+            set(Dgui.density.function,'string',['1./(y','.*',get(Dgui.density.function_lognor_sigma,'string'),').*exp(-(log(y)-',get(Dgui.density.function_lognor_mu,'string'),').^2./(2*',get(Dgui.density.function_lognor_sigma,'string'),'.^2))'])
             changedensity(hObject,[],'function')
         end
           
     end % function
 
-    function distBrowse(hObject,Eventdata,classvarname,classfilter)
+    function distBrowse(hObject,~,classvarname,classfilter)
         
-        O.browseVars([],[],classvarname,classfilter);
-        uiwait
+        [vardata,varname] = browseVars(classfilter);
+        if ~isempty(classvarname) && ~isempty(vardata)
+            O.(classvarname) = vardata;
+%             O.gui.source.(classvarname) = varname;
+
+        end % if
+        
         
         if isempty(strfind(get(get(hObject,'parent'),'title'),'density'))
             
-            if allvaleq( diff( log10(O.y) ) )
+            if allvaleq( diff( log10(O.boundaries) ) )
                 % Log spacing
-                set(Dgui.grid.min,'string',num2str(min(log10(O.y))));
-                set(Dgui.grid.max,'string',num2str(max(log10(O.y))));
-                set(Dgui.grid.spacing,'String',mean(diff( log10( O.y ))));
+                set(Dgui.grid.min,'string',num2str(min(log10(O.boundaries))));
+                set(Dgui.grid.max,'string',num2str(max(log10(O.boundaries))));
+                set(Dgui.grid.spacing,'String',mean(diff( log10( O.boundaries ))));
                 set(Dgui.grid.spacingtype_log,'value',1)
-            elseif allvaleq( diff( O.y) ) 
+            elseif allvaleq( diff( O.boundaries) ) 
                 % Linear spacing
-                set(Dgui.grid.min,'string',num2str(min(O.y)));
-                set(Dgui.grid.max,'string',num2str(max(O.y)));
-                set(Dgui.grid.spacing,'String',mean(diff(  O.y )));
+                set(Dgui.grid.min,'string',num2str(min(O.boundaries)));
+                set(Dgui.grid.max,'string',num2str(max(O.boundaries)));
+                set(Dgui.grid.spacing,'String',mean(diff(  O.boundaries )));
                 set(Dgui.grid.spacingtype_lin,'value',1)
             else
                 % custom
-                set(Dgui.grid.min,'string',num2str(min(O.y)));
-                set(Dgui.grid.max,'string',num2str(max(O.y)));
-                set(Dgui.grid.spacing,'String',mean(diff(  O.y )));
+                set(Dgui.grid.min,'string',num2str(min(O.boundaries)));
+                set(Dgui.grid.max,'string',num2str(max(O.boundaries)));
+                set(Dgui.grid.spacing,'String',mean(diff(  O.boundaries )));
                 set(Dgui.grid.spacingtype,'selectedobject',[])
 
             end % if else
 
             
-            set(Dgui.grid.numpoints,'string',num2str(numel(O.y)));
+            set(Dgui.grid.numpoints,'string',num2str(numel(O.boundaries)));
 
             
         else
@@ -518,7 +529,7 @@ plotDist([],[]);
     end % function
 
 
- function changeftype(hObject,Eventdata)
+ function changeftype(~,Eventdata)
         
         set(Dgui.density.function,'enable','off')
             
@@ -537,7 +548,7 @@ plotDist([],[]);
             set(Dgui.density.function_lognor_sigma,'enable','on','backgroundcolor','w')
             set(Dgui.density.function_lognor_mu,'enable','on','backgroundcolor','w')
             
-        elseif strcmpi(get(Eventdata.NewValue,'string'),'custom')
+        else
             
             set(Dgui.density.function,'enable','on','backgroundcolor','w')
 
@@ -649,7 +660,7 @@ plotDist([],[]);
         end % if
         
         % Create new plot
-        [xb,f,y] = getDgui_current('values');
+        [~,f,y] = getDgui_current('values');
     
         if ~isempty(f)
             Dgui.preview.lines = line(y,f,'marker','o');
