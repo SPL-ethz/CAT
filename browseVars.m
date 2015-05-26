@@ -45,6 +45,7 @@ glb.fighandle = figure(...
     'Name','Import a variable',...
     'NumberTitle','off',...
     'Position',[200 200 400 400],...
+    'CloseRequestFcn', @browseVars_closereq,...
     'Resize','off');
 
 % Create a list box
@@ -331,5 +332,16 @@ uiwait
         end % if
         
     end % function
+
+    function browseVars_closereq(~,~) % browseVars_closereq
+       
+       % if window is closed and no variable is imported, default return is
+       % empty
+       vardata = [];
+       varname = [];
+       
+       delete(glb.fighandle) 
+       
+    end
 
 end % function
