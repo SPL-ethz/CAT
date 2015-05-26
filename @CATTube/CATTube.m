@@ -641,14 +641,14 @@ classdef CATTube < CAT
         
         %% - plot
         
-        function plot(O,~,~)
+        function plot(O,varargin)
             
             % overwrite plots only if overwrite checkbox is ticked
-            if get(O.gui.run.plot_overwrite,'value')
-                plot@CAT(O); % calling plot function of class CAT
-            else
-                plot@CAT(O,'add'); % calling plot function of class CAT with additional argument (appends plots)
+            if ~get(O.gui.run.plot_overwrite,'value')
+                varargin = {varargin{:},'add'};
             end
+            
+            plot@CAT(O,varargin{:}); % calling plot function of class CAT
             
         end % function
         
