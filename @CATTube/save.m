@@ -16,7 +16,7 @@ if ~isempty(outputfilename) && ~isequal(outputfilename,[0 0])
     % Want to save data as CAT class, not as CATTube. Some info will get
     % lost this way but probably wise to have only one class for storage.
     OCat = CAT;
-    O.load(O); % reads content of current CATTube object into new CAT instance
+    OCat.load(O); % reads content of current CATTube object into new CAT instance
     
     outputfilename = OCat.save(outputfilename,CATname,O.gui.source);
     
