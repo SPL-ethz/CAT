@@ -12,7 +12,13 @@ if nargin < 2 || isempty(outputfilename)
 end % if
 
 if ~isempty(outputfilename) && ~isequal(outputfilename,[0 0])
-    outputfilename = save@CAT(O,outputfilename,CATname,O.gui.source);
+    
+    % Want to save data as CAT class, not as CATTube. Some info will get
+    % lost this way but probably wise to have only one class for storage.
+    OCat = CAT;
+    O.load(O); % reads content of current CATTube object into new CAT instance
+    
+    outputfilename = OCat.save(outputfilename,CATname,O.gui.source);
     
     % Show a window
     helpdlg(sprintf('Saved file to %s\n',outputfilename),'CAT file saved');
