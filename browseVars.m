@@ -337,8 +337,10 @@ uiwait
        
        % if window is closed and no variable is imported, default return is
        % empty
-       vardata = [];
-       varname = [];
+       if ~exist('varname','var')
+           vardata = [];
+           varname = [];
+       end
        
        delete(glb.fighandle) 
        
