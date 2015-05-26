@@ -2,10 +2,32 @@
 
 function [vardata,varname] = browseVars(classfilter)
 
-% BrowseVars is a callback function called when a browse button is pressed
-% next to a variable input box. It lists the variables in the workspace and
-% allows the choice of one
-% Assign the chosen variable to the variable in the class
+% browseVars
+%
+% This function allows to browse for variables in the workspace and
+% additionally explore structures saved there.
+%
+% The basic usage is:
+% [vardata,varname] = browseVars(classfilter)
+%
+% This will open a small gui that allows you to import the data stored in 
+% the variable you selected into the new variable vardata. varname is the
+% name of the imported variable stored as a string.
+%
+% The variable classfilter is either a string or a cell array of strings,
+% allowing you to define the types of variables you would like to filter.
+% To make a simple example:
+% 
+% whos
+%  Name         Size            Bytes  Class              Attributes
+% 
+%  fun          1x1                32  function_handle                                                 
+%  x            1x1                 8  double                       
+% 
+% y = browseVars('double') -> will only list variable x
+% SEE ALSO
+% CAT, CATTube
+
 if nargin == 0 || isempty(classfilter)
     classfilter = {};
 else
