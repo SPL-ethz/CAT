@@ -44,7 +44,10 @@ or have a look at the demos to get an idea of how to use the toolbox.
 
 ** Bug reports
 Please submit bugs via the Github page:
-https://github.com/SPLIfA/CAT
+-> https://github.com/SPLIfA/CAT (preferably with a screenshot of the (GUI) settings)
+or submit them to 
+-> daveo@ethz.ch
+including again a screenshot or a (zipped) mat file of the CAT(Tube) object that generated the problem.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
