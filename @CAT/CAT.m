@@ -895,10 +895,7 @@ classdef CAT < hgsetget
     methods (Static)
         % Compare two CAT objects
         [results,same,different] = compare(CAT1,CAT2,varargin); 
-            
-        % Fill out the template form
-        fillOutForm(setupCat);
-        
+
     end
     
     %% Static, protected methods

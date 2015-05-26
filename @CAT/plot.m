@@ -14,7 +14,7 @@ function out = plot(Oin,varargin)
 %
 % The list of available plots can be obtained by the following command:
 %
-%   >> C.plot('available_plots');
+%   >> C.plot('available');
 %
 % To make only one plot (or to add it to the existing collection of plots),
 % use:
@@ -75,7 +75,7 @@ available_plot_descriptions = {...
     'Three dimensional plots of particle size distributions vs time',...
     'Cumulative properties (moments) of PSDs vs time',...
     'Process variables vs time: concentration, supersaturation, temperature, total solvent mass',...
-    'Operating diagram: concentration vs temperature',...
+    'Phase diagram: concentration vs temperature',...
     'Mass balance'...
     };
 
@@ -83,7 +83,7 @@ available_plot_descriptions = {...
 
 % Check if requesting list of available figures - this returns cell
 % available_plots and exits
-if any(strcmpi(varargin,'available_plots'))
+if any(strcmpi(varargin,'available'))
     
     if nargout == 0
         % Print text if no output is requested
