@@ -22,70 +22,59 @@ for ii = 1:length(O)
         O(ii).init_dist.F = O(ii).init_dist.F*O(ii).init_seed/(moments(O(ii).init_dist,3)*O(ii).kv*O(ii).rhoc*O(ii).init_massmedium);
     end
 
-    if ~isempty(O(ii).tNodes)
 
-        % Save for later
-        sol_time = O(ii).sol_time;
-        calc_time = [];
-        calc_dist = Distribution;
-        calc_conc = [];
+    % Save for later
+    sol_time = O(ii).sol_time;
+    calc_time = [];
+    calc_dist = Distribution;
+    calc_conc = [];
 
-        for i = 2:length(O(ii).tNodes) % make sure you hit the different nodes of the non-smooth profiles
+    effectiveNodes = sort(unique([sol_time(1) O(ii).tNodes sol_time(end)])); 
 
-            % Cut out the piece we want to look at currently
-            O(ii).sol_time = [O(ii).tNodes(i-1) sol_time(sol_time>O(ii).tNodes(i-1) & sol_time<O(ii).tNodes(i)) O(ii).tNodes(i)];
+    for i = 2:length(effectiveNodes) % make sure you hit the different nodes of non-smooth profiles
 
-            % Solve for the current piece
-            try
-                % Simply run the method corresponding to the chosen solution method
-                % prefixed with solver_
-                [mbflag] = O(ii).(['solver_' O(ii).sol_method]);
-            catch ME
-                keyboard
-                error('solve:tryconsttemp:PBESolverfail',...
-                'Solver failed to integrate your problem. Message: %s',ME.message)
+        % Cut out the piece we want to look at currently
+        O(ii).sol_time = [effectiveNodes(i-1) sol_time(sol_time>effectiveNodes(i-1) & sol_time<effectiveNodes(i)) effectiveNodes(i)];
 
-            end
-
-            % Save the solution for the current piece
-            calc_time(end+1:end+length(O(ii).calc_time)) = O(ii).calc_time;
-            calc_dist(end+1:end+length(O(ii).calc_dist)) = O(ii).calc_dist;
-            calc_conc(end+1:end+length(O(ii).calc_conc)) = O(ii).calc_conc; 
-
-            % Set new initial distribution and initial concentration
-            O(ii).init_dist = O(ii).calc_dist(end);
-            O(ii).init_conc = O(ii).calc_conc(end);
-            
-            if mbflag 
-                mb = massbal(O(ii));
-                warning('CAT:solve:massbalanceerrortoolarge',...
-                    'Your mass balance error is unusually large (%4.2f%%). Check validity of equations and consider increasing the number of bins; simulation aborted.',mb(end));
-                break
-            end
-        end % for
-
-        % Put temporary solution into the right place
-        O(ii).calc_time = calc_time;
-        O(ii).calc_dist = calc_dist(2:end);
-        O(ii).calc_conc = calc_conc;
-        % Reset times and initial distribution, concentration
-        O(ii).sol_time = sol_time;
-        O(ii).init_dist = calc_dist(2);
-        O(ii).init_conc = calc_conc(1);
-
-    else    
-
+        % Solve for the current piece
         try
-
             % Simply run the method corresponding to the chosen solution method
             % prefixed with solver_
-            O(ii).(['solver_' O(ii).sol_method]);
-
+            [mbflag] = O(ii).(['solver_' O(ii).sol_method]);
         catch ME
+            keyboard
             error('solve:tryconsttemp:PBESolverfail',...
-                'Solver failed to integrate your problem. Message: %s',ME.message)
+            'Solver failed to integrate your problem. Message: %s',ME.message)
+
         end
-    end
+
+        % Save the solution for the current piece
+        calc_time(end+1:end+length(O(ii).calc_time)) = O(ii).calc_time;
+        calc_dist(end+1:end+length(O(ii).calc_dist)) = O(ii).calc_dist;
+        calc_conc(end+1:end+length(O(ii).calc_conc)) = O(ii).calc_conc; 
+
+        % Set new initial distribution and initial concentration
+        O(ii).init_dist = O(ii).calc_dist(end);
+        O(ii).init_conc = O(ii).calc_conc(end);
+
+        if mbflag 
+            mb = massbal(O(ii));
+            warning('CAT:solve:massbalanceerrortoolarge',...
+                'Your mass balance error is unusually large (%4.2f%%). Check validity of equations, size of the grid and consider increasing the number of bins; simulation aborted.',mb(end));
+            break
+        end
+    end % for
+
+    % Put temporary solution into the right place
+    O(ii).calc_time = calc_time;
+    O(ii).calc_dist = calc_dist(2:end);
+    O(ii).calc_conc = calc_conc;
+    % Reset times and initial distribution, concentration
+    O(ii).sol_time = sol_time;
+    O(ii).init_dist = calc_dist(2);
+    O(ii).init_conc = calc_conc(1);
+
+
 
     O(ii).init_conc = O(ii).calc_conc(1);
     O(ii).init_dist = O(ii).calc_dist(1);

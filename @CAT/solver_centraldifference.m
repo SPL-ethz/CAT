@@ -44,9 +44,9 @@ O.calc_dist = SolutionDists;
 O.calc_conc = SolutionConc;
 
 if O.calc_time(end)<O.sol_time(end) 
-    mbflag = 1;
+    mbflag = true;
 else
-    mbflag = 0;
+    mbflag = false;
 end
 
 
