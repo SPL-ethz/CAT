@@ -594,7 +594,7 @@ classdef CATTube < CAT
                 'String','Load CAT from Workspace',...
                 'Value',0,...
                 'Enable','on',...
-                'Callback',@(hObject,eventdata)O.CATbrowse(hObject,eventdata,[],'CAT'),...
+                'Callback',@(hObject,eventdata) O.CATbrowse(hObject,eventdata,'CAT','CAT'),...
                 'Position',[245 40 225 30]...
                 );
             
@@ -632,10 +632,15 @@ classdef CATTube < CAT
             
             [vardata,varname] = browseVars(classfilter);
             
-            if ~isempty(classvarname) && ~isempty(vardata)
-                O.(classvarname) = vardata;
-                O.gui.source.(classvarname) = varname;
-            end % if
+            if ~strcmp(classvarname,'CAT')
+
+                if ~isempty(classvarname) && ~isempty(vardata)
+                    O.(classvarname) = vardata;
+                    O.gui.source.(classvarname) = varname;
+                end % if
+            else
+                O.load(vardata);
+            end
             
         end % function
         
