@@ -354,11 +354,17 @@ clear existing_plots existing_plots_series
 % Loop through the plots
 
 for p = find(requested_plots)
-    
+
     % Call the subfunction which does the work
     makeplot(p)
-    
+
 end % for
+
+ % Add one to the number of effective series - unless objects
+% are deleted again
+if ~delete_old_obj
+    effective_series = effective_series + 1;
+end % if
 
 %% Plotting subfunction
 
@@ -400,7 +406,7 @@ end % for
             linestyle = series_linestyles{serind};
             markerstyle = series_markerstyles{serind};
             
-            % Check for existance of figure - or create it
+            % Check for existence of figure - or create it
             if ~ishandle(O.handles_figures(p))
                 % The figure needs to be created
                 O.handles_figures(p) = figure;
@@ -977,12 +983,7 @@ end % for
             end % switch
             
         end % for
-        
-        % Add one to the number of effective series - unless objects
-        % are deleted again
-        if ~delete_old_obj
-            effective_series = effective_series + 1;
-        end % if
+
         
         % Reset the default text sizes
         set(0,'defaultaxesfontsize','default','defaulttextfontsize','default',...
