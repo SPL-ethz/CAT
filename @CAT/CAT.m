@@ -1,4 +1,4 @@
-classdef CAT < hgsetget
+classdef CAT < hgsetget & matlab.mixin.Copyable
     
 %% Crystallization Analysis Toolbox (CAT)
 %
@@ -80,7 +80,7 @@ classdef CAT < hgsetget
         
         % Property: calc_dist
         % Distributions for each time step
-        calc_dist
+        calc_dist = Distribution;
         
         % Property: calc_conc
         % Column Vector of solution concentrations for times given in calc_time
@@ -809,6 +809,26 @@ classdef CAT < hgsetget
         end % function
         
     end % methods
+    
+    methods(Access = protected)
+       % Override copyElement method:
+      function cpObj = copyElement(O)
+         % Make a shallow copy of all properties
+         cpObj = copyElement@matlab.mixin.Copyable(O);
+         
+         % Make a deep copy of the Distribution objects (they are handle
+         % classes, hence normally you would only copy their handle to the
+         % new object, which is not generally the desired behavior)
+         cpObj.init_dist = copy(O.init_dist);
+         try
+            % in order for a bit of backwards compatibility (demos in 
+            % particular), this will be a try for a while (calc_dist used 
+            % to be [] (a double) by default, which in turn would generate 
+            % an error when one would attempt to copy it here)
+            cpObj.calc_dist = copy(O.calc_dist);
+         end
+      end
+   end
     
     %% Hidden methods
     

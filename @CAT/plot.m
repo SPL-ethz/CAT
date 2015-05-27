@@ -365,7 +365,6 @@ end % for
 
 effective_series = effective_series + 1;
 
-keyboard
 %% Plotting subfunction
 
     function makeplot(p)

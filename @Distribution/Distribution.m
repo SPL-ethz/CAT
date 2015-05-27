@@ -1,4 +1,4 @@
-classdef Distribution < Easyset
+classdef Distribution < Easyset & matlab.mixin.Copyable
     %% Class Distribution
     %
     %% About Distribution class
