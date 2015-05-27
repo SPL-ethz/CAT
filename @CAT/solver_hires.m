@@ -14,7 +14,7 @@ function [mbflag] = solver_hires(O)
 % If you are unhappy with the result consider the following options:
 % - Increase the number of grid points
 % - Decrease reltol {1e-2} and abstol {1e-2} [sol_options] (particularly when encountering oscillations in S!)
-% - Set mlim to zero (boundary box finder threshold) {eps} [sol_options] (Important for discontinuous distributions and when mu0 loss is intolerable!)
+% - Set mlim to zero (boundary box finder threshold) {0} [sol_options] (Important for discontinuous distributions and when mu0 loss is intolerable!)
 % - Change the flux limiter function via fluxlim {vanLeer} [sol_options] (see Phifinder for details)
 % - Use another method
 
@@ -49,15 +49,13 @@ Dy = diff(O.init_dist.boundaries);
 F = O.init_dist.F; 
 Y(1,:) = [F(:)' c]; % Output matrix
 
-
-
 % local density function (is padded with zeros)
 F_dummy = [0;0;F(:);0]; 
  
 
 %% Tolerances and options
 % Default tolerances
-mlim = 0; % anteil von partikeln, welcher fuer die simulation vernachlaessigt werden darf --> HAS TO BE 0 WHEN WORKING WITH HEAVYSIDE FUNCTION IN F0
+mlim = 0; % fraction of particles that may lie outside the bounding box --> HAS TO BE 0 WHEN WORKING WITH HEAVYSIDE FUNCTION IN F0
 Stol = 1e-2; % tolerance in S (abstol)
 ctol = 1e-2; % tolerance in relative change of c and cs (reltol)
 fluxlim = 'vanleer';
