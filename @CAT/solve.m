@@ -34,7 +34,7 @@ for ii = 1:length(O)
     for i = 2:length(effectiveNodes) % make sure you hit the different nodes of non-smooth profiles
 
         % Cut out the piece we want to look at currently
-        O(ii).sol_time = [effectiveNodes(i-1) sol_time(sol_time>effectiveNodes(i-1) & sol_time<effectiveNodes(i)) effectiveNodes(i)];
+        O(ii).sol_time = [effectiveNodes(i-1);sol_time(sol_time>effectiveNodes(i-1) & sol_time<effectiveNodes(i));effectiveNodes(i)];
 
         % Solve for the current piece
         try
@@ -85,5 +85,10 @@ for ii = 1:length(O)
         O(ii).calc_dist = O(ii).calc_dist(I);
         O(ii).calc_conc = O(ii).calc_conc(I);
     end
+    
+    % Let first dimension always be time
+    O(ii).calc_time = O(ii).calc_time(:);
+    O(ii).calc_dist = O(ii).calc_dist(:);
+    O(ii).calc_conc = O(ii).calc_conc(:);
     
 end

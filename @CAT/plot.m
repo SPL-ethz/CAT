@@ -362,10 +362,10 @@ end % for
 
  % Add one to the number of effective series - unless objects
 % are deleted again
-if ~delete_old_obj
-    effective_series = effective_series + 1;
-end % if
 
+effective_series = effective_series + 1;
+
+keyboard
 %% Plotting subfunction
 
     function makeplot(p)

@@ -75,7 +75,7 @@ classdef CAT < hgsetget
         %
         
         % Property: calc_time
-        % Vector of actual times returned by solver
+        % Column Vector of actual times returned by solver
         calc_time
         
         % Property: calc_dist
@@ -83,7 +83,7 @@ classdef CAT < hgsetget
         calc_dist
         
         % Property: calc_conc
-        % Vector of solution concentrations for times given in calc_time
+        % Column Vector of solution concentrations for times given in calc_time
         calc_conc
         
     end % properties
@@ -354,10 +354,6 @@ classdef CAT < hgsetget
             
             % Value might come in as a string (e.g., from the GUI)
             % Strings are, however, not valid inputs for almost all states.
-            if ischar(value)
-                value = eval(value);
-            end
-            
             if ischar(value) && ~isempty(strfind(strrep(value,' ',''),'S='))
                 value = strrep(value,' ','');
             elseif ischar(value)
@@ -479,9 +475,9 @@ classdef CAT < hgsetget
             if isempty(value) || O.diagnose('sol_time',value)
             
                 if isempty(value) || length(value) > 1 
-                    O.sol_time = value(:)';
+                    O.sol_time = value(:);
                 elseif isscalar(value)
-                    O.sol_time = [0 value];
+                    O.sol_time = [0 value]';
                 end % if else
                 
             end
