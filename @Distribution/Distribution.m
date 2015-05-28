@@ -152,7 +152,7 @@ classdef Distribution < Easyset & matlab.mixin.Copyable
             
             % Define properties here
             O.classes.y = 'numeric';
-            O.attributes.y = {'vector','real','finite','nonnegative','nondecreasing'};
+            O.attributes.y = {'vector','real','finite','nondecreasing'};
             
             % Redirect to checkPropertyValue function to do checking
             O.checkPropertyValue('y',value);
@@ -187,7 +187,7 @@ classdef Distribution < Easyset & matlab.mixin.Copyable
             
             % Define properties here
             O.classes.boundaries = 'numeric';
-            O.attributes.boundaries = {'vector','real','finite','nondecreasing','nonnegative'};
+            O.attributes.boundaries = {'vector','real','finite','nondecreasing'}; 
             
             % Redirect to checkPropertyValue function to do checking
             O.checkPropertyValue('boundaries',value);

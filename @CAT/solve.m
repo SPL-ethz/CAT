@@ -42,7 +42,6 @@ for ii = 1:length(O)
             % prefixed with solver_
             [mbflag] = O(ii).(['solver_' O(ii).sol_method]);
         catch ME
-            keyboard
             error('solve:tryconsttemp:PBESolverfail',...
             'Solver failed to integrate your problem. Message: %s',ME.message)
 

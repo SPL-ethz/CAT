@@ -59,7 +59,7 @@ while tstart<tend
     
     % Solve until the next event where the nucleation bin becomes to big (as defined by dL)
     solvefun = @(t,x) movingpivot_ode(t,x,O);
-    [TIME,X_out,TE] = ode15s(solvefun, [tstart ts tend],X0, options);
+    [TIME,X_out,TE] = ode15s(solvefun, [tstart;ts;tend]',X0, options);
     
     X_out(X_out<0) = 0;
     
@@ -149,10 +149,10 @@ y = x(nBins+1:2*nBins); %pivot sizes
 boundaries = x(2*nBins+1:3*nBins+1); %boundaries
 Dy = diff(boundaries);Dy = Dy(:);
 
-if nargin(O.nucleationrate)>2
-    dist = Distribution(y,N./Dy,boundaries);
-else
+if strcmp(func2str(O.nucleationrate),'@(S,T,m)0') || strcmp(func2str(O.nucleationrate),'@(S,T)0')
     dist = [];
+else
+    dist = Distribution(y,N./Dy,boundaries);
 end
 
 J = evalanonfunc(O.nucleationrate, S, T, dist, t );
@@ -212,7 +212,7 @@ y = x(nBins+1:2*nBins); % pivot sizes
 boundaries = x(2*nBins+1:2*nBins+2);
 
 value(1) = dL - boundaries(1); % Detect when first bin becomes too broad (value <= 0)
-value(2) = y(1); % Detects when first pivot becomes smaller than one
+value(2) = y(1); % Detects when first pivot becomes smaller than zero
 value(3) = massbalTol-abs(((O.init_conc*O.init_massmedium+moments(O.init_dist,3)*O.kv*O.rhoc*O.init_massmedium)-(x(end)*m+sum(N(:).*y(:).^3)*O.kv*O.rhoc*m))/(O.init_conc*O.init_massmedium+moments(O.init_dist,3)*O.kv*O.rhoc*O.init_massmedium)); % current massbalance error
 
 value = value(:);
