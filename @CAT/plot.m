@@ -602,7 +602,7 @@ effective_series = effective_series + 1;
                         box(axh(1),'on')
                         
                         % Axes labels
-                        ylabel(axh(1),'0^{th} moment')
+                        ylabel(axh(1),'0^{th} moment / mass fluid')
                         
                     end % if
                     if ~ishandle(axh(2))
@@ -613,7 +613,7 @@ effective_series = effective_series + 1;
                         box(axh(2),'on')
                         
                         % Axes labels
-                        ylabel(axh(2),'3^{rd} moment')
+                        ylabel(axh(2),'3^{rd} moment / mass fluid')
                         
                     end % if
                     if ~ishandle(axh(3))
