@@ -15,6 +15,24 @@ function [mbflag] = solver_centraldifference(O)
 % - Decrease reltol {1e-6} and abstol {1e-6} [sol_options]
 % - Use another method
 
+% Copyright 2015-2016 David Ochsenbein
+% Copyright 2012-2014 David Ochsenbein, Martin Iggland
+% 
+% This file is part of CAT.
+% 
+% CAT is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation version 3 of the License.
+% 
+% CAT is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 if ~isempty(O.sol_options) && ~isempty(find(strcmpi(O.sol_options,'massbalTol'),1))
     massbalTol = O.sol_options(find(strcmpi(O.sol_options,'massbalTol'),1)+1);
 else

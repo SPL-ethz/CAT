@@ -1,52 +1,70 @@
 classdef Distribution < Easyset & matlab.mixin.Copyable
-    %% Class Distribution
-    %
-    %% About Distribution class
-    %
-    % The Distribution class defines particle size distributions as a
-    % function of a characteristic variable (normally a length). It handles
-    % both analytic and numerical distributions.
-    %
-    % The primary use of this class is within the Crystallisation Analysis
-    % Toolbox (CAT).
-    %
-    %% Usage
-    %
-    % Note that the distribution is assumed to be a density function and
-    % therefore boundaries of the bins are necessary to correctly calculate
-    % the moments. If boundaries are not assigned, it will be assumed that
-    % boundary(1) = 0 and that the remaining pivot sizes (y) lie in the
-    % arithmetic mean of the remaining boundary points.
-    %
-    % The size vector needs to be defined. The distribution can be defined
-    % as either a function handle or as a vector. The class checks the
-    % inputs, and returns a vector in any case.
-    %
-    % The class can be called as follows:
-    %
-    %   dist = Distribution(y,@(x)normalpdf(x,1,0.1));
-    %   or
-    %   dist = Distribution(y,{'normal',1,0.1});
-    %
-    % to create a distribution based on the normal distribution, or the
-    % properties y and F can be set separately:
-    %
-    %   dist = Distribution;
-    %   dist.y = linspace(0,2,50);
-    %   dist.F = @(x) normpdf(x,1,0.1);
-    %
-    % This class can be used to define multiple distributions, having their
-    % own size vectors, in the following way:
-    %
-    %   dist(1) = Distribution(linspace(0,2),@(x)normpdf(x,1,0.1));
-    %   dist(2) = Distribution(linspace(0,3),@(x)normpdf(x,2,0.5));
-    %
-    % Moments of Distribution objects can be calculated using the moments
-    % method. See the corresponding entry.
-    %
-    % SEE ALSO
-    % CAT, CATTube, Distribution.moments, Distribution.plot,
-    % Distribution.dist2str, Distribution.data2str
+%% Class Distribution
+%
+%% About Distribution class
+%
+% The Distribution class defines particle size distributions as a
+% function of a characteristic variable (normally a length). It handles
+% both analytic and numerical distributions.
+%
+% The primary use of this class is within the Crystallisation Analysis
+% Toolbox (CAT).
+%
+%% Usage
+%
+% Note that the distribution is assumed to be a density function and
+% therefore boundaries of the bins are necessary to correctly calculate
+% the moments. If boundaries are not assigned, it will be assumed that
+% boundary(1) = 0 and that the remaining pivot sizes (y) lie in the
+% arithmetic mean of the remaining boundary points.
+%
+% The size vector needs to be defined. The distribution can be defined
+% as either a function handle or as a vector. The class checks the
+% inputs, and returns a vector in any case.
+%
+% The class can be called as follows:
+%
+%   dist = Distribution(y,@(x)normalpdf(x,1,0.1));
+%   or
+%   dist = Distribution(y,{'normal',1,0.1});
+%
+% to create a distribution based on the normal distribution, or the
+% properties y and F can be set separately:
+%
+%   dist = Distribution;
+%   dist.y = linspace(0,2,50);
+%   dist.F = @(x) normpdf(x,1,0.1);
+%
+% This class can be used to define multiple distributions, having their
+% own size vectors, in the following way:
+%
+%   dist(1) = Distribution(linspace(0,2),@(x)normpdf(x,1,0.1));
+%   dist(2) = Distribution(linspace(0,3),@(x)normpdf(x,2,0.5));
+%
+% Moments of Distribution objects can be calculated using the moments
+% method. See the corresponding entry.
+%
+% SEE ALSO
+% CAT, CATTube, Distribution.moments, Distribution.plot,
+% Distribution.dist2str, Distribution.data2str
+
+% Copyright 2015-2016 David Ochsenbein
+% Copyright 2012-2014 David Ochsenbein, Martin Iggland
+% 
+% This file is part of CAT.
+% 
+% CAT is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation version 3 of the License.
+% 
+% CAT is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
     
     %% Properties
     

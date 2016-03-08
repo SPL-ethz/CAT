@@ -1,70 +1,88 @@
 classdef Easyset < hgsetget
-    %% Easyset
-    % Class to implement some automation on set methods
-    %
-    % Check set value against defined:
-    % - choices of variables
-    % or
-    % - list of classes and list of attributes
-    %
-    % How to use this class:
-    %
-    % Make your class a subclass of Easyset:
-    %   classdef NewClass < Easyset
-    %
-    % Define set methods for each variable which you want to restrict. The
-    % class should:
-    %  1. Define the choices/classes/attributes structure for the current
-    %  property
-    %  2. Call the checkPropertyValue method to perform the checking (will
-    %  call error if any checks fail)
-    %  3. Do any optional extra setting
-    %  4. Save the value at the end of the function
-    %
-    %% EXAMPLE for a property named VAR:
-    %
-    %     function set.VAR(O,value)
-    %
-    %         % Define properties here
-    %         O.classes.VAR = 'numeric';
-    %         O.attributes.VAR = {'vector','real','finite','nonnegative'};
-    %
-    %         % Redirect to checkPropertyValue function to do checking
-    %         O.checkPropertyValue('VAR',value);
-    %
-    %         % If checks didn't fail, method has not exited, so do extra
-    %         % checks here
-    %
-    %         % Set the value
-    %         O.VAR = value;
-    %
-    %     end % function
-    %
-    % Instead of defining the property structure at the beginning of the
-    % set method, the method configureproperties can be defined to take
-    % care of this. This can be useful when many properties share the same
-    % definition, as with VAR and VAR2 in this example:
-    %
-    %     function configureproperties(O)
-    %
-    %         % In this case, VAR and VAR2 have the same restrictions
-    %         [O.classes.VAR,O.classes.VAR2] = deal({'numeric'});
-    %         [O.attributes.VAR,O.attributes.VAR2] = deal({'vector','real','finite','nonnegative'});
-    %
-    %     end % function
-    %
-    %% WARNING
-    %
-    % Using the syntax
-    %     set(O,'VAR')
-    % only works if the properties attributes are defined within
-    % configureproperties! Otherwise, this special case will not work -
-    % however, checking upon setting a value will still work.
-    %
-    %% SEE ALSO
-    % Easyset.choices, Easyset.classes, Easyset.attributes,
-    % Easyset.configureproperties, validateattributes
+%% Easyset
+% Class to implement some automation on set methods
+%
+% Check set value against defined:
+% - choices of variables
+% or
+% - list of classes and list of attributes
+%
+% How to use this class:
+%
+% Make your class a subclass of Easyset:
+%   classdef NewClass < Easyset
+%
+% Define set methods for each variable which you want to restrict. The
+% class should:
+%  1. Define the choices/classes/attributes structure for the current
+%  property
+%  2. Call the checkPropertyValue method to perform the checking (will
+%  call error if any checks fail)
+%  3. Do any optional extra setting
+%  4. Save the value at the end of the function
+%
+%% EXAMPLE for a property named VAR:
+%
+%     function set.VAR(O,value)
+%
+%         % Define properties here
+%         O.classes.VAR = 'numeric';
+%         O.attributes.VAR = {'vector','real','finite','nonnegative'};
+%
+%         % Redirect to checkPropertyValue function to do checking
+%         O.checkPropertyValue('VAR',value);
+%
+%         % If checks didn't fail, method has not exited, so do extra
+%         % checks here
+%
+%         % Set the value
+%         O.VAR = value;
+%
+%     end % function
+%
+% Instead of defining the property structure at the beginning of the
+% set method, the method configureproperties can be defined to take
+% care of this. This can be useful when many properties share the same
+% definition, as with VAR and VAR2 in this example:
+%
+%     function configureproperties(O)
+%
+%         % In this case, VAR and VAR2 have the same restrictions
+%         [O.classes.VAR,O.classes.VAR2] = deal({'numeric'});
+%         [O.attributes.VAR,O.attributes.VAR2] = deal({'vector','real','finite','nonnegative'});
+%
+%     end % function
+%
+%% WARNING
+%
+% Using the syntax
+%     set(O,'VAR')
+% only works if the properties attributes are defined within
+% configureproperties! Otherwise, this special case will not work -
+% however, checking upon setting a value will still work.
+%
+%% SEE ALSO
+% Easyset.choices, Easyset.classes, Easyset.attributes,
+% Easyset.configureproperties, validateattributes
 
+% Copyright 2015-2016 David Ochsenbein
+% Copyright 2012-2014 David Ochsenbein, Martin Iggland
+% 
+% This file is part of CAT.
+% 
+% CAT is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation version 3 of the License.
+% 
+% CAT is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    
     %% Easyset properties
     
     properties (Access=protected)

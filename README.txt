@@ -1,4 +1,4 @@
-    ██████╗ █████╗ ████████╗
+﻿    ██████╗ █████╗ ████████╗
    ██╔════╝██╔══██╗╚══██╔══╝
    ██║     ███████║   ██║   
    ██║     ██╔══██║   ██║   
@@ -11,8 +11,8 @@ a SPLIfA project
 CAT is an open-source software designed to solve population balance equations as they typically arise in particulate processes and to analyze the results. 
 
 brought to you by:
-Dave Ochsenbein, Automatic Control Laboratory, ochsenbein@control.ee.ethz.ch (active)
-Dr. Martin Iggland (not active)
+Dr. David Ochsenbein, Automatic Control Laboratory, ochsenbein@control.ee.ethz.ch (active)
+Dr. Martin Iggland (inactive)
 
 Numerical Methods currently supported
 - Moving Pivot
@@ -49,14 +49,21 @@ or submit them to
 -> daveo@ethz.ch
 including again a screenshot or a (zipped) mat file of the CAT(Tube) object that generated the problem.
 
-This program is free software: you can redistribute it and/or modify
+
+Copyright 2015-2016 David Ochsenbein
+Copyright 2012-2014 David Ochsenbein, Martin Iggland
+
+This file is part of CAT.
+
+CAT is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation version 3 of the License.
 
-This program is distributed in the hope that it will be useful,
+CAT is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
