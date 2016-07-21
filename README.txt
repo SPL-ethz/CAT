@@ -11,7 +11,8 @@ a SPLIfA project
 CAT is an open-source software designed to solve population balance equations as they typically arise in particulate processes and to analyze the results. 
 
 brought to you by:
-Dr. David Ochsenbein, Automatic Control Laboratory, ochsenbein@control.ee.ethz.ch (active)
+Ashwin Kumar Rajagopalan
+Dr. David Ochsenbein (inactive)
 Dr. Martin Iggland (inactive)
 
 Numerical Methods currently supported
@@ -46,12 +47,12 @@ or have a look at the demos to get an idea of how to use the toolbox.
 Please submit bugs via the Github page:
 -> https://github.com/SPLIfA/CAT (preferably with a screenshot of the (GUI) settings)
 or submit them to 
--> daveo@ethz.ch
+-> ashwinr@ethz.ch
 including again a screenshot or a (zipped) mat file of the CAT(Tube) object that generated the problem.
 
 
-Copyright 2015-2016 David Ochsenbein
-Copyright 2012-2014 David Ochsenbein, Martin Iggland
+Copyright (c) 2015-2016 David Ochsenbein
+Copyright (c) 2012-2014 David Ochsenbein, Martin Iggland
 
 This file is part of CAT.
 
