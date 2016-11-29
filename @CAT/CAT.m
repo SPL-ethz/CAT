@@ -590,7 +590,12 @@ classdef CAT < hgsetget & matlab.mixin.Copyable
             end
 
             if isempty(value) || O.diagnose('Tprofile',value)
-                if ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
+                
+                if isa(value,'function_handle')
+                    
+                    O.Tprofile = value;
+                    
+                elseif ~isempty(value) && ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:)))
                     
                     if isempty(O.sol_time)
                         O.sol_time = value(1,end);
@@ -606,10 +611,6 @@ classdef CAT < hgsetget & matlab.mixin.Copyable
                     O.tNodes = unique([O.tNodes value(1,:)]);
                     
                 elseif isempty(value)
-                    
-                    O.Tprofile = value;
-                    
-                elseif isa(value,'function_handle')
                     
                     O.Tprofile = value;
                     
