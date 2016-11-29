@@ -652,21 +652,21 @@ classdef CAT < hgsetget & matlab.mixin.Copyable
             end
             
             if isempty(value) || O.diagnose('ASprofile',value)
-                if ~isempty(value) &&  ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
+                if isa(value,'function_handle')
+                    
+                    O.ASprofile = value;
+                
+                elseif ~isempty(value) &&  ismatrix(value) && length(value(:,1))==2 && all(isfinite(value(:))) && all(diff(value(2,:))>=0)
                     
                     if value(1,end)<O.sol_time(end)
                         value = [value [0;0]];
                         value(1,end) = O.sol_time(end);
                         value(2,end) = value(2,end-1);
                     end
-                    O.ASprofile = @(t) piecewiseLinear(value(1,:),value(2,:),t); %
+                    O.ASprofile = str2func(['@(t) piecewiseLinear(',data2str(value(1,:)),',',data2str(value(2,:)),',t)']); %
                     O.tNodes = unique([O.tNodes value(1,:)]);
                     
                 elseif isempty(value)
-                    
-                    O.ASprofile = value;
-                    
-                elseif isa(value,'function_handle')
                     
                     O.ASprofile = value;
                     
